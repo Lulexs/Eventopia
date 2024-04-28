@@ -1,0 +1,86 @@
+{
+  "highlights": [
+    {
+      "id": 0,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/3Y_oFwHF1Wc?si=jjNTUzJ7DojV480j"
+    },
+    {
+      "id": 1,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/S8Tk0n4y0zU?si=Z6PYJ-C89Fd7zgIP"
+    },
+    {
+      "id": 2,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/Ug7BGiFQeIk?si=32xiaddTCbq2nWwF"
+    },
+    {
+      "id": 3,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/AcyxVGT5ETQ?si=2X3EG2g-xGrO-yUS"
+    },
+    {
+      "id": 4,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/z_3chx7s2sI?si=EHsr8l5NHW81XfBX"
+    },
+    {
+      "id": 5,
+      "embedSrc": "https://www.youtube-nocookie.com/embed/xADfnYAbWZo?si=zoBqW5jDyx0kTMZe"
+    }
+  ],
+  "hotevents": [
+    {
+      "title": "Ed Sheeran",
+      "location": "Belgrade, Serbia",
+      "date": "17.08.2024",
+      "img": "../assets/edsiren.png",
+      "onFire": 1
+    },
+    {
+      "title": "Rammstein",
+      "location": "Nis, Serbia",
+      "date": "24.05.2024 - 25.05.2024",
+      "img": "../assets/ramstajn.png",
+      "onFire": 1
+    },
+    {
+      "title": "Ed Sheeran",
+      "location": "Belgrade, Serbia",
+      "date": "17.08.2024",
+      "img": "../assets/edsiren.png",
+      "onFire": 1
+    },
+    {
+      "title": "Rammstein",
+      "location": "Nis, Serbia",
+      "date": "24.05.2024 - 25.05.2024",
+      "img": "../assets/ramstajn.png",
+      "onFire": 1
+    },
+    {
+      "title": "Ed Sheeran",
+      "location": "Belgrade, Serbia",
+      "date": "17.08.2024",
+      "img": "../assets/edsiren.png",
+      "onFire": 1
+    },
+    {
+      "title": "Rammstein",
+      "location": "Nis, Serbia",
+      "date": "24.05.2024 - 25.05.2024",
+      "img": "../assets/ramstajn.png",
+      "onFire": 1
+    },
+    {
+      "title": "Ed Sheeran",
+      "location": "Belgrade, Serbia",
+      "date": "17.08.2024",
+      "img": "../assets/edsiren.png",
+      "onFire": 1
+    },
+    {
+      "title": "Rammstein",
+      "location": "Nis, Serbia",
+      "date": "24.05.2024 - 25.05.2024",
+      "img": "../assets/ramstajn.png",
+      "onFire": 1
+    }
+  ]
+}
