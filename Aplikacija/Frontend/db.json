@@ -83,46 +83,96 @@
       "onFire": 1
     }
   ],
-  "space": {
-    "Objectimage": null,
+  "space1": {
+    "reservedSpaceId": 0,
+    "image": null,
     "items": [
       {
-        "type": "corner",
-        "id": "ID0.05658259177491742",
-        "top": 53.140625,
-        "left": 306
+        "height": 20,
+        "heightFactor": 0.2,
+        "id": "ID0.5685383314696701",
+        "left": 725.046875,
+        "numberOfSeats": 4,
+        "top": 178.28125,
+        "type": "table"
       },
       {
-        "type": "corner",
-        "id": "ID0.1873829655520156",
-        "top": 574.140625,
-        "left": 311
+        "height": 20,
+        "heightFactor": 0.2,
+        "id": "ID0.8513983406143828",
+        "left": 757.046875,
+        "numberOfSeats": 4,
+        "top": 182.28125,
+        "type": "table"
       },
       {
-        "type": "corner",
-        "id": "ID0.6005564593841057",
-        "top": 148.140625,
-        "left": 921
+        "height": 20,
+        "heightFactor": 0.2,
+        "id": "ID0.4741907348401626",
+        "left": 820.046875,
+        "numberOfSeats": 4,
+        "top": 175.28125,
+        "type": "table"
       },
       {
-        "type": "corner",
-        "id": "ID0.1413458881266998",
-        "top": 530.140625,
-        "left": 1265
+        "height": 20,
+        "heightFactor": 0.2,
+        "id": "ID0.5924794931147623",
+        "left": 795.046875,
+        "numberOfSeats": 4,
+        "top": 177.28125,
+        "type": "table"
       },
+      {
+        "height": 15,
+        "heightFactor": 0.8,
+        "id": "ID0.08217131893882423",
+        "left": 883.046875,
+        "top": 196.28125,
+        "type": "bar"
+      },
+      {
+        "height": 13,
+        "heightFactor": 0.8,
+        "id": "ID0.43228446508852203",
+        "left": 788.046875,
+        "top": 279.28125,
+        "type": "stage"
+      }
+    ],
+    "lines": [
+      { "x1": 623, "y1": 70, "x2": 628, "y2": 440 },
+      { "x1": 628, "y1": 440, "x2": 770.047, "y2": 473.281 },
+      { "x1": 770.047, "y1": 473.281, "x2": 774.047, "y2": 539.281 },
+      { "x1": 1030, "y1": 151, "x2": 1034.05, "y2": 537.281 },
+      { "x1": 949.047, "y1": 75.2812, "x2": 1030, "y2": 151 },
+      { "x1": 774.047, "y1": 539.281, "x2": 1034.05, "y2": 537.281 },
+      { "x1": 623, "y1": 70, "x2": 949.047, "y2": 75.2812 }
+    ],
+    "surfaceDimension": {
+      "height": 694.390625,
+      "width": 1727.09375
+    }
+  },
+  "space": {
+    "reservedSpaceId": 0,
+    "image": null,
+    "items": [
       {
         "type": "bar",
         "id": "ID0.8930069517019061",
         "top": 248,
         "left": 349,
-        "height": 21
+        "height": 21,
+        "heightFactor": 0.8
       },
       {
         "type": "bar",
         "id": "ID0.9660446904562217",
         "top": 317.140625,
         "left": 995,
-        "height": 21
+        "height": 21,
+        "heightFactor": 0.8
       },
       {
         "type": "table",
@@ -130,7 +180,8 @@
         "numberOfSeats": 4,
         "top": 249.140625,
         "left": 590,
-        "height": 20
+        "height": 25,
+        "heightFactor": 0.2
       },
       {
         "type": "table",
@@ -138,7 +189,8 @@
         "numberOfSeats": 4,
         "top": 196.140625,
         "left": 680,
-        "height": 20
+        "height": 25,
+        "heightFactor": 0.2
       },
       {
         "type": "table",
@@ -146,7 +198,8 @@
         "numberOfSeats": 4,
         "top": 257.140625,
         "left": 855,
-        "height": 20
+        "height": 25,
+        "heightFactor": 0.2
       },
       {
         "type": "table",
@@ -154,7 +207,8 @@
         "numberOfSeats": 4,
         "top": 342.140625,
         "left": 792,
-        "height": 20
+        "height": 25,
+        "heightFactor": 0.2
       },
       {
         "type": "table",
@@ -162,44 +216,38 @@
         "numberOfSeats": 4,
         "top": 347.140625,
         "left": 660,
-        "height": 20
+        "height": 25,
+        "heightFactor": 0.2
       },
       {
         "type": "stage",
         "id": "ID0.42693299875348156",
         "top": 490.140625,
         "left": 711,
-        "height": 13
+        "height": 13,
+        "heightFactor": 0.8
       }
     ],
     "lines": [
       {
-        "corner1": "ID0.05658259177491742",
-        "corner2": "ID0.1873829655520156",
         "x1": 306,
         "y1": 53.1406,
         "x2": 306,
         "y2": 574.141
       },
       {
-        "corner1": "ID0.05658259177491742",
-        "corner2": "ID0.6005564593841057",
         "x1": 306,
         "y1": 53.1406,
         "x2": 1156,
         "y2": 53.1406
       },
       {
-        "corner1": "ID0.6005564593841057",
-        "corner2": "ID0.1413458881266998",
         "x1": 1156,
         "y1": 53.1406,
         "x2": 1156,
         "y2": 574.141
       },
       {
-        "corner1": "ID0.1873829655520156",
-        "corner2": "ID0.1413458881266998",
         "x1": 306,
         "y1": 574.141,
         "x2": 1156,

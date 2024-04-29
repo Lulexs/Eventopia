@@ -54,6 +54,7 @@ export const Stage: FC<StageInterface> = ({
       top: top,
       left: left,
       height: height,
+      heightFactor: 0.8,
     };
   }
   useEffect(() => {

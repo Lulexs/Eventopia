@@ -45,16 +45,8 @@ export const Corner: FC<CornerInterface> = ({
     [id, top, left]
   );
 
-  function exportAsJSON() {
-    return {
-      type: ItemTypes.CORNER,
-      id: id,
-      top: top,
-      left: left,
-    };
-  }
   useEffect(() => {
-    exportFunctions.set(id, exportAsJSON);
+    exportFunctions.set(id, null);
   }, []);
 
   if (isDragging) {

@@ -46,6 +46,7 @@ export const PlanImage: FC<StageInterface> = ({
       top: top,
       left: left,
       height: height,
+      heightFactor: 0.9,
     };
   }
   useEffect(() => {

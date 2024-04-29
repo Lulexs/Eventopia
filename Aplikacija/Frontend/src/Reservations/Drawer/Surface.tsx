@@ -68,8 +68,6 @@ export default function Surface(props: SurfaceProps) {
         .filter((func) => func != null)
         .map((func) => func!()),
       lines: lines.map((line) => ({
-        corner1: line.corner1.id,
-        corner2: line.corner2.id,
         x1: line.x1,
         y1: line.y1,
         x2: line.x2,

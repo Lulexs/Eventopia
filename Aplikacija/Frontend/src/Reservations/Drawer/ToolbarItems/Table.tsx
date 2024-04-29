@@ -58,6 +58,7 @@ export const Table: FC<TableInterface> = ({
       top: top,
       left: left,
       height: height,
+      heightFactor: 0.2,
     };
   }
 

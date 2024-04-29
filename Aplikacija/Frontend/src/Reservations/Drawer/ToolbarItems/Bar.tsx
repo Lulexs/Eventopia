@@ -54,6 +54,7 @@ export const Bar: FC<StageInterface> = ({
       top: top,
       left: left,
       height: height,
+      heightFactor: 0.8,
     };
   }
   useEffect(() => {
@@ -75,7 +76,7 @@ export const Bar: FC<StageInterface> = ({
           ...StageStyle,
           top,
           left,
-          maxHeight: "70%",
+          maxHeight: "80%",
           height: `${0.8 * height}%`,
         }}
         data-testid="bar"
