@@ -29,6 +29,8 @@ import {
   IconMapPinShare,
 } from "@tabler/icons-react";
 import classes from "./HeaderMegaMenu.module.css";
+import { Link } from "react-router-dom";
+import { PathConstants } from "../../Routes/pathConstants";
 
 const data = [
   {
@@ -101,12 +103,12 @@ export function HeaderMegaMenu() {
     >
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
-          <Image h={30} src={Logo} />
+          <Image h={35} src={Logo} />
 
           <Group h="100%" gap={0} visibleFrom="sm">
-            <a href="#" className={classes.link}>
+            <Link to={PathConstants.HOME} className={classes.link}>
               Home
-            </a>
+            </Link>
             <HoverCard
               width={600}
               position="bottom"

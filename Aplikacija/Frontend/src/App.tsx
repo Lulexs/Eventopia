@@ -1,16 +1,18 @@
 import { MantineProvider } from "@mantine/core";
-import HomePage from "./HomePage/HomePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import routes from "./Routes/routes";
 
 const queryClient = new QueryClient();
 
 function App() {
+  const router = createBrowserRouter(routes);
+
   return (
     <>
       <QueryClientProvider client={queryClient}>
         <MantineProvider>
-           <HomePage />
-          {/*<Drawer />*/}
+          <RouterProvider router={router} />
         </MantineProvider>
       </QueryClientProvider>
     </>
