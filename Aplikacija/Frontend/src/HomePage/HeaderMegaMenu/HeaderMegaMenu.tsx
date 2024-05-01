@@ -29,7 +29,7 @@ import {
   IconMapPinShare,
 } from "@tabler/icons-react";
 import classes from "./HeaderMegaMenu.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PathConstants } from "../../Routes/pathConstants";
 
 const data = [
@@ -71,6 +71,7 @@ export function HeaderMegaMenu() {
     useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
+  const navigate = useNavigate();
 
   const links = data.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -159,6 +160,7 @@ export function HeaderMegaMenu() {
             <a
               className={classes.link}
               onClick={() => {
+                navigate("/");
                 document
                   .querySelector(".trending-container")
                   ?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -169,6 +171,7 @@ export function HeaderMegaMenu() {
             <a
               className={classes.link}
               onClick={() => {
+                navigate("/");
                 document
                   .querySelector(".main-ev-listing-div")
                   ?.scrollIntoView({ behavior: "smooth", block: "start" });

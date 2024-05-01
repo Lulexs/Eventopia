@@ -11,6 +11,7 @@ import StageImage from "../../assets/stage.png";
 import Katanac from "../../assets/lock.png";
 
 export interface ReservationProps {
+  id: number;
   title: string;
   location: string;
   date: string;

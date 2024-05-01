@@ -1,8 +1,14 @@
 import { Card, Image, Text, Button, Group } from "@mantine/core";
 import { EventCardProps } from "./interfaces";
 import { IconCalendar, IconFlame, IconMapPin } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setEvent } from "../store/features/selectedEvent";
 
 export default function EventCard(props: EventCardProps) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   return (
     <Card shadow="sm" padding="lg" radius="lg" withBorder w="20%" miw={300}>
       <Card.Section>
@@ -35,6 +41,16 @@ export default function EventCard(props: EventCardProps) {
         fullWidth
         mt="md"
         radius="md"
+        onClick={(e) => {
+          e.stopPropagation();
+          dispatch(
+            setEvent({
+              ...props.event,
+              img: `../../src/${props.event.img.slice(3)}`,
+            })
+          );
+          navigate(`/eventinfo`);
+        }}
       >
         Reserve seats now{" "}
         <IconFlame color="var(--mantine-color-red-filled)" stroke={2.5} />

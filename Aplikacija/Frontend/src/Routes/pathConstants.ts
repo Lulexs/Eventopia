@@ -3,5 +3,6 @@ export const PathConstants = {
   CONTACT: "/contact",
   FAQ: "/faq",
   PRIVACY: "/privacy",
+  EVENTINFO: "/eventinfo",
   PAGENOTFOUND: "/*",
 };
