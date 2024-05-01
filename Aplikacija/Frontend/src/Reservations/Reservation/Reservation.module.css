@@ -51,9 +51,17 @@
 .container {
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   width: 100%;
   height: 100vh;
+}
+
+.infoContainer {
+  width: 30%;
+  height: 60%;
+  align-items: center;
+  margin-top: 10px;
+  flex-direction: column;
 }
 
 .mainContentContainer {
@@ -62,19 +70,23 @@
   border-radius: 20px;
   overflow: hidden;
   border: none;
-  /* background-color: gray; */
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin: 10px;
 }
 
 @media screen and (max-width: 600px) {
   .container {
     flex-direction: column;
+    overflow: visible;
   }
   .mainContentContainer {
     width: 90%;
+  }
+
+  .infoContainer {
+    width: 80%;
   }
 }

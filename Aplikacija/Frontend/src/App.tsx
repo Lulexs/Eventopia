@@ -15,7 +15,12 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <MantineProvider>
           {/* <RouterProvider router={router} /> */}
-          <Reservation />
+          <Reservation
+            title="Rammstain"
+            location="Nis, Serbia"
+            date="22.04.2024. 21:00"
+            img="../../src/assets/ramstajn.png"
+          />
           {/* <Drawer /> */}
         </MantineProvider>
       </QueryClientProvider>
