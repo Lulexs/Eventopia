@@ -1,5 +1,6 @@
 namespace Backend.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class TemplateController : ControllerBase
