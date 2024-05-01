@@ -83,180 +83,66 @@
       "onFire": 1
     }
   ],
-  "space1": {
+  "space": {
     "reservedSpaceId": 0,
     "image": null,
+    "surfaceDimension": {
+      "width": 1727.09375,
+      "height": 694.390625
+    },
     "items": [
       {
-        "height": 20,
+        "height": 31,
         "heightFactor": 0.2,
-        "id": "ID0.5685383314696701",
-        "left": 725.046875,
-        "numberOfSeats": 4,
-        "top": 178.28125,
-        "type": "table"
+        "id": "ID0.11272519491407551",
+        "left": 570.046875,
+        "numberOfSeats": 5,
+        "top": 286.28125,
+        "type": "table",
+        "reserved": false
       },
       {
-        "height": 20,
+        "height": 29,
         "heightFactor": 0.2,
-        "id": "ID0.8513983406143828",
-        "left": 757.046875,
+        "id": "ID0.5582866026939808",
+        "left": 620.046875,
         "numberOfSeats": 4,
-        "top": 182.28125,
-        "type": "table"
+        "top": 147.28125,
+        "type": "table",
+        "reserved": false
       },
       {
-        "height": 20,
+        "height": 29,
         "heightFactor": 0.2,
-        "id": "ID0.4741907348401626",
-        "left": 820.046875,
+        "id": "ID0.6438267240746327",
+        "left": 660.046875,
         "numberOfSeats": 4,
-        "top": 175.28125,
-        "type": "table"
+        "top": 301.28125,
+        "type": "table",
+        "reserved": true
       },
       {
-        "height": 20,
-        "heightFactor": 0.2,
-        "id": "ID0.5924794931147623",
-        "left": 795.046875,
-        "numberOfSeats": 4,
-        "top": 177.28125,
-        "type": "table"
-      },
-      {
-        "height": 15,
+        "height": 25,
         "heightFactor": 0.8,
-        "id": "ID0.08217131893882423",
-        "left": 883.046875,
-        "top": 196.28125,
+        "id": "ID0.6257843421944413",
+        "left": 845.046875,
+        "top": 249.28125,
         "type": "bar"
       },
       {
-        "height": 13,
+        "height": 14,
         "heightFactor": 0.8,
-        "id": "ID0.43228446508852203",
-        "left": 788.046875,
-        "top": 279.28125,
+        "id": "ID0.8390470529729506",
+        "left": 718.046875,
+        "top": 462.28125,
         "type": "stage"
       }
     ],
     "lines": [
-      { "x1": 623, "y1": 70, "x2": 628, "y2": 440 },
-      { "x1": 628, "y1": 440, "x2": 770.047, "y2": 473.281 },
-      { "x1": 770.047, "y1": 473.281, "x2": 774.047, "y2": 539.281 },
-      { "x1": 1030, "y1": 151, "x2": 1034.05, "y2": 537.281 },
-      { "x1": 949.047, "y1": 75.2812, "x2": 1030, "y2": 151 },
-      { "x1": 774.047, "y1": 539.281, "x2": 1034.05, "y2": 537.281 },
-      { "x1": 623, "y1": 70, "x2": 949.047, "y2": 75.2812 }
-    ],
-    "surfaceDimension": {
-      "height": 694.390625,
-      "width": 1727.09375
-    }
-  },
-  "space": {
-    "reservedSpaceId": 0,
-    "image": null,
-    "items": [
-      {
-        "type": "bar",
-        "id": "ID0.8930069517019061",
-        "top": 248,
-        "left": 349,
-        "height": 21,
-        "heightFactor": 0.8
-      },
-      {
-        "type": "bar",
-        "id": "ID0.9660446904562217",
-        "top": 317.140625,
-        "left": 995,
-        "height": 21,
-        "heightFactor": 0.8
-      },
-      {
-        "type": "table",
-        "id": "ID0.7075774254943528",
-        "numberOfSeats": 4,
-        "top": 249.140625,
-        "left": 590,
-        "height": 25,
-        "heightFactor": 0.2
-      },
-      {
-        "type": "table",
-        "id": "ID0.5862420594761173",
-        "numberOfSeats": 4,
-        "top": 196.140625,
-        "left": 680,
-        "height": 25,
-        "heightFactor": 0.2
-      },
-      {
-        "type": "table",
-        "id": "ID0.21086884606426848",
-        "numberOfSeats": 4,
-        "top": 257.140625,
-        "left": 855,
-        "height": 25,
-        "heightFactor": 0.2
-      },
-      {
-        "type": "table",
-        "id": "ID0.4292726284128028",
-        "numberOfSeats": 4,
-        "top": 342.140625,
-        "left": 792,
-        "height": 25,
-        "heightFactor": 0.2
-      },
-      {
-        "type": "table",
-        "id": "ID0.5671782238313496",
-        "numberOfSeats": 4,
-        "top": 347.140625,
-        "left": 660,
-        "height": 25,
-        "heightFactor": 0.2
-      },
-      {
-        "type": "stage",
-        "id": "ID0.42693299875348156",
-        "top": 490.140625,
-        "left": 711,
-        "height": 13,
-        "heightFactor": 0.8
-      }
-    ],
-    "lines": [
-      {
-        "x1": 306,
-        "y1": 53.1406,
-        "x2": 306,
-        "y2": 574.141
-      },
-      {
-        "x1": 306,
-        "y1": 53.1406,
-        "x2": 1156,
-        "y2": 53.1406
-      },
-      {
-        "x1": 1156,
-        "y1": 53.1406,
-        "x2": 1156,
-        "y2": 574.141
-      },
-      {
-        "x1": 306,
-        "y1": 574.141,
-        "x2": 1156,
-        "y2": 574.141
-      }
-    ],
-    "surfaceDimension": {
-      "width": 1728,
-      "height": 695.09375
-    }
+      { "x1": 395.047, "y1": 64.2812, "x2": 377.047, "y2": 558.281 },
+      { "x1": 377.047, "y1": 558.281, "x2": 1064.05, "y2": 558.281 },
+      { "x1": 1045.05, "y1": 64.2812, "x2": 1064.05, "y2": 558.281 },
+      { "x1": 395.047, "y1": 64.2812, "x2": 1045.05, "y2": 64.2812 }
+    ]
   }
 }

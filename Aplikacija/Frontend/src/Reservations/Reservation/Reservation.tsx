@@ -1,32 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { CSSProperties } from "react";
 import classes from "./Reservation.module.css";
-import { Flex } from "@mantine/core";
-import { SpaceDataType } from "./interfaces";
-import TableImage from "../../assets/table.png";
+import { Button, Flex } from "@mantine/core";
+import { SpaceDataType, TableInterface } from "./interfaces";
+import PartiBgImage from "../../assets/partibg.png";
+import TableFreeImage from "../../assets/table_free.png";
+import TableNotFreeImage from "../../assets/table_not_free.png";
 import BarImage from "../../assets/bar.png";
 import StageImage from "../../assets/stage.png";
+import Katanac from "../../assets/lock.png";
 
-const widthPercent = 45;
-const heightPercent = 80;
+export interface ReservationProps {
+  title: "Rammstein";
+  location: "Nis, Serbia";
+  date: "24.05.2024 - 25.05.2024";
+  img: "../assets/ramstajn.png";
+}
 
-const styles: CSSProperties = {
-  width: `${widthPercent}%`,
-  height: `${heightPercent}%`,
-  borderRadius: "20px",
-  overflow: "hidden",
-  border: "none",
-  backgroundColor: "gray",
-  position: "relative",
-};
-
-export default function Reservation() {
+export default function Reservation(props: ReservationProps) {
   const { isLoading, isError, data } = useQuery<SpaceDataType>({
     queryKey: ["reservedSpace"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/space1`)
+        .get(`${import.meta.env.VITE_JSON_SERVER}/space`)
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
@@ -35,7 +31,13 @@ export default function Reservation() {
   });
 
   return (
-    <Flex align="center" justify="center" direction="row" w="100%" h="100vh">
+    <Flex
+      className={classes.container}
+      style={{
+        backgroundImage: `url(${PartiBgImage})`,
+        backgroundSize: "contain",
+      }}
+    >
       <Flex w="55%"></Flex>
       {isLoading || isError ? (
         <div className={classes.ldsRing}>
@@ -46,10 +48,25 @@ export default function Reservation() {
         </div>
       ) : (
         <div
-          className="main-surface-container"
-          style={{ ...styles, textAlign: "center", zIndex: 1 }}
+          className={classes.mainContentContainer}
+          style={{
+            textAlign: "center",
+            zIndex: 1,
+          }}
         >
-          {data?.items.map((item) => {
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            gap="20px"
+            bg="grey"
+            h="100%"
+            w="100%"
+          >
+            <img src={Katanac} style={{ height: "20%" }}></img>
+            <Button>Please login to continue</Button>
+          </Flex>
+          {/* {data?.items.map((item) => {
             {
               if (item.type == "table") {
                 return (
@@ -57,19 +74,15 @@ export default function Reservation() {
                     key={item.id}
                     style={{
                       position: "absolute",
-                      top:
-                        (item.left * document.body.offsetWidth * widthPercent) /
-                        100 /
-                        data.surfaceDimension.width,
-                      left:
-                        (item.top *
-                          document.body.clientHeight *
-                          heightPercent) /
-                        100 /
-                        data.surfaceDimension.height,
+                      top: item.top,
+                      left: item.left,
                     }}
                     height={`${item.height * item.heightFactor}%`}
-                    src={TableImage}
+                    src={
+                      (item as TableInterface).reserved
+                        ? TableNotFreeImage
+                        : TableFreeImage
+                    }
                   />
                 );
               } else {
@@ -78,16 +91,8 @@ export default function Reservation() {
                     key={item.id}
                     style={{
                       position: "absolute",
-                      top:
-                        (item.left * document.body.offsetWidth * widthPercent) /
-                        100 /
-                        data.surfaceDimension.width,
-                      left:
-                        (item.top *
-                          document.body.clientHeight *
-                          heightPercent) /
-                        100 /
-                        data.surfaceDimension.height,
+                      top: item.top,
+                      left: item.left,
                     }}
                     height={`${item.height * item.heightFactor}%`}
                     src={item.type == "bar" ? BarImage : StageImage}
@@ -96,21 +101,28 @@ export default function Reservation() {
               }
             }
           })}
-          <svg style={{ width: "100%", height: "100%", zIndex: 2 }}>
+          <svg
+            style={{
+              width: data?.surfaceDimension.width,
+              height: data?.surfaceDimension.height,
+              zIndex: 2,
+              overflow: "auto",
+            }}
+          >
             {data?.lines.map((line, index) => (
               <line
                 key={index}
                 x1={line.x1}
-                y1={line.y2}
+                y1={line.y1}
                 x2={line.x2}
                 y2={line.y2}
                 style={{
-                  stroke: "white",
+                  stroke: "black",
                   strokeWidth: 2,
                 }}
               />
             ))}
-          </svg>
+          </svg> */}
         </div>
       )}
     </Flex>

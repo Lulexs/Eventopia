@@ -54,7 +54,9 @@ export const Table: FC<TableInterface> = ({
     return {
       type: ItemTypes.TABLE,
       id: id,
-      numberOfSeats: numberOfSeats.current,
+      numberOfSeats: Number.isNaN(parseInt(dialogInputFieldVal))
+        ? numberOfSeats.current
+        : parseInt(dialogInputFieldVal),
       top: top,
       left: left,
       height: height,
