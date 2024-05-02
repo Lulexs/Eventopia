@@ -182,7 +182,15 @@ export function HeaderMegaMenu() {
           </Group>
 
           <Group visibleFrom="sm">
-            <Button variant="default">Log in</Button>
+            <Button
+              variant="default"
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate("/login");
+              }}
+            >
+              Log in
+            </Button>
             <Button>Sign up</Button>
           </Group>
 

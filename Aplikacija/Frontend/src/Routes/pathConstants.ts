@@ -4,5 +4,6 @@ export const PathConstants = {
   FAQ: "/faq",
   PRIVACY: "/privacy",
   EVENTINFO: "/eventinfo",
+  LOGIN: "/login",
   PAGENOTFOUND: "/*",
 };

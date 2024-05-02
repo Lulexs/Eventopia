@@ -12,7 +12,7 @@ export default function ReservationContainer() {
 
   useEffect(() => {
     if (selectedEvent.id == 0) navigate("/");
-  }, [selectedEvent]);
+  }, []);
 
   return (
     <>
