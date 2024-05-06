@@ -12,8 +12,10 @@ import { HeaderMegaMenu } from "../HomePage/HeaderMegaMenu/HeaderMegaMenu";
 import { Footer } from "../HomePage/Footer/Footer";
 import { useState } from "react";
 import { ForgotPassword } from "./ForgotPassword";
+import { useNavigate } from "react-router-dom";
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const [forgotPassword, setForgotPassword] = useState(false);
   return (
     <>
@@ -56,7 +58,10 @@ export function LoginPage() {
                 <Anchor<"a">
                   href="#"
                   fw={700}
-                  onClick={(event) => event.preventDefault()}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate("/register");
+                  }}
                 >
                   Register
                 </Anchor>

@@ -6,7 +6,11 @@ import Toolbar from "./Toolbar/Toolbar";
 import Surface from "./Surface";
 import styles from "./Drawer.module.css";
 
-export default function Drawer() {
+export interface DrawerProps {
+  onSubmit: Function;
+}
+
+export default function Drawer(props: DrawerProps) {
   const [isCornerSelectedFromToolbar, setIsCornerSelectedFromToolbar] =
     useState(false);
   const [isTableSelectedFromToolbar, setIsTableSelectedFromToolbar] =
@@ -84,6 +88,7 @@ export default function Drawer() {
             console.log(
               exportPlanFunctionRef.current && exportPlanFunctionRef.current()
             );
+            props.onSubmit();
           }}
         >
           Submit

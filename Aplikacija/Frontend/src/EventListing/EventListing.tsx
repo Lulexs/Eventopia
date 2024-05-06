@@ -28,17 +28,9 @@ const gradOptions = [
   "Donji Milanovac, Serbia",
 ];
 
-const organizers = [
-  "Pampur",
-  "Jarac",
-  "Nidza Kobasica",
-  "Troy",
-  "Ahil",
-  "Hektor",
-  "Viktooor",
-];
+const organizers = ["Milenium house", "Petar Petrovic"];
 
-const tags = ["Sex slave", "Hip hop", "Eating", "Old music", "Sport"];
+const tags = ["Rock", "Hip hop", "Eating", "Old music", "Sport"];
 
 export default function EventListing(props: EventListingProps) {
   const [selectedCity, setSelectedCity] = useState("");

@@ -6,6 +6,7 @@ import ContactPage from "../Contact/ContactPage";
 import { Page404 } from "../PageNotFound/Page404";
 import ReservationContainer from "../Reservations/Reservation/ReservationContainer";
 import { LoginPage } from "../Auth/LoginPage";
+import RegisterPage from "../Auth/RegisterPage";
 
 const routes = [
   { path: PathConstants.HOME, element: <HomePage /> },
@@ -14,6 +15,7 @@ const routes = [
   { path: PathConstants.CONTACT, element: <ContactPage /> },
   { path: PathConstants.EVENTINFO, element: <ReservationContainer /> },
   { path: PathConstants.LOGIN, element: <LoginPage /> },
+  { path: PathConstants.REGISTER, element: <RegisterPage /> },
   { path: PathConstants.PAGENOTFOUND, element: <Page404 /> },
 ];
 

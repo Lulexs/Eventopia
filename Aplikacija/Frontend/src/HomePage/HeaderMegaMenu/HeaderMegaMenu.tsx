@@ -191,7 +191,14 @@ export function HeaderMegaMenu() {
             >
               Log in
             </Button>
-            <Button>Sign up</Button>
+            <Button
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate("/register");
+              }}
+            >
+              Sign up
+            </Button>
           </Group>
 
           <Burger
