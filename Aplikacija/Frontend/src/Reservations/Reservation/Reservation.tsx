@@ -1,7 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import classes from "./Reservation.module.css";
-import { Button, Divider, Flex, Title, Text, Image } from "@mantine/core";
+import {
+  Button,
+  Divider,
+  Flex,
+  Title,
+  Text,
+  Image,
+  Anchor,
+} from "@mantine/core";
 import { SpaceDataType, TableInterface } from "./interfaces";
 import PartiBgImage from "../../assets/partibg.png";
 import TableFreeImage from "../../assets/table_free.png";
@@ -9,6 +17,7 @@ import TableNotFreeImage from "../../assets/table_not_free.png";
 import BarImage from "../../assets/bar.png";
 import StageImage from "../../assets/stage.png";
 import Katanac from "../../assets/lock.png";
+import { useNavigate } from "react-router-dom";
 
 export interface ReservationProps {
   id: number;
@@ -16,9 +25,14 @@ export interface ReservationProps {
   location: string;
   date: string;
   img: string;
+  time: string;
+  organizerID: number;
+  organizerName: string;
 }
 
 export default function Reservation(props: ReservationProps) {
+  const navigate = useNavigate();
+
   const { isLoading, isError, data } = useQuery<SpaceDataType>({
     queryKey: ["reservedSpace"],
     queryFn: async () => {
@@ -67,12 +81,28 @@ export default function Reservation(props: ReservationProps) {
               fontSize: "1.4rem",
               color: "#453636",
             }}
-          >{`${props.date}`}</Text>
+          >{`${props.date} ${props.time}`}</Text>
           <Image
             width="100%"
             src={props.img}
             style={{ borderRadius: "20px" }}
           />
+          <Anchor
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate("/organizerinfo");
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Greycliff CF, var(--mantine-font-family)",
+                fontSize: "1.4rem",
+                color: "#453636",
+              }}
+            >
+              {`By ${props.organizerName}`}
+            </Text>
+          </Anchor>
         </Flex>
         {isLoading || isError ? (
           <div className={classes.ldsRing}>
@@ -85,23 +115,25 @@ export default function Reservation(props: ReservationProps) {
           <div
             className={classes.mainContentContainer}
             style={{
-              textAlign: "center",
+              // textAlign: "center",
               zIndex: 1,
+              backgroundColor: "grey",
+              overflow: "auto",
             }}
           >
-            <Flex
+            {/* <Flex
               direction="column"
               align="center"
               justify="center"
               gap="20px"
-              bg="grey"
               h="100%"
               w="100%"
             >
               <img src={Katanac} style={{ height: "20%" }}></img>
               <Button>Login to get the ticket</Button>
-            </Flex>
-            {/* {data?.items.map((item) => {
+            </Flex> */}
+
+            {data?.items.map((item) => {
               {
                 if (item.type == "table") {
                   return (
@@ -140,8 +172,9 @@ export default function Reservation(props: ReservationProps) {
               style={{
                 width: data?.surfaceDimension.width,
                 height: data?.surfaceDimension.height,
-                zIndex: 2,
-                overflow: "auto",
+                position: "absolute",
+                top: 0,
+                left: 0,
               }}
             >
               {data?.lines.map((line, index) => (
@@ -157,7 +190,7 @@ export default function Reservation(props: ReservationProps) {
                   }}
                 />
               ))}
-            </svg> */}
+            </svg>
           </div>
         )}
       </Flex>

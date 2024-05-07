@@ -32,70 +32,87 @@
       "location": "Belgrade, Serbia",
       "date": "17.08.2024",
       "img": "../assets/edsiren.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 1,
-
       "title": "Rammstein",
       "location": "Nis, Serbia",
       "date": "24.05.2024 - 25.05.2024",
       "img": "../assets/ramstajn.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 2,
-
       "title": "Ed Sheeran",
       "location": "Belgrade, Serbia",
       "date": "17.08.2024",
       "img": "../assets/edsiren.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 3,
-
       "title": "Rammstein",
       "location": "Nis, Serbia",
       "date": "24.05.2024 - 25.05.2024",
       "img": "../assets/ramstajn.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 4,
-
       "title": "Ed Sheeran",
       "location": "Belgrade, Serbia",
       "date": "17.08.2024",
       "img": "../assets/edsiren.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 5,
-
       "title": "Rammstein",
       "location": "Nis, Serbia",
       "date": "24.05.2024 - 25.05.2024",
       "img": "../assets/ramstajn.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 6,
-
       "title": "Ed Sheeran",
       "location": "Belgrade, Serbia",
       "date": "17.08.2024",
       "img": "../assets/edsiren.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     },
     {
       "id": 7,
-
       "title": "Rammstein",
       "location": "Nis, Serbia",
       "date": "24.05.2024 - 25.05.2024",
       "img": "../assets/ramstajn.png",
-      "onFire": 1
+      "onFire": 1,
+      "time": "20h",
+      "organizerID": 123,
+      "organizer": "Pjotr Pjotr"
     }
   ],
   "space": {

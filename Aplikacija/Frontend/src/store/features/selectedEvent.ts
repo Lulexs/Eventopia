@@ -7,6 +7,9 @@ export interface SelectedEventState {
   date: string;
   location: string;
   img: string;
+  time: string;
+  organizerID: number;
+  organizer: string;
 }
 
 const initialState: SelectedEventState = {
@@ -15,6 +18,9 @@ const initialState: SelectedEventState = {
   date: "",
   location: "",
   img: "",
+  time: "",
+  organizerID: 0,
+  organizer: "",
 };
 
 export const selectedEventSlice = createSlice({
@@ -27,6 +33,9 @@ export const selectedEventSlice = createSlice({
       state.date = action.payload.date;
       state.location = action.payload.location;
       state.img = action.payload.img;
+      state.time = action.payload.time;
+      state.organizerID = action.payload.organizerID;
+      state.organizer = action.payload.organizer;
     },
   },
 });

@@ -23,6 +23,9 @@ export default function ReservationContainer() {
         location={selectedEvent.location}
         date={selectedEvent.date}
         img={selectedEvent.img}
+        time={selectedEvent.time}
+        organizerID={selectedEvent.organizerID}
+        organizerName={selectedEvent.organizer}
       />
       <Footer />
     </>

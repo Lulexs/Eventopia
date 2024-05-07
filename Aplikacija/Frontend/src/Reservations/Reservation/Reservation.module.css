@@ -68,8 +68,8 @@
   width: 45%;
   height: 80%;
   border-radius: 20px;
-  overflow: hidden;
   border: none;
+  overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
