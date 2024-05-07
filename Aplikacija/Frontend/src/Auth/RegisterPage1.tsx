@@ -13,12 +13,16 @@ import classes from "./RegisterPage.module.css";
 import { PasswordStrength } from "./Utils/PasswordStrength";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import MapWithInput from "./Utils/MapInput";
+import { LatLng } from "leaflet";
 
 export interface RegisterPage1Props {
   enterDrawer: Function;
 }
 
 export function RegisterPage1(props: RegisterPage1Props) {
+  const [position, setPosition] = useState<LatLng>(new LatLng(51.505, -0.09));
+
   const navigate = useNavigate();
   const [userType, setUserType] = useState<string | null>("Visitor");
   return (
@@ -89,15 +93,20 @@ export function RegisterPage1(props: RegisterPage1Props) {
         )}
         {userType == "Space owner" && (
           <>
-            <TextInput
+            <Button
               mt={10}
               mb={10}
-              label="Rentable space address"
-              placeholder="123 Main Street"
-            ></TextInput>
-            <Button mt={10} fullWidth onClick={() => props.enterDrawer()}>
+              fullWidth
+              onClick={() => props.enterDrawer()}
+            >
               Add space image
             </Button>
+            <TextInput
+              label="Select location address"
+              disabled={true}
+              value={`${position.lat} ${position.lng}`}
+            ></TextInput>
+            <MapWithInput position={position} setPosition={setPosition} />
           </>
         )}
         <Button fullWidth mt="xl">

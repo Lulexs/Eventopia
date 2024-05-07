@@ -12,12 +12,12 @@ import {
 } from "@mantine/core";
 import { SpaceDataType, TableInterface } from "./interfaces";
 import PartiBgImage from "../../assets/partibg.png";
-import TableFreeImage from "../../assets/table_free.png";
-import TableNotFreeImage from "../../assets/table_not_free.png";
 import BarImage from "../../assets/bar.png";
 import StageImage from "../../assets/stage.png";
 import Katanac from "../../assets/lock.png";
 import { useNavigate } from "react-router-dom";
+import Table from "./Table";
+import MapComponent from "./MapComponent";
 
 export interface ReservationProps {
   id: number;
@@ -92,6 +92,7 @@ export default function Reservation(props: ReservationProps) {
               event.stopPropagation();
               navigate("/organizerinfo");
             }}
+            mb="xl"
           >
             <Text
               style={{
@@ -103,6 +104,7 @@ export default function Reservation(props: ReservationProps) {
               {`By ${props.organizerName}`}
             </Text>
           </Anchor>
+          <MapComponent />
         </Flex>
         {isLoading || isError ? (
           <div className={classes.ldsRing}>
@@ -121,37 +123,12 @@ export default function Reservation(props: ReservationProps) {
               overflow: "auto",
             }}
           >
-            {/* <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              gap="20px"
-              h="100%"
-              w="100%"
-            >
-              <img src={Katanac} style={{ height: "20%" }}></img>
-              <Button>Login to get the ticket</Button>
-            </Flex> */}
+            {/* <Flex */}
 
             {data?.items.map((item) => {
               {
                 if (item.type == "table") {
-                  return (
-                    <img
-                      key={item.id}
-                      style={{
-                        position: "absolute",
-                        top: item.top,
-                        left: item.left,
-                      }}
-                      height={`${item.height * item.heightFactor}%`}
-                      src={
-                        (item as TableInterface).reserved
-                          ? TableNotFreeImage
-                          : TableFreeImage
-                      }
-                    />
-                  );
+                  return <Table key={item.id} item={item as TableInterface} />;
                 } else {
                   return (
                     <img
