@@ -29,7 +29,7 @@ export function RegisterPage1(props: RegisterPage1Props) {
     <Paper
       withBorder
       p="70"
-      w="30%"
+      className={classes.pejper}
       my={40}
       style={{ opacity: 0.85 }}
       radius="md"

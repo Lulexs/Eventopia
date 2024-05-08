@@ -16,6 +16,7 @@ import {
   rem,
   useMantineTheme,
   Image,
+  Stack,
 } from "@mantine/core";
 import Logo from "../../assets/logo.png";
 import { useDisclosure } from "@mantine/hooks";
@@ -31,7 +32,8 @@ import {
 import classes from "./HeaderMegaMenu.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { PathConstants } from "../../Routes/pathConstants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/features/auth";
 import { RootState } from "../../store/store";
 
 const data = [
@@ -75,6 +77,7 @@ export function HeaderMegaMenu() {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const loggedUser = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
 
   const links = data.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -201,23 +204,43 @@ export function HeaderMegaMenu() {
           </Group>
 
           <Group visibleFrom="sm">
-            <Button
-              variant="default"
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/login");
-              }}
-            >
-              Log in
-            </Button>
-            <Button
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/register");
-              }}
-            >
-              Sign up
-            </Button>
+            {loggedUser.userType == "Unregistered" && (
+              <>
+                <Button
+                  variant="default"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/login");
+                  }}
+                >
+                  Log in
+                </Button>
+                <Button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/register");
+                  }}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
+            {loggedUser.userType != "Unregistered" && (
+              <>
+                <Stack gap={0} className={classes.link}>
+                  <Text mb={0}>{loggedUser.username}</Text>
+                  <Text mt={0}>{loggedUser.email}</Text>
+                </Stack>
+                <Button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    dispatch(logout());
+                  }}
+                >
+                  Log out
+                </Button>
+              </>
+            )}
           </Group>
 
           <Burger
@@ -270,8 +293,43 @@ export function HeaderMegaMenu() {
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            {loggedUser.userType == "Unregistered" && (
+              <>
+                <Button
+                  variant="default"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/login");
+                  }}
+                >
+                  Log in
+                </Button>
+                <Button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/register");
+                  }}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
+            {loggedUser.userType != "Unregistered" && (
+              <>
+                <Stack gap={0}>
+                  <Text mb={0}>{loggedUser.username}</Text>
+                  <Text mt={0}>{loggedUser.email}</Text>
+                </Stack>
+                <Button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    dispatch(logout());
+                  }}
+                >
+                  Log out
+                </Button>
+              </>
+            )}
           </Group>
         </ScrollArea>
       </Drawer>

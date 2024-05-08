@@ -4,6 +4,9 @@ export interface Event {
   title: string;
   location: string;
   date: string;
+  time: string;
+  organizerID: number;
+  organizer: string;
 }
 
 export interface EventCardProps {

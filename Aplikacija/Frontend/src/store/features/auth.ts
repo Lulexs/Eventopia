@@ -9,7 +9,7 @@ export interface AuthState {
 
 const initialState: AuthState = {
   userId: 0,
-  username: "",
+  username: "TEST USERNAME",
   email: "",
   userType: "Unregistered",
 };

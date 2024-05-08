@@ -13,8 +13,23 @@ import { Footer } from "../HomePage/Footer/Footer";
 import { useState } from "react";
 import { ForgotPassword } from "./ForgotPassword";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "@mantine/form";
+import { useDispatch } from "react-redux";
+import { login } from "../store/features/auth";
 
 export function LoginPage() {
+  const loginForm = useForm({
+    mode: "controlled",
+    initialValues: { email: "", password: "" },
+
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      password: (value) => (value.length > 0 ? null : "Empty password field"),
+    },
+  });
+
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
   const [forgotPassword, setForgotPassword] = useState(false);
   return (
@@ -38,20 +53,45 @@ export function LoginPage() {
                 Welcome back to Eventopia!
               </Title>
 
-              <TextInput
-                label="Email address"
-                placeholder="hello@gmail.com"
-                size="md"
-              />
-              <PasswordInput
-                label="Password"
-                placeholder="Your password"
-                mt="md"
-                size="md"
-              />
-              <Button fullWidth mt="xl" size="md">
-                Login
-              </Button>
+              <form
+                onSubmit={loginForm.onSubmit((values, event) => {
+                  event?.stopPropagation();
+                  dispatch(
+                    login({
+                      userId: 0,
+                      username: "TEST USERNAME",
+                      email: values.email,
+                      userType: "Host",
+                    })
+                  );
+                  navigate("/");
+                })}
+              >
+                <TextInput
+                  label="Email address"
+                  placeholder="hello@gmail.com"
+                  size="md"
+                  key={loginForm.key("email")}
+                  {...loginForm.getInputProps("email")}
+                />
+                <PasswordInput
+                  label="Password"
+                  placeholder="Your password"
+                  mt="md"
+                  size="md"
+                  key={loginForm.key("password")}
+                  {...loginForm.getInputProps("password")}
+                />
+                <Button
+                  type="submit"
+                  fullWidth
+                  mt="xl"
+                  size="md"
+                  onClick={() => {}}
+                >
+                  Login
+                </Button>
+              </form>
 
               <Text ta="center" mt="md">
                 Don&apos;t have an account?{" "}
