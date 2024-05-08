@@ -1,7 +1,13 @@
 import { Container, Title, Text, Button } from "@mantine/core";
 import classes from "./HeroImageRight.module.css";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export function HeroImageRight() {
+  const navigate = useNavigate();
+  const loggedUser = useSelector((state: RootState) => state.auth);
+
   return (
     <div className={classes.root}>
       <Container size="lg">
@@ -37,6 +43,14 @@ export function HeroImageRight() {
               size="xl"
               className={classes.control}
               mt={40}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (loggedUser.userType == "Unregistered") navigate("/login");
+                else
+                  document
+                    .querySelector(".main-ev-listing-div")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
             >
               Start exploring
             </Button>

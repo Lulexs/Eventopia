@@ -31,6 +31,8 @@ import {
 import classes from "./HeaderMegaMenu.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { PathConstants } from "../../Routes/pathConstants";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const data = [
   {
@@ -72,6 +74,7 @@ export function HeaderMegaMenu() {
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
   const navigate = useNavigate();
+  const loggedUser = useSelector((state: RootState) => state.auth);
 
   const links = data.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -146,13 +149,29 @@ export function HeaderMegaMenu() {
                   <Group justify="space-between">
                     <div>
                       <Text fw={500} fz="sm">
-                        Start exploring
+                        loring
                       </Text>
                       <Text size="xs" c="dimmed">
                         Explore, Conenct, Experience
                       </Text>
                     </div>
-                    <Button variant="default">Start exploring</Button>
+                    <Button
+                      variant="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (loggedUser.userType == "Unregistered")
+                          navigate("/login");
+                        else
+                          document
+                            .querySelector(".main-ev-listing-div")
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                      }}
+                    >
+                      Start exploring
+                    </Button>
                   </Group>
                 </div>
               </HoverCard.Dropdown>

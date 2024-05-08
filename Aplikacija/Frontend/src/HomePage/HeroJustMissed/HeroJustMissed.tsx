@@ -3,8 +3,13 @@ import { Dots } from "./Dots";
 import classes from "./HeroJustMissed.module.css";
 import { HighlightsCarousel } from "./HighlightsCarousel";
 import { HeroJustMissedProps } from "../interfaces";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../../store/store";
 
 export function HeroJustMissed(props: HeroJustMissedProps) {
+  const navigate = useNavigate();
+  const loggedUser = useSelector((state: RootState) => state.auth);
   return (
     <Container className={`${classes.wrapper} trending-container`} size={1400}>
       <Dots className={classes.dots} style={{ left: 0, top: 0 }} />
@@ -50,6 +55,15 @@ export function HeroJustMissed(props: HeroJustMissedProps) {
             size="lg"
             variant="default"
             color="gray"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (loggedUser.userType == "Unregistered") navigate("/login");
+              else
+                document.querySelector(".main-ev-listing-div")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+            }}
           >
             Start exploring
           </Button>
@@ -58,6 +72,15 @@ export function HeroJustMissed(props: HeroJustMissedProps) {
             gradient={{ from: "pink", to: "yellow" }}
             className={classes.control}
             size="lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (loggedUser.userType == "Unregistered") navigate("/login");
+              else
+                document.querySelector(".main-ev-listing-div")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+            }}
           >
             Start exploring
           </Button>
