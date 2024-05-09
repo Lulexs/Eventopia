@@ -27,7 +27,6 @@ export default function Table({ item }: TableProps) {
           (item as TableInterface).reserved ? TableNotFreeImage : TableFreeImage
         }
         onClick={(e) => {
-          console.log("Here");
           e.stopPropagation();
           dialogTopLeft.current = [e.clientY, e.clientX];
           toggle();

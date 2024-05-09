@@ -7,6 +7,7 @@ export interface AuthState {
   firstName: string;
   lastName: string;
   userType: "Visitor" | "Space owner" | "Host" | "Unregistered";
+  avatar: string;
 }
 
 const initialState: AuthState = {
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   lastName: "TEST",
   email: "",
   userType: "Unregistered",
+  avatar: "",
 };
 
 export const authSlice = createSlice({
@@ -29,6 +31,7 @@ export const authSlice = createSlice({
       state.userType = action.payload.userType;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
+      state.avatar = action.payload.avatar;
     },
     logout: (state) => {
       Object.assign(state, initialState);

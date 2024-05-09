@@ -64,6 +64,8 @@ export function LoginPage() {
                       userType: "Host",
                       firstName: "TEST",
                       lastName: "TEST",
+                      avatar:
+                        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
                     })
                   );
                   navigate("/");
