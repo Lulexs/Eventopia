@@ -227,7 +227,14 @@ export function HeaderMegaMenu() {
             )}
             {loggedUser.userType != "Unregistered" && (
               <>
-                <Stack gap={0} className={classes.link}>
+                <Stack
+                  gap={0}
+                  className={classes.link}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/visitorprofile");
+                  }}
+                >
                   <Text mb={0}>{loggedUser.username}</Text>
                   <Text mt={0}>{loggedUser.email}</Text>
                 </Stack>
@@ -316,7 +323,13 @@ export function HeaderMegaMenu() {
             )}
             {loggedUser.userType != "Unregistered" && (
               <>
-                <Stack gap={0}>
+                <Stack
+                  gap={0}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/visitorprofile");
+                  }}
+                >
                   <Text mb={0}>{loggedUser.username}</Text>
                   <Text mt={0}>{loggedUser.email}</Text>
                 </Stack>

@@ -6,5 +6,6 @@ export const PathConstants = {
   EVENTINFO: "/eventinfo",
   LOGIN: "/login",
   REGISTER: "/register",
+  VISITOR_PROFILE_PAGE: "/visitorprofile",
   PAGENOTFOUND: "/*",
 };

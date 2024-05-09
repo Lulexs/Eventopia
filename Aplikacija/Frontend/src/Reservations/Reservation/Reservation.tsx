@@ -18,6 +18,8 @@ import Katanac from "../../assets/lock.png";
 import { useNavigate } from "react-router-dom";
 import Table from "./Table";
 import MapComponent from "./MapComponent";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 export interface ReservationProps {
   id: number;
@@ -32,6 +34,7 @@ export interface ReservationProps {
 
 export default function Reservation(props: ReservationProps) {
   const navigate = useNavigate();
+  const isUserLoggedIn = useSelector((state: RootState) => state.auth);
 
   const { isLoading, isError, data } = useQuery<SpaceDataType>({
     queryKey: ["reservedSpace"],
@@ -117,57 +120,81 @@ export default function Reservation(props: ReservationProps) {
           <div
             className={classes.mainContentContainer}
             style={{
-              // textAlign: "center",
               zIndex: 1,
               backgroundColor: "grey",
               overflow: "auto",
             }}
           >
-            {/* <Flex */}
-
-            {data?.items.map((item) => {
-              {
-                if (item.type == "table") {
-                  return <Table key={item.id} item={item as TableInterface} />;
-                } else {
-                  return (
-                    <img
-                      key={item.id}
-                      style={{
-                        position: "absolute",
-                        top: item.top,
-                        left: item.left,
-                      }}
-                      height={`${item.height * item.heightFactor}%`}
-                      src={item.type == "bar" ? BarImage : StageImage}
-                    />
-                  );
-                }
-              }
-            })}
-            <svg
-              style={{
-                width: data?.surfaceDimension.width,
-                height: data?.surfaceDimension.height,
-                position: "absolute",
-                top: 0,
-                left: 0,
-              }}
-            >
-              {data?.lines.map((line, index) => (
-                <line
-                  key={index}
-                  x1={line.x1}
-                  y1={line.y1}
-                  x2={line.x2}
-                  y2={line.y2}
-                  style={{
-                    stroke: "black",
-                    strokeWidth: 2,
+            {isUserLoggedIn.userType == "Unregistered" && (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                gap="20px"
+                bg="grey"
+                h="100%"
+                w="100%"
+              >
+                <img src={Katanac} style={{ height: "20%" }}></img>
+                <Button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate("/login");
                   }}
-                />
-              ))}
-            </svg>
+                >
+                  Login to get the ticket
+                </Button>
+              </Flex>
+            )}
+            {isUserLoggedIn.userType != "Unregistered" && (
+              <>
+                {data?.items.map((item) => {
+                  {
+                    if (item.type == "table") {
+                      return (
+                        <Table key={item.id} item={item as TableInterface} />
+                      );
+                    } else {
+                      return (
+                        <img
+                          key={item.id}
+                          style={{
+                            position: "absolute",
+                            top: item.top,
+                            left: item.left,
+                          }}
+                          height={`${item.height * item.heightFactor}%`}
+                          src={item.type == "bar" ? BarImage : StageImage}
+                        />
+                      );
+                    }
+                  }
+                })}
+                <svg
+                  style={{
+                    width: data?.surfaceDimension.width,
+                    height: data?.surfaceDimension.height,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                >
+                  {data?.lines.map((line, index) => (
+                    <line
+                      key={index}
+                      x1={line.x1}
+                      y1={line.y1}
+                      x2={line.x2}
+                      y2={line.y2}
+                      style={{
+                        stroke: "black",
+                        strokeWidth: 2,
+                      }}
+                    />
+                  ))}
+                </svg>
+              </>
+            )}
           </div>
         )}
       </Flex>

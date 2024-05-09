@@ -62,6 +62,8 @@ export function LoginPage() {
                       username: "TEST USERNAME",
                       email: values.email,
                       userType: "Host",
+                      firstName: "TEST",
+                      lastName: "TEST",
                     })
                   );
                   navigate("/");
