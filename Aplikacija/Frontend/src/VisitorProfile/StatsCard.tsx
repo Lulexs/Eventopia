@@ -1,4 +1,5 @@
 import { Text, Progress, Card } from "@mantine/core";
+import classes from "./UserProfile.module.css";
 
 export interface StatsCardProps {
   title: string;
@@ -10,18 +11,18 @@ export interface StatsCardProps {
 export function StatsCard(props: StatsCardProps) {
   return (
     <Card
-      w="33%"
+      className={classes.statisticsCard}
       withBorder
       radius="md"
       padding="xl"
       bg="var(--mantine-color-body)"
     >
-      <Text fz="xs" tt="uppercase" fw={700} c="dimmed">
+      <Text fz="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
         {props.title}
         {" - "}
         {props.level}
       </Text>
-      <Text fz="lg" fw={500}>
+      <Text fz="lg" fw={500} ta="center">
         {`${props.current} / ${props.nextStage}`}
       </Text>
       <Progress

@@ -1,3 +1,104 @@
+.mainMain {
+  height: 100vh;
+  flex-direction: column;
+}
+
+.mainContentFlex {
+  margin: 20px;
+  flex: 1;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.contentContainerFlex {
+  border: 1px dashed black;
+  width: 33%;
+  padding: 10px;
+  color: #5a5959;
+  overflow: hidden;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contentStack {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.reservationAndVisitedDiv {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.reservationAndVisitedDivBox {
+  width: 25%;
+  max-width: 30%;
+  text-align: center;
+  padding: 0;
+}
+
+.reservationAndVisitedDivText {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.statisticsCard {
+  width: 33%;
+}
+
+@media screen and (max-width: 1000px) {
+  .mainMain {
+    height: unset;
+  }
+
+  .statisticsCard {
+    width: 100%;
+  }
+
+  .mainContentFlex {
+    flex-direction: column;
+    align-items: center;
+    overflow-y: scroll;
+    height: 100vh;
+    flex: 1;
+  }
+
+  .contentContainerFlex {
+    width: 90%;
+    height: 500px;
+    text-align: center;
+    overflow: visible;
+  }
+
+  .contentStack {
+    overflow-y: unset;
+    min-height: fit-content;
+  }
+
+  .reservationAndVisitedDiv {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .reservationAndVisitedDivBox {
+    width: 100%;
+    max-width: 100%;
+    row-gap: 10px;
+  }
+
+  .reservationAndVisitedDivText {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
+
 .ldsRing,
 .ldsRing div {
   box-sizing: border-box;

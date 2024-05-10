@@ -14,30 +14,23 @@ import {
   Group,
   CloseButton,
   SimpleGrid,
+  Box,
 } from "@mantine/core";
-import { Footer } from "../HomePage/Footer/Footer";
-import { HeaderMegaMenu } from "../HomePage/HeaderMegaMenu/HeaderMegaMenu";
 import EventBgImage from "../assets/event_listing_bg_op.png";
-import { CSSProperties, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../store/store";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Event } from "../EventListing/interfaces";
 import classes from "./UserProfile.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { StatsCard } from "./StatsCard";
+import { AuthState } from "../store/features/auth";
 
-const commonProperties: CSSProperties = {
-  border: "1px dashed black",
-  width: "33%",
-  padding: "10px",
-  color: "#5A5959",
-  overflow: "hidden",
-};
+export interface VisitorProfileProps {
+  user: AuthState;
+}
 
-export default function VisitorProfile() {
-  const userInfo = useSelector((state: RootState) => state.auth);
+export default function VisitorProfile(props: VisitorProfileProps) {
   const [testTags, setTestTags] = useState<string[]>([
     "Rock",
     "Heavy metal",
@@ -48,6 +41,27 @@ export default function VisitorProfile() {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
+
+  const [imageWidth, setImageWidth] = useState("25%");
+  const [avatarWidth, setAvatarWidth] = useState("30%");
+
+  useEffect(() => {
+    function handleResize() {
+      if (document.body.clientWidth > 1000) {
+        setImageWidth("25%");
+        setAvatarWidth("30%");
+      } else {
+        setImageWidth("100%");
+        setAvatarWidth("80%");
+      }
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const {
     isLoading: areEventsLoading,
@@ -67,8 +81,7 @@ export default function VisitorProfile() {
 
   return (
     <Flex
-      direction="column"
-      h="100vh"
+      className={classes.mainContentFlex}
       styles={{
         root: {
           backgroundImage: `url(${EventBgImage})`,
@@ -76,302 +89,269 @@ export default function VisitorProfile() {
         },
       }}
     >
-      <HeaderMegaMenu />
-      <Flex
-        m={20}
-        flex="1"
-        justify="space-between"
-        style={{ overflow: "hidden" }}
-      >
-        <Flex
-          style={{ ...commonProperties }}
-          justify="flex-start"
-          direction="column"
-          align="center"
-        >
-          <Title mb={10}>User info</Title>
-          <Stack
-            w="100%"
-            h="100%"
-            align="center"
-            style={{ overflowY: "scroll", overflowX: "hidden" }}
+      <Flex className={classes.contentContainerFlex}>
+        <Title mb={10}>User info</Title>
+        <Stack className={classes.contentStack}>
+          <Fieldset
+            legend="Avatar & Tags"
+            w="98%"
+            fz="xl"
+            mb={10}
+            styles={{
+              root: {
+                display: "flex",
+                gap: "15px",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              },
+            }}
           >
-            <Fieldset
-              legend="Avatar & Tags"
-              w="100%"
-              fz="xl"
-              mb={10}
-              styles={{
-                root: {
-                  display: "flex",
-                  gap: "15px",
-                },
+            <Image
+              w={avatarWidth}
+              src={avatarN == null ? props.user.avatar : avatarN}
+              alt="avatar currently unavailable"
+              onClick={(e) => {
+                e.stopPropagation();
+                dialogTopLeft.current = [e.clientY, e.clientX];
+                toggle();
               }}
+            />
+            <Dialog
+              opened={dialogOpened}
+              withCloseButton={false}
+              onClose={close}
+              size="md"
+              radius="md"
+              position={{
+                top: dialogTopLeft.current[0],
+                left: dialogTopLeft.current[1],
+              }}
+              onClick={(event) => event.stopPropagation()}
             >
-              <Image
-                w="30%"
-                src={avatarN == null ? userInfo.avatar : avatarN}
-                alt="avatar currently unavailable"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dialogTopLeft.current = [e.clientY, e.clientX];
-                  toggle();
-                }}
-              />
-              <Dialog
-                opened={dialogOpened}
-                withCloseButton={false}
-                onClose={close}
-                size="md"
-                radius="md"
-                position={{
-                  top: dialogTopLeft.current[0],
-                  left: dialogTopLeft.current[1],
-                }}
-                onClick={(event) => event.stopPropagation()}
-              >
-                {" "}
-                <Group mb="md" align="center">
-                  <Text size="sm" fw={300} flex={1}>
-                    Pick your avatar
-                  </Text>
-                  <CloseButton
+              {" "}
+              <Group mb="md" align="center">
+                <Text size="sm" fw={300} flex={1}>
+                  Pick your avatar
+                </Text>
+                <CloseButton
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    close();
+                  }}
+                />
+              </Group>
+              <SimpleGrid cols={3}>
+                {Array.from({ length: 9 }).map((_, idx) => (
+                  <Image
+                    key={idx}
+                    src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
+                      idx + 1
+                    }.png`}
                     onClick={(event) => {
                       event.stopPropagation();
+                      setAvatarN(
+                        `https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
+                          idx + 1
+                        }.png`
+                      );
                       close();
                     }}
                   />
-                </Group>
-                <SimpleGrid cols={3}>
-                  {Array.from({ length: 9 }).map((_, idx) => (
-                    <Image
-                      key={idx}
-                      src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
-                        idx + 1
-                      }.png`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setAvatarN(
-                          `https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
-                            idx + 1
-                          }.png`
-                        );
-                        close();
-                      }}
-                    />
-                  ))}
-                </SimpleGrid>
-              </Dialog>
-              <Flex
-                direction="column"
-                gap="xs"
-                align="center"
-                justify="center"
-                h="100%"
-                flex={1}
+                ))}
+              </SimpleGrid>
+            </Dialog>
+            <Flex
+              direction="column"
+              gap="xs"
+              align="center"
+              justify="center"
+              h="100%"
+              flex={1}
+            >
+              <TagsInput
+                miw="100%"
+                label="Press Enter to submit a tag"
+                placeholder="Enter tag"
+                value={testTags}
+                onChange={setTestTags}
+                styles={{
+                  input: {
+                    overflowY: "scroll",
+                    height: "5rem",
+                  },
+                }}
+              />
+              <Group w="100%" justify="center">
+                <Button>Save changes</Button>
+              </Group>
+            </Flex>
+          </Fieldset>
+          <Fieldset
+            legend="Personal information"
+            w="98%"
+            fz="xl"
+            styles={{
+              root: {
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "10px",
+              },
+            }}
+            mb={10}
+          >
+            <Stack w="50%">
+              <TextInput
+                label="User ID"
+                disabled
+                value={props.user.userId}
+              ></TextInput>
+              <TextInput label="First name"></TextInput>
+              <TextInput label="Last name"></TextInput>
+            </Stack>
+            <Stack w="50%">
+              <TextInput
+                label="Email"
+                disabled
+                value={props.user.email}
+              ></TextInput>{" "}
+              <PasswordInput
+                label="Password"
+                placeholder="Enter new password"
+              ></PasswordInput>
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  lineHeight: "var(--mantine-line-height)",
+                  marginTop: "8px",
+                }}
               >
-                <TagsInput
-                  miw="100%"
-                  label="Press Enter to submit a tag"
-                  placeholder="Enter tag"
-                  value={testTags}
-                  onChange={setTestTags}
-                  styles={{
-                    input: {
-                      overflowY: "scroll",
-                      height: "5rem",
-                    },
-                  }}
-                />
-                <Group w="100%" justify="center">
-                  <Button>Save changes</Button>
-                </Group>
-              </Flex>
-            </Fieldset>
-            <Fieldset
-              legend="Personal information"
-              w="100%"
-              fz="xl"
-              styles={{
-                root: {
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "10px",
-                },
-              }}
-              mb={10}
-            >
-              <Stack w="50%">
-                <TextInput
-                  label="User ID"
-                  disabled
-                  value={userInfo.userId}
-                ></TextInput>
-                <TextInput label="First name"></TextInput>
-                <TextInput label="Last name"></TextInput>
-              </Stack>
-              <Stack w="50%">
-                <TextInput
-                  label="Email"
-                  disabled
-                  value={userInfo.email}
-                ></TextInput>{" "}
-                <PasswordInput
-                  label="Password"
-                  placeholder="Enter new password"
-                ></PasswordInput>
-                <div
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    lineHeight: "var(--mantine-line-height)",
-                    marginTop: "8px",
-                  }}
-                >
-                  <InputLabel className="mantine-TextInput-label">
-                    Save changes
-                  </InputLabel>
-                  <Button>Save changes</Button>
-                </div>
-              </Stack>
-            </Fieldset>
-            <Fieldset
-              legend="Statistics"
-              w="100%"
-              fz="sm"
-              styles={{
-                root: {
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "10px",
-                },
-              }}
-            >
-              <StatsCard
-                title="Visited events"
-                level="Rookie"
-                current={15}
-                nextStage={30}
-              />
-              <StatsCard
-                title="Money spent"
-                level="Marco Polo"
-                current={85}
-                nextStage={100}
-              />
-              <StatsCard
-                title="Reviews"
-                level="Rookie"
-                current={0}
-                nextStage={5}
-              />
-            </Fieldset>
-          </Stack>
-        </Flex>
-        <Flex
-          style={{ ...commonProperties }}
-          justify="flex-start"
-          align="center"
-          direction="column"
-        >
-          <Title>Active reservations</Title>
-          <Stack
-            w="100%"
-            h="100%"
-            align="center"
-            style={{ overflowY: "scroll" }}
-          >
-            {(areEventsLoading || eventsError) && (
-              <div className={classes.controls}>
-                <div className={classes.ldsRing}>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
+                <InputLabel className="mantine-TextInput-label">
+                  Save changes
+                </InputLabel>
+                <Button>Save changes</Button>
               </div>
-            )}
-            {!areEventsLoading &&
-              !eventsError &&
-              events?.map((ev, idx) => (
-                <Flex
-                  key={idx}
-                  p="sm"
-                  justify="space-between"
-                  align="center"
-                  w="90%"
-                >
-                  <Image
-                    src={new URL(ev.img, import.meta.url).href}
-                    height={90}
-                    alt={`Couldn't load ${ev.title} image`}
-                    fit="cover"
-                    mr={10}
-                  />
-                  <Text>
-                    {ev.title}
-                    <br />
-                    {ev.date}
-                  </Text>
-                  <Button>Cancel reservation</Button>
-                  <Text>15$</Text>
-                </Flex>
-              ))}
-          </Stack>
-        </Flex>
-        <Flex
-          style={{ ...commonProperties }}
-          justify="flex-start"
-          align="center"
-          direction="column"
-        >
-          <Title>Visited events</Title>
-          <Stack
-            w="100%"
-            h="100%"
-            align="center"
-            style={{ overflowY: "scroll" }}
+            </Stack>
+          </Fieldset>
+          <Fieldset
+            legend="Statistics"
+            w="98%"
+            fz="sm"
+            styles={{
+              root: {
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              },
+            }}
           >
-            {(areEventsLoading || eventsError) && (
-              <div className={classes.controls}>
-                <div className={classes.ldsRing}>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
-              </div>
-            )}
-            {!areEventsLoading &&
-              !eventsError &&
-              events?.map((ev, idx) => (
-                <Flex
-                  key={idx}
-                  p="sm"
-                  justify="space-between"
-                  align="center"
-                  w="90%"
-                >
-                  <Image
-                    src={new URL(ev.img, import.meta.url).href}
-                    height={90}
-                    alt={`Couldn't load ${ev.title} image`}
-                    fit="cover"
-                    mr={10}
-                  />
-                  <Text>
-                    {ev.title}
-                    <br />
-                    {ev.date}
-                  </Text>
-                  <Button>Leave comment or rating</Button>
-                </Flex>
-              ))}
-          </Stack>
-        </Flex>
+            <StatsCard
+              title="Visited events"
+              level="Rookie"
+              current={15}
+              nextStage={30}
+            />
+            <StatsCard
+              title="Money spent"
+              level="Marco Polo"
+              current={85}
+              nextStage={100}
+            />
+            <StatsCard
+              title="Reviews"
+              level="Rookie"
+              current={0}
+              nextStage={5}
+            />
+          </Fieldset>
+        </Stack>
       </Flex>
-      <Footer />
+      <Flex className={classes.contentContainerFlex}>
+        <Title>Active reservations</Title>
+        <Stack className={classes.contentStack}>
+          {(areEventsLoading || eventsError) && (
+            <div className={classes.controls}>
+              <div className={classes.ldsRing}>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          )}
+          {!areEventsLoading &&
+            !eventsError &&
+            events?.map((ev, idx) => (
+              <Flex
+                key={idx}
+                p="sm"
+                columnGap="md"
+                className={classes.reservationAndVisitedDiv}
+              >
+                <Image
+                  src={new URL(ev.img, import.meta.url).href}
+                  alt={`Couldn't load ${ev.title} image`}
+                  fit="cover"
+                  w={imageWidth}
+                  className={classes.reservationAndVisitedDivImage}
+                />
+                <Box className={classes.reservationAndVisitedDivBox}>
+                  <Text className={classes.reservationAndVisitedDivText}>
+                    {ev.title}
+                    <br />
+                    {ev.date}
+                  </Text>
+                </Box>
+                <Button w="fit-content">Cancel reservation</Button>
+                <Text w="10%" ta="center">
+                  15$
+                </Text>
+              </Flex>
+            ))}
+        </Stack>
+      </Flex>
+      <Flex className={classes.contentContainerFlex}>
+        <Title>Visited events</Title>
+        <Stack className={classes.contentStack}>
+          {(areEventsLoading || eventsError) && (
+            <div className={classes.controls}>
+              <div className={classes.ldsRing}>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          )}
+          {!areEventsLoading &&
+            !eventsError &&
+            events?.map((ev, idx) => (
+              <Flex
+                key={idx}
+                p="sm"
+                columnGap="md"
+                className={classes.reservationAndVisitedDiv}
+              >
+                <Image
+                  className={classes.reservationAndVisitedDivImage}
+                  src={new URL(ev.img, import.meta.url).href}
+                  alt={`Couldn't load ${ev.title} image`}
+                  fit="cover"
+                  w={imageWidth}
+                />
+                <Box className={classes.reservationAndVisitedDivBox}>
+                  <Text className={classes.reservationAndVisitedDivText}>
+                    {ev.title}
+                    <br />
+                    {ev.date}
+                  </Text>
+                </Box>
+                <Button w="fit-content">Leave reaview</Button>
+              </Flex>
+            ))}
+        </Stack>
+      </Flex>
     </Flex>
   );
 }

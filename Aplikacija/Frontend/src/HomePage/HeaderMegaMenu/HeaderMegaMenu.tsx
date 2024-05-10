@@ -242,6 +242,7 @@ export function HeaderMegaMenu() {
                   onClick={(event) => {
                     event.stopPropagation();
                     dispatch(logout());
+                    navigate("/");
                   }}
                 >
                   Log out
@@ -337,6 +338,7 @@ export function HeaderMegaMenu() {
                   onClick={(event) => {
                     event.stopPropagation();
                     dispatch(logout());
+                    navigate("/");
                   }}
                 >
                   Log out
