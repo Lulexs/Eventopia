@@ -6,9 +6,11 @@ namespace Backend.Models;
 //nasledjivanjem IdentityUser klase pokriva PasswordHash, PasswordSalt, Username i id
 //takodje, ne brinite o ID polju, ono je vec uvedeno u IdentityUser klasi zajedno sa svojstvom [Key],
 // ovo int u <int> je samo zadavanje tipa id-a
-public class Korisnik : IdentityUser<int>
+public class Korisnik : IdentityUser
 {
-    // TODO
-    public AppUserRole UserRole { get; set; }
+    
+    public required AppUserRole UserRole { get; set; }
 
+
+    // TODO : ostali atributi Korisnika
 }
