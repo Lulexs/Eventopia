@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 namespace Backend.Models;
 
-public class Context : DbContext
+public class Context : IdentityDbContext<Korisnik, AppRole, Guid, 
+                                IdentityUserClaim<Guid>, AppUserRole, IdentityUserLogin<Guid>, 
+                                IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>  
 {
 
     public DbSet<Dogadjaj> Dogadjaji { get; set; }
@@ -18,4 +23,20 @@ public class Context : DbContext
     {
 
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Korisnik>()
+            .HasOne(korisnik => korisnik.UserRole)
+            .WithOne(korisnik => korisnik.Korisnik)
+            .IsRequired();
+
+            builder.Entity<AppRole>()
+            .HasMany(role => role.UserRoles)
+            .WithOne(korisnik => korisnik.Role)
+            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId)
+            .IsRequired();
+        }
 }

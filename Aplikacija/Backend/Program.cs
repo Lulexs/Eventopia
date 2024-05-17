@@ -11,6 +11,13 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("EventopiaCS"));
 });
 
+
+builder.Services.AddDbContext<IdentityContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EventopiaCS"));
+});
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CORS", policy =>
