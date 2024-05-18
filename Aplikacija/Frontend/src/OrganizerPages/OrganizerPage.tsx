@@ -1,58 +1,38 @@
+import { AuthState } from "../store/features/auth";
+import classes from "./OrganizerPage.module.css";
+import EventBgImage from "../assets/event_listing_bg_op.png";
 import {
-  Flex,
-  Stack,
-  Title,
-  Text,
-  Image,
+  Box,
   Button,
   Fieldset,
-  TextInput,
+  Flex,
   InputLabel,
   PasswordInput,
-  TagsInput,
-  Dialog,
-  Group,
-  CloseButton,
-  SimpleGrid,
-  Box,
+  Stack,
+  TextInput,
+  Title,
+  Image,
+  Text,
 } from "@mantine/core";
-import EventBgImage from "../assets/event_listing_bg_op.png";
-import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Event } from "../EventListing/interfaces";
-import classes from "./UserProfile.module.css";
-import { useDisclosure } from "@mantine/hooks";
+import { useState, useEffect } from "react";
 import { StatsCard } from "./StatsCard";
-import { AuthState } from "../store/features/auth";
 
-export interface VisitorProfileProps {
+export interface OrganizerPageProps {
   user: AuthState;
 }
 
-export default function VisitorProfile(props: VisitorProfileProps) {
-  const [testTags, setTestTags] = useState<string[]>([
-    "Rock",
-    "Heavy metal",
-    "Saban Saulic",
-    "film",
-    "comics",
-  ]);
-  const [dialogOpened, { toggle, close }] = useDisclosure(false);
-  const dialogTopLeft = useRef([20, 20]);
-  const [avatarN, setAvatarN] = useState<string | null>(null);
-
+export default function OrganizerPage(props: OrganizerPageProps) {
   const [imageWidth, setImageWidth] = useState("25%");
-  const [avatarWidth, setAvatarWidth] = useState("30%");
 
   useEffect(() => {
     function handleResize() {
       if (document.body.clientWidth > 1000) {
         setImageWidth("25%");
-        setAvatarWidth("30%");
       } else {
         setImageWidth("100%");
-        setAvatarWidth("80%");
       }
     }
 
@@ -92,100 +72,6 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         <Title mb={10}>User info</Title>
         <Stack className={classes.contentStack}>
           <Fieldset
-            legend="Avatar & Tags"
-            w="98%"
-            fz="xl"
-            mb={10}
-            styles={{
-              root: {
-                display: "flex",
-                gap: "15px",
-                flexWrap: "wrap",
-                justifyContent: "center",
-              },
-            }}
-          >
-            <Image
-              w={avatarWidth}
-              src={avatarN == null ? props.user.avatar : avatarN}
-              alt="avatar currently unavailable"
-              onClick={(e) => {
-                e.stopPropagation();
-                dialogTopLeft.current = [e.clientY - 20, e.clientX - 20];
-                toggle();
-              }}
-            />
-            <Dialog
-              opened={dialogOpened}
-              withCloseButton={false}
-              onClose={close}
-              size="md"
-              radius="md"
-              position={{
-                top: dialogTopLeft.current[0],
-                left: dialogTopLeft.current[1],
-              }}
-              onClick={(event) => event.stopPropagation()}
-            >
-              {" "}
-              <Group mb="md" align="center">
-                <Text size="sm" fw={300} flex={1}>
-                  Pick your avatar
-                </Text>
-                <CloseButton
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    close();
-                  }}
-                />
-              </Group>
-              <SimpleGrid cols={3}>
-                {Array.from({ length: 9 }).map((_, idx) => (
-                  <Image
-                    key={idx}
-                    src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
-                      idx + 1
-                    }.png`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setAvatarN(
-                        `https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
-                          idx + 1
-                        }.png`
-                      );
-                      close();
-                    }}
-                  />
-                ))}
-              </SimpleGrid>
-            </Dialog>
-            <Flex
-              direction="column"
-              gap="xs"
-              align="center"
-              justify="center"
-              h="100%"
-              flex={1}
-            >
-              <TagsInput
-                miw="100%"
-                label="Press Enter to submit a tag"
-                placeholder="Enter tag"
-                value={testTags}
-                onChange={setTestTags}
-                styles={{
-                  input: {
-                    overflowY: "scroll",
-                    height: "5rem",
-                  },
-                }}
-              />
-              <Group w="100%" justify="center">
-                <Button>Save changes</Button>
-              </Group>
-            </Flex>
-          </Fieldset>
-          <Fieldset
             legend="Personal information"
             w="98%"
             fz="xl"
@@ -206,6 +92,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               ></TextInput>
               <TextInput label="First name"></TextInput>
               <TextInput label="Last name"></TextInput>
+              <TextInput label="Address"></TextInput>
             </Stack>
             <Stack w="50%">
               <TextInput
@@ -216,7 +103,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               <PasswordInput
                 label="Password"
                 placeholder="Enter new password"
-              ></PasswordInput>
+              />
+              <TextInput label="City"></TextInput>
               <div
                 style={{
                   width: "100%",
@@ -245,23 +133,17 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               },
             }}
           >
-            <StatsCard
-              title="Visited events"
-              level="Rookie"
-              current={15}
-              nextStage={30}
-            />
-            <StatsCard
-              title="Money spent"
-              level="Marco Polo"
-              current={85}
-              nextStage={100}
-            />
+            <StatsCard title="Hosted events" current={15} />
+            <StatsCard title="Average rating" current={4.53} />
+            <StatsCard title="Reservations" current={100} />
+            <StatsCard title="Estimated earnings" current={1500} />
           </Fieldset>
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Active reservations</Title>
+        <Title>
+          Incoming events <Button>New event</Button>
+        </Title>
         <Stack className={classes.contentStack}>
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
@@ -296,16 +178,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     {ev.date}
                   </Text>
                 </Box>
-                <Button w="fit-content">Cancel</Button>
-                <Text w="10%" ta="center">
-                  15$
-                </Text>
+                <Button w="fit-content">Manage</Button>
               </Flex>
             ))}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Visited events</Title>
+        <Title>Past events</Title>
         <Stack className={classes.contentStack}>
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
@@ -340,7 +219,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     {ev.date}
                   </Text>
                 </Box>
-                <Button w="fit-content">Leave reaview</Button>
+                <Button w="fit-content">Reviews</Button>
               </Flex>
             ))}
         </Stack>

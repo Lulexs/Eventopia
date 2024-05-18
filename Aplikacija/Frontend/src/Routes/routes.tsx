@@ -8,6 +8,7 @@ import ReservationContainer from "../Reservations/Reservation/ReservationContain
 import { LoginPage } from "../Auth/LoginPage";
 import RegisterPage from "../Auth/RegisterPage";
 import VisitorProfileContainer from "../VisitorProfile/VisitorProfileContainer";
+import OrganizerPageContainer from "../OrganizerPages/OrganizerPageCcontainer";
 
 const routes = [
   { path: PathConstants.HOME, element: <HomePage /> },
@@ -20,6 +21,10 @@ const routes = [
   {
     path: PathConstants.VISITOR_PROFILE_PAGE,
     element: <VisitorProfileContainer />,
+  },
+  {
+    path: PathConstants.ORGANIZER_PAGE,
+    element: <OrganizerPageContainer />,
   },
   { path: PathConstants.PAGENOTFOUND, element: <Page404 /> },
 ];

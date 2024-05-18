@@ -7,5 +7,6 @@ export const PathConstants = {
   LOGIN: "/login",
   REGISTER: "/register",
   VISITOR_PROFILE_PAGE: "/visitorprofile",
+  ORGANIZER_PAGE: "/organizerpage",
   PAGENOTFOUND: "/*",
 };

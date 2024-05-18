@@ -232,7 +232,9 @@ export function HeaderMegaMenu() {
                   className={classes.link}
                   onClick={(event) => {
                     event.stopPropagation();
-                    navigate("/visitorprofile");
+                    if (loggedUser.userType == "Host")
+                      navigate("/organizerpage");
+                    else navigate("/visitorprofile");
                   }}
                 >
                   <Text mb={0}>{loggedUser.username}</Text>
