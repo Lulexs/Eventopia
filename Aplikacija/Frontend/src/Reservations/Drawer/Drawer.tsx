@@ -8,6 +8,7 @@ import styles from "./Drawer.module.css";
 
 export interface DrawerProps {
   onSubmit: Function;
+  onCancel: Function;
 }
 
 export default function Drawer(props: DrawerProps) {
@@ -38,7 +39,7 @@ export default function Drawer(props: DrawerProps) {
         justify="center"
         direction="column"
         w="100%"
-        h="100vh"
+        h="120vh"
         className={styles.gradiental}
       >
         <h1 style={{ color: "hsla(0, 0%, 57%, 0.7)", marginBottom: "0" }}>
@@ -82,17 +83,32 @@ export default function Drawer(props: DrawerProps) {
           planImage={image}
           changeExportFunctionRef={setNewExportPlanFunction}
         />
-        <Button
-          m="10px"
-          onClick={() => {
-            console.log(
-              exportPlanFunctionRef.current && exportPlanFunctionRef.current()
-            );
-            props.onSubmit();
-          }}
-        >
-          Submit
-        </Button>
+        <Group>
+          <Button
+            bg="green"
+            m="10px"
+            onClick={() => {
+              console.log(
+                exportPlanFunctionRef.current && exportPlanFunctionRef.current()
+              );
+              props.onSubmit();
+            }}
+          >
+            Submit
+          </Button>
+          <Button
+            m="10px"
+            onClick={() => {
+              console.log(
+                exportPlanFunctionRef.current && exportPlanFunctionRef.current()
+              );
+              props.onCancel();
+            }}
+            bg="red"
+          >
+            Cancel
+          </Button>
+        </Group>
       </Flex>
     </DndProvider>
   );

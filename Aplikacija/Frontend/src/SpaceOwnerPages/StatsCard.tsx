@@ -1,5 +1,5 @@
 import { Text, Card } from "@mantine/core";
-import classes from "./OrganizerPage/OrganizerPage.module.css";
+import classes from "./SpaceOwnerPage/SpaceOwnerPage.module.css";
 
 export interface StatsCardProps {
   title: string;

@@ -1,6 +1,6 @@
-import { AuthState } from "../store/features/auth";
+import { AuthState } from "../../store/features/auth";
 import classes from "./OrganizerPage.module.css";
-import EventBgImage from "../assets/event_listing_bg_op.png";
+import EventBgImage from "../../assets/event_listing_bg_op.png";
 import {
   Box,
   Button,
@@ -16,16 +16,21 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Event } from "../EventListing/interfaces";
+import { Event } from "../../EventListing/interfaces";
 import { useState, useEffect } from "react";
-import { StatsCard } from "./StatsCard";
+import { StatsCard } from "../StatsCard";
+import { View } from "../EventViewPages";
+import { useIsMobile } from "../../util/useIsMobile";
 
 export interface OrganizerPageProps {
   user: AuthState;
+  showEvent: React.Dispatch<React.SetStateAction<View>>;
+  setEventId: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function OrganizerPage(props: OrganizerPageProps) {
   const [imageWidth, setImageWidth] = useState("25%");
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     function handleResize() {
@@ -142,7 +147,21 @@ export default function OrganizerPage(props: OrganizerPageProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>
-          Incoming events <Button>New event</Button>
+          Incoming events{" "}
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isMobile) {
+                alert(
+                  "Cannot schedule event from mobile device. We are working on it"
+                );
+                return;
+              }
+              props.showEvent(View.NewEvent);
+            }}
+          >
+            New event
+          </Button>
         </Title>
         <Stack className={classes.contentStack}>
           {(areEventsLoading || eventsError) && (
@@ -165,7 +184,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Image
-                  src={new URL(ev.img, import.meta.url).href}
+                  src={new URL("../" + ev.img, import.meta.url).href}
                   alt={`Couldn't load ${ev.title} image`}
                   fit="cover"
                   w={imageWidth}
@@ -178,7 +197,22 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     {ev.date}
                   </Text>
                 </Box>
-                <Button w="fit-content">Manage</Button>
+                <Button
+                  w="fit-content"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (isMobile) {
+                      alert(
+                        "Cannot schedule event from mobile device. We are working on it"
+                      );
+                      return;
+                    }
+                    props.setEventId(ev.id);
+                    props.showEvent(View.ManageEvent);
+                  }}
+                >
+                  Manage
+                </Button>
               </Flex>
             ))}
         </Stack>
@@ -207,7 +241,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               >
                 <Image
                   className={classes.reservationAndVisitedDivImage}
-                  src={new URL(ev.img, import.meta.url).href}
+                  src={new URL("../" + ev.img, import.meta.url).href}
                   alt={`Couldn't load ${ev.title} image`}
                   fit="cover"
                   w={imageWidth}
@@ -219,7 +253,16 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     {ev.date}
                   </Text>
                 </Box>
-                <Button w="fit-content">Reviews</Button>
+                <Button
+                  w="fit-content"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    props.setEventId(ev.id);
+                    props.showEvent(View.PastEventDetails);
+                  }}
+                >
+                  Reviews
+                </Button>
               </Flex>
             ))}
         </Stack>

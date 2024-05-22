@@ -6,7 +6,7 @@ export interface AuthState {
   email: string;
   firstName: string;
   lastName: string;
-  userType: "Visitor" | "Space owner" | "Host" | "Unregistered";
+  userType: "Visitor" | "Space owner" | "Host" | "Unregistered" | "Admin";
   avatar: string;
 }
 
