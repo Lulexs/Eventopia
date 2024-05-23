@@ -1,5 +1,6 @@
 .mainMain {
   flex-direction: column;
+  /* height: 100vh; */
 }
 
 .mainContentFlex {
@@ -31,7 +32,7 @@
 
 .reservationAndVisitedDiv {
   width: 100%;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 

@@ -12,7 +12,10 @@ export default function RegisterPage() {
     <>
       <HeaderMegaMenu />
       {drawer ? (
-        <Drawer onSubmit={() => setDrawer(false)} />
+        <Drawer
+          onSubmit={() => setDrawer(false)}
+          onCancel={() => setDrawer(false)}
+        />
       ) : (
         <Flex
           h="100%"

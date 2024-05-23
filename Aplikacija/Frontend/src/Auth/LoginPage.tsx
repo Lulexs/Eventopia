@@ -61,7 +61,7 @@ export function LoginPage() {
                       userId: 0,
                       username: "TEST USERNAME",
                       email: values.email,
-                      userType: "Host",
+                      userType: "Admin",
                       firstName: "TEST",
                       lastName: "TEST",
                       avatar:

@@ -232,7 +232,13 @@ export function HeaderMegaMenu() {
                   className={classes.link}
                   onClick={(event) => {
                     event.stopPropagation();
-                    navigate("/visitorprofile");
+                    if (loggedUser.userType == "Host")
+                      navigate("/organizerpage");
+                    else if (loggedUser.userType == "Visitor")
+                      navigate("/visitorprofile");
+                    else if (loggedUser.userType == "Admin")
+                      navigate(`${PathConstants.ADMIN_PAGE}`);
+                    else navigate("/spaceownerpage");
                   }}
                 >
                   <Text mb={0}>{loggedUser.username}</Text>
@@ -328,7 +334,13 @@ export function HeaderMegaMenu() {
                   gap={0}
                   onClick={(event) => {
                     event.stopPropagation();
-                    navigate("/visitorprofile");
+                    if (loggedUser.userType == "Host")
+                      navigate("/organizerpage");
+                    else if (loggedUser.userType == "Visitor")
+                      navigate("/visitorprofile");
+                    else if (loggedUser.userType == "Admin")
+                      navigate(`${PathConstants.ADMIN_PAGE}`);
+                    else navigate("/spaceownerpage");
                   }}
                 >
                   <Text mb={0}>{loggedUser.username}</Text>
