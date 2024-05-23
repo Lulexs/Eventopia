@@ -9,8 +9,8 @@ namespace Backend.Models;
 public class Korisnik : IdentityUser<Guid>
 {
     
-    
 
+    
 
     
 

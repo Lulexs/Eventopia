@@ -1,10 +1,10 @@
-namespace API.DTOs;
+namespace Backend.DTOs;
 
 public class KorisnikDto
 {
-    public string Ime { get; set; }
-    public string Prezime { get; set; }
-    public string Token { get; set; }
-    public string Slika { get; set; }
-    public string UserName { get; set; }
+    public required string Ime { get; set; }
+    public required string Prezime { get; set; }
+    public required string Token { get; set; }
+    public required string Slika { get; set; }
+    public required string UserName { get; set; }
 }

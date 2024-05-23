@@ -63,15 +63,15 @@ public class AccountController : ControllerBase
             Telefon = registerDto.Telefon,
             DatumRodjenja = registerDto.DatumRodjenja,
             SlikaProfila = registerDto.Slika,
-            //UserRole = registerDto.UserRole
-            //TODO: DODAJ OSTALE ATRIBUTE: telefon, datumRodjenja...
+            // posle dodajem role za korisnika
         };
 
-        var result = await _userManager.CreateAsync(korisnik, registerDto.Password);//da sacuvamo korisnika u bazu
+
+        var result = await _userManager.CreateAsync(korisnik, registerDto.Password);//da sacuvamo korisnika u bazu na osnovu passworda
 
         if (result.Succeeded)
         {
-            var roleResult = await _userManager.AddToRoleAsync(korisnik, "ObicanKorisnik");//implicitno mu za sad uvek dajemo Obicnog korisnika
+            var roleResult = await _userManager.AddToRoleAsync(korisnik, registerDto.UserRole);//implicitno mu za sad uvek dajemo Obicnog korisnika
             if (!roleResult.Succeeded) return BadRequest(roleResult.Errors);
             //ako prodje ovo gore onda kreiraj takvog korisnika
             var korisnikObject = await CreateUserObject(korisnik);
