@@ -1,3 +1,7 @@
+using Microsoft.OpenApi.Writers;
+using Microsoft.AspNetCore.Identity;
+using Persistence;
+
 var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
@@ -73,5 +77,24 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//Seed seed = new Seed();
+var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+try
+{
+    var context = services.GetRequiredService<Context>();
+    var userManager = services.GetRequiredService<UserManager<Korisnik>>();
+    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+    //await context.Database.MigrateAsync();
+    //await Seed.SeedData(context);
+    await Seed.SeedUsers(userManager, roleManager);//za sad je jos ne pozivam zbog sukija
+}
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occured during migration");
+}
 
 app.Run();
