@@ -8,6 +8,9 @@ import {
   Select,
   PasswordInput,
   FileInput,
+  SimpleGrid,
+  Image,
+  InputLabel,
 } from "@mantine/core";
 import classes from "./RegisterPage.module.css";
 import { PasswordStrength } from "./Utils/PasswordStrength";
@@ -25,6 +28,8 @@ export function RegisterPage1(props: RegisterPage1Props) {
 
   const navigate = useNavigate();
   const [userType, setUserType] = useState<string | null>("Visitor");
+  const [selectedAvatar, setSelectedAvatar] = useState<number>(0);
+
   return (
     <Paper
       withBorder
@@ -74,6 +79,35 @@ export function RegisterPage1(props: RegisterPage1Props) {
           onChange={setUserType}
           data={["Visitor", "Host", "Space owner"]}
         />
+        {userType == "Visitor" && (
+          <>
+            <InputLabel mt={20}>Avatar</InputLabel>
+            <SimpleGrid cols={3}>
+              {Array.from({ length: 9 }).map((_, idx) => (
+                <Image
+                  key={idx}
+                  src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
+                    idx + 1
+                  }.png`}
+                  styles={
+                    selectedAvatar == idx
+                      ? {
+                          root: {
+                            border: "2px solid blue",
+                            padding: "5px",
+                          },
+                        }
+                      : {}
+                  }
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setSelectedAvatar(idx);
+                  }}
+                />
+              ))}
+            </SimpleGrid>
+          </>
+        )}
         {(userType == "Host" || userType == "Space owner") && (
           <>
             <TextInput

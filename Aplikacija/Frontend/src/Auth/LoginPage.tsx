@@ -58,10 +58,11 @@ export function LoginPage() {
                   event?.stopPropagation();
                   dispatch(
                     login({
-                      userId: 0,
+                      userId: "",
+                      token: "",
                       username: "TEST USERNAME",
                       email: values.email,
-                      userType: "Admin",
+                      userType: "Visitor",
                       firstName: "TEST",
                       lastName: "TEST",
                       avatar:

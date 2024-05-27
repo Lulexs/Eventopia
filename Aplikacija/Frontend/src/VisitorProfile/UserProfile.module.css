@@ -1,5 +1,6 @@
 .mainMain {
   flex-direction: column;
+  height: 100vh;
 }
 
 .mainContentFlex {
