@@ -15,6 +15,8 @@ import {
   CloseButton,
   SimpleGrid,
   Box,
+  Slider,
+  Textarea,
 } from "@mantine/core";
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import { useEffect, useRef, useState } from "react";
@@ -41,6 +43,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
+
+  const [reviewDialogOpened, { toggle: toggleReview, close: closeReivew }] =
+    useDisclosure(false);
+  const reviewDialogTopLeft = useRef([
+    document.body.clientHeight / 2 - 200,
+    document.body.clientWidth / 2 - 200,
+  ]);
 
   const [imageWidth, setImageWidth] = useState("25%");
   const [avatarWidth, setAvatarWidth] = useState("30%");
@@ -340,11 +349,80 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     {ev.date}
                   </Text>
                 </Box>
-                <Button w="fit-content">Leave reaview</Button>
+                <Button
+                  w="fit-content"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleReview();
+                  }}
+                >
+                  Leave reaview
+                </Button>
               </Flex>
             ))}
         </Stack>
       </Flex>
+      <Dialog
+        opened={reviewDialogOpened}
+        withCloseButton={false}
+        onClose={close}
+        size="md"
+        radius="md"
+        position={{
+          top: reviewDialogTopLeft.current[0],
+          left: reviewDialogTopLeft.current[1],
+        }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {" "}
+        <Group mb="md" align="center">
+          <Text size="sm" fw={300} flex={1}>
+            Leave a review
+          </Text>
+          <CloseButton
+            onClick={(event) => {
+              event.stopPropagation();
+              closeReivew();
+            }}
+          />
+        </Group>
+        <Group align="center" mb="xl">
+          <Text size="sm" fw={300} miw="45px">
+            Rating:{" "}
+          </Text>
+          <Slider
+            flex={1}
+            color="blue"
+            min={0}
+            max={10}
+            marks={[
+              { value: 0, label: "0" },
+              { value: 1, label: "1" },
+              { value: 2, label: "2" },
+              { value: 3, label: "3" },
+              { value: 4, label: "4" },
+              { value: 5, label: "5" },
+              { value: 6, label: "6" },
+              { value: 7, label: "7" },
+              { value: 8, label: "8" },
+              { value: 9, label: "9" },
+              { value: 10, label: "10" },
+            ]}
+            scale={(value) => value}
+          />
+        </Group>
+        <Textarea
+          mb={10}
+          label="Review:"
+          placeholder="Event was enjoyable..."
+          maxRows={8}
+          minRows={3}
+          autosize
+        />
+        <Button w="100%" onClick={close}>
+          Post review
+        </Button>
+      </Dialog>
     </Flex>
   );
 }

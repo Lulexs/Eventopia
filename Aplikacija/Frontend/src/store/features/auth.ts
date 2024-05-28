@@ -3,23 +3,25 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 export interface AuthState {
   userId: string;
   token: string;
-  username: string;
   email: string;
   firstName: string;
   lastName: string;
   userType: "Visitor" | "Space owner" | "Host" | "Unregistered" | "Admin";
-  avatar: string;
+  avatar: string | null;
+  address: string | null;
+  city: string | null;
 }
 
 const initialState: AuthState = {
   userId: "",
   token: "",
-  username: "TEST USERNAME",
-  firstName: "TEST",
-  lastName: "TEST",
+  firstName: "",
+  lastName: "",
   email: "",
   userType: "Unregistered",
-  avatar: "",
+  avatar: null,
+  address: null,
+  city: null,
 };
 
 export const authSlice = createSlice({
@@ -27,14 +29,15 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action: PayloadAction<AuthState>) => {
-      state.email = action.payload.email;
-      state.username = action.payload.username;
       state.userId = action.payload.userId;
-      state.userType = action.payload.userType;
+      state.token = action.payload.token;
+      state.email = action.payload.email;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
+      state.userType = action.payload.userType;
       state.avatar = action.payload.avatar;
-      state.token = action.payload.token;
+      state.address = action.payload.address;
+      state.city = action.payload.city;
     },
     logout: (state) => {
       Object.assign(state, initialState);

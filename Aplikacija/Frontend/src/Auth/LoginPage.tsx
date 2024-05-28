@@ -56,17 +56,19 @@ export function LoginPage() {
               <form
                 onSubmit={loginForm.onSubmit((values, event) => {
                   event?.stopPropagation();
+                  console.log(values);
                   dispatch(
                     login({
                       userId: "",
                       token: "",
-                      username: "TEST USERNAME",
                       email: values.email,
                       userType: "Visitor",
                       firstName: "TEST",
                       lastName: "TEST",
                       avatar:
                         "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
+                      address: null,
+                      city: null,
                     })
                   );
                   navigate("/");

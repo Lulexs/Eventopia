@@ -41,6 +41,12 @@ const data = [
     icon: IconSearch,
     title: "Explore latest events",
     description: "Explore, filter and find events for your next journey",
+    onClick: (navigate: Function) => {
+      navigate("/");
+      document
+        .querySelector(".main-ev-listing-div")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
   },
   {
     icon: IconTicket,
@@ -241,8 +247,8 @@ export function HeaderMegaMenu() {
                     else navigate("/spaceownerpage");
                   }}
                 >
-                  <Text mb={0}>{loggedUser.username}</Text>
-                  <Text mt={0}>{loggedUser.email}</Text>
+                  <Text mb={0}>{loggedUser.email}</Text>
+                  <Text mt={0}>{loggedUser.firstName}</Text>
                 </Stack>
                 <Button
                   onClick={(event) => {
@@ -343,8 +349,8 @@ export function HeaderMegaMenu() {
                     else navigate("/spaceownerpage");
                   }}
                 >
-                  <Text mb={0}>{loggedUser.username}</Text>
-                  <Text mt={0}>{loggedUser.email}</Text>
+                  <Text mb={0}>{loggedUser.email}</Text>
+                  <Text mt={0}>{loggedUser.firstName}</Text>
                 </Stack>
                 <Button
                   onClick={(event) => {

@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MapWithInput from "./Utils/MapInput";
 import { LatLng } from "leaflet";
+import { useForm } from "@mantine/form";
 
 export interface RegisterPage1Props {
   enterDrawer: Function;
@@ -25,6 +26,37 @@ export interface RegisterPage1Props {
 
 export function RegisterPage1(props: RegisterPage1Props) {
   const [position, setPosition] = useState<LatLng>(new LatLng(51.505, -0.09));
+
+  const registerForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      userType: "Visitor",
+      avatar: 0,
+      address: "",
+      city: "",
+      identificationImage: null,
+    },
+
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      password: (value) => (value.length > 0 ? null : "Empty password field"),
+      firstName: (value) =>
+        value.length > 0 ? null : "Empty first name field",
+      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
+      address: (value, { userType }) =>
+        userType != "Visitor" && value.length > 0
+          ? null
+          : "Empty address field",
+      city: (value, { userType }) =>
+        userType != "Visitor" && value.length > 0 ? null : "Empty city field",
+      identificationImage: (value, { userType }) =>
+        userType != "Visitor" && value != null ? null : "Id image is required",
+    },
+  });
 
   const navigate = useNavigate();
   const [userType, setUserType] = useState<string | null>("Visitor");
@@ -57,95 +89,148 @@ export function RegisterPage1(props: RegisterPage1Props) {
       </Text>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-        <TextInput mb={10} label="First name" placeholder="John" required />
-        <TextInput mb={10} label="Last name" placeholder="Doe" required />
-        <TextInput
-          mb={10}
-          label="Email"
-          placeholder="you@mantine.dev"
-          required
-        />
-        <PasswordStrength />
-        <PasswordInput
-          placeholder="Selected password"
-          label="Repeat password"
-          mt={10}
-        />
-        <Select
-          mt={10}
-          label="User type"
-          defaultValue="Visitor"
-          value={userType}
-          onChange={setUserType}
-          data={["Visitor", "Host", "Space owner"]}
-        />
-        {userType == "Visitor" && (
-          <>
-            <InputLabel mt={20}>Avatar</InputLabel>
-            <SimpleGrid cols={3}>
-              {Array.from({ length: 9 }).map((_, idx) => (
-                <Image
-                  key={idx}
-                  src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
-                    idx + 1
-                  }.png`}
-                  styles={
-                    selectedAvatar == idx
-                      ? {
-                          root: {
-                            border: "2px solid blue",
-                            padding: "5px",
-                          },
-                        }
-                      : {}
-                  }
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setSelectedAvatar(idx);
-                  }}
-                />
-              ))}
-            </SimpleGrid>
-          </>
-        )}
-        {(userType == "Host" || userType == "Space owner") && (
-          <>
-            <TextInput
-              mt={10}
-              mb={10}
-              label="Address"
-              placeholder="123 Main Street"
-              required
-            />
-            <TextInput mb={10} label="City" placeholder="New York" required />
-            <FileInput
-              label="Identification image"
-              description="Image is used for identification purposes and it is not saved"
-              placeholder="Personal identification"
-            />
-          </>
-        )}
-        {userType == "Space owner" && (
-          <>
-            <Button
-              mt={10}
-              mb={10}
-              fullWidth
-              onClick={() => props.enterDrawer()}
-            >
-              Add space image
-            </Button>
-            <TextInput
-              label="Select location address"
-              disabled={true}
-              value={`${position.lat} ${position.lng}`}
-            ></TextInput>
-            <MapWithInput position={position} setPosition={setPosition} />
-          </>
-        )}
-        <Button fullWidth mt="xl">
-          Sign up
-        </Button>
+        <form
+          onSubmit={registerForm.onSubmit((values, event) => {
+            event?.stopPropagation();
+            console.log(values);
+          })}
+        >
+          <TextInput
+            mb={10}
+            label="First name"
+            placeholder="John"
+            required
+            key={registerForm.key("firstName")}
+            {...registerForm.getInputProps("firstName")}
+          />
+          <TextInput
+            mb={10}
+            label="Last name"
+            placeholder="Doe"
+            required
+            key={registerForm.key("lastName")}
+            {...registerForm.getInputProps("lastName")}
+          />
+          <TextInput
+            mb={10}
+            label="Email"
+            placeholder="you@mantine.dev"
+            required
+            key={registerForm.key("email")}
+            {...registerForm.getInputProps("email")}
+          />
+          <PasswordStrength
+            key={registerForm.key("password")}
+            {...registerForm.getInputProps("password")}
+          />
+          <PasswordInput
+            placeholder="Selected password"
+            label="Repeat password"
+            mt={10}
+          />
+          <Select
+            mt={10}
+            label="User type"
+            defaultValue="Visitor"
+            data={["Visitor", "Host", "Space owner"]}
+            key={registerForm.key("userType")}
+            {...registerForm.getInputProps("userType")}
+            onChange={(value) => {
+              setUserType(value);
+            }}
+          />
+          {userType == "Visitor" && (
+            <>
+              <InputLabel mt={20}>Avatar</InputLabel>
+              <SimpleGrid
+                cols={3}
+                key={registerForm.key("avatar")}
+                {...registerForm.getInputProps("avatar")}
+              >
+                {Array.from({ length: 9 }).map((_, idx) => (
+                  <Image
+                    key={idx}
+                    src={`https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
+                      idx + 1
+                    }.png`}
+                    styles={
+                      selectedAvatar == idx
+                        ? {
+                            root: {
+                              border: "2px solid blue",
+                              padding: "5px",
+                            },
+                          }
+                        : {}
+                    }
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      registerForm.setFieldValue("avatar", idx);
+                      setSelectedAvatar(idx);
+                    }}
+                  />
+                ))}
+              </SimpleGrid>
+            </>
+          )}
+          {(userType == "Host" || userType == "Space owner") && (
+            <>
+              <TextInput
+                mt={10}
+                mb={10}
+                label="Address"
+                placeholder="123 Main Street"
+                required
+                key={registerForm.key("address")}
+                {...registerForm.getInputProps("address")}
+              />
+              <TextInput
+                mb={10}
+                label="City"
+                placeholder="New York"
+                required
+                key={registerForm.key("city")}
+                {...registerForm.getInputProps("city")}
+              />
+              <FileInput
+                label="Identification image"
+                description="Image is used for identification purposes and it is not saved"
+                placeholder="Personal identification"
+                key={registerForm.key("identificationImage")}
+                {...registerForm.getInputProps("identificationImage")}
+              />
+            </>
+          )}
+          {userType == "Space owner" && (
+            <>
+              <Button
+                mt={10}
+                mb={10}
+                fullWidth
+                onClick={() => props.enterDrawer()}
+              >
+                Add space image
+              </Button>
+              <TextInput
+                label="Select location address"
+                disabled={true}
+                value={`${position.lat} ${position.lng}`}
+              ></TextInput>
+              <MapWithInput position={position} setPosition={setPosition} />
+            </>
+          )}
+          <Button
+            type="submit"
+            fullWidth
+            mt="xl"
+            onClick={(event) => {
+              event.stopPropagation();
+              console.log(registerForm.getValues());
+            }}
+          >
+            Sign up
+          </Button>
+        </form>
       </Paper>
     </Paper>
   );

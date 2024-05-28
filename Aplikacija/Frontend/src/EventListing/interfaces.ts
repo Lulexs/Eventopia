@@ -12,9 +12,3 @@ export interface Event {
 export interface EventCardProps {
   event: Event;
 }
-
-export interface EventListingProps {
-  events: Event[];
-  isLoading: boolean;
-  isError: boolean;
-}

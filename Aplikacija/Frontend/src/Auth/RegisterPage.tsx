@@ -8,6 +8,7 @@ import Drawer from "../Reservations/Drawer/Drawer";
 
 export default function RegisterPage() {
   const [drawer, setDrawer] = useState(false);
+
   return (
     <>
       <HeaderMegaMenu />

@@ -10,6 +10,8 @@ import {
   Textarea,
   Select,
   NumberInput,
+  FileInput,
+  TagsInput,
 } from "@mantine/core";
 import classes from "./ManageEvent.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
@@ -17,6 +19,7 @@ import { AuthState } from "../../store/features/auth";
 import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
 import { StatsCard } from "../StatsCard";
+import { useState } from "react";
 
 export interface ManageEventProps {
   user: AuthState;
@@ -25,6 +28,13 @@ export interface ManageEventProps {
 }
 
 export default function ManageEvent(props: ManageEventProps) {
+  const [testTags, setTestTags] = useState<string[]>([
+    "Rock",
+    "Heavy metal",
+    "Saban Saulic",
+    "film",
+    "comics",
+  ]);
   return (
     <>
       <Flex
@@ -73,10 +83,25 @@ export default function ManageEvent(props: ManageEventProps) {
             <Stack w="50%">
               <TextInput label="Event name"></TextInput>
               <Textarea label="Description" autosize minRows={5} />
+              <TagsInput
+                miw="100%"
+                label="Press Enter to submit a tag"
+                placeholder="Enter tag"
+                value={testTags}
+                onChange={setTestTags}
+                styles={{
+                  input: {
+                    overflowY: "scroll",
+                    height: "7rem",
+                  },
+                }}
+              />
             </Stack>
             <Stack w="50%">
               <DateInput label="Date" />
               <TextInput label="Time" />
+              <FileInput label="Promo image" />
+              <TextInput label="Promo video" />
               <div
                 style={{
                   width: "100%",
@@ -87,9 +112,9 @@ export default function ManageEvent(props: ManageEventProps) {
                 }}
               >
                 <InputLabel className="mantine-TextInput-label">
-                  Save changes
+                  Schedule
                 </InputLabel>
-                <Button>Save changes</Button>
+                <Button>Schedule event</Button>
               </div>
             </Stack>
           </Fieldset>

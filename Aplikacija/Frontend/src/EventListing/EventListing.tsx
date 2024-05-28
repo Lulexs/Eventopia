@@ -11,7 +11,10 @@ import { IconSelect } from "@tabler/icons-react";
 import { DateInput } from "@mantine/dates";
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import EventCard from "./EventCard";
-import { EventListingProps } from "./interfaces";
+import classes from "./EventListing.module.css";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { Event } from "./interfaces";
 
 const gradOptions = [
   "Nis, Serbia",
@@ -32,11 +35,24 @@ const organizers = ["Milenium house", "Petar Petrovic"];
 
 const tags = ["Rock", "Hip hop", "Eating", "Old music", "Sport"];
 
-export default function EventListing(props: EventListingProps) {
+export default function EventListing() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedOrganizer, setSelectedOrganizer] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateTime, setDateTime] = useState<Date | null>(null);
+
+  const {
+    isLoading,
+    data: events,
+    isError,
+  } = useQuery<Event[]>({
+    queryKey: ["events"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
+        .then((resp) => resp.data);
+    },
+  });
 
   return (
     <Flex
@@ -151,10 +167,19 @@ export default function EventListing(props: EventListingProps) {
         gap="30px"
         wrap="wrap"
       >
-        {props.isLoading ? (
-          <div></div>
+        {isLoading || isError ? (
+          <div className={classes.controls}>
+            <div className={classes.ldsRing}>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
         ) : (
-          props.events.map((ev, idx) => <EventCard key={idx} event={ev} />)
+          events?.map((ev: Event, idx: number) => (
+            <EventCard key={idx} event={ev} />
+          ))
         )}
       </Flex>
     </Flex>

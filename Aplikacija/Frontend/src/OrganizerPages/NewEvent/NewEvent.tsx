@@ -10,12 +10,15 @@ import {
   Textarea,
   Select,
   NumberInput,
+  FileInput,
+  TagsInput,
 } from "@mantine/core";
 import classes from "./NewEvent.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
 import { AuthState } from "../../store/features/auth";
 import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
+import { useState } from "react";
 
 export interface NewEventProps {
   user: AuthState;
@@ -23,6 +26,13 @@ export interface NewEventProps {
 }
 
 export default function NewEvent(props: NewEventProps) {
+  const [testTags, setTestTags] = useState<string[]>([
+    "Rock",
+    "Heavy metal",
+    "Saban Saulic",
+    "film",
+    "comics",
+  ]);
   return (
     <>
       <Flex
@@ -71,10 +81,25 @@ export default function NewEvent(props: NewEventProps) {
             <Stack w="50%">
               <TextInput label="Event name"></TextInput>
               <Textarea label="Description" autosize minRows={5} />
+              <TagsInput
+                miw="100%"
+                label="Press Enter to submit a tag"
+                placeholder="Enter tag"
+                value={testTags}
+                onChange={setTestTags}
+                styles={{
+                  input: {
+                    overflowY: "scroll",
+                    height: "7rem",
+                  },
+                }}
+              />
             </Stack>
             <Stack w="50%">
               <DateInput label="Date" />
               <TextInput label="Time" />
+              <FileInput label="Promo image" />
+              <TextInput label="Promo video" />
               <div
                 style={{
                   width: "100%",

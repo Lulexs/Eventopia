@@ -16,19 +16,6 @@ export default function HomePage() {
     },
   });
 
-  const {
-    isLoading: areEventsLoading,
-    data: events,
-    isError: eventsError,
-  } = useQuery({
-    queryKey: ["events"],
-    queryFn: async () => {
-      return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
-        .then((resp) => resp.data);
-    },
-  });
-
   return (
     <>
       <HeaderMegaMenu />
@@ -38,11 +25,7 @@ export default function HomePage() {
         isError={isError}
         CarouselProps={data}
       />
-      <EventListing
-        isLoading={areEventsLoading}
-        events={events}
-        isError={eventsError}
-      />
+      <EventListing />
       <Footer />
     </>
   );
