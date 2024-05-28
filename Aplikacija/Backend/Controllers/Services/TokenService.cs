@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Backend.Services;
+namespace API.Services;
 
 public class TokenService
 {
@@ -21,7 +21,7 @@ public class TokenService
     public async Task<string> CreateToken(Korisnik korisnik)
     {
 
-        //claims je sta ce token da zna o korisniku, to su username, id, email i role ovo dole na kraju
+        //claims je sta ce token da zna o korisniku, to su username, id, email irole ovo dole na kraju
         var claims = new List<Claim>();
 
         if (!string.IsNullOrEmpty(korisnik.UserName))
@@ -43,7 +43,7 @@ public class TokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));//stavljam ih u token, retardirano malo, ali tako je
 
         //kriptovanje tokena
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:TokenKey"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
         //opis tokena, kolko ce dugo da trajee, sta ce da ima u sebi i kako ce da se potpise

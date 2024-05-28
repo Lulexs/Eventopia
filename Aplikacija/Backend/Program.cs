@@ -15,9 +15,12 @@ builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("EventopiaCS"));
 });
 
+builder.Services.AddIdentity<Korisnik, AppRole>()
+    .AddEntityFrameworkStores<Context>()
+    .AddDefaultTokenProviders();
 
 
-
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddCors(options =>
 {

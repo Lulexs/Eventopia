@@ -86,7 +86,7 @@ public class AccountController : ControllerBase
     public async Task<ActionResult<KorisnikDto>> GetCurrentUser()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
-        
+
         var korisnikObject = await CreateUserObject(korisnik);
         return korisnikObject;
     }

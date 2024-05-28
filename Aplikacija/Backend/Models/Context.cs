@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 namespace Backend.Models;
 
-public class Context : IdentityDbContext<Korisnik, AppRole, Guid, 
-                                IdentityUserClaim<Guid>, AppUserRole, IdentityUserLogin<Guid>, 
-                                IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>  
+public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
+                                IdentityUserClaim<Guid>, AppUserRole, IdentityUserLogin<Guid>,
+                                IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
 
     public DbSet<Dogadjaj> Dogadjaji { get; set; }
@@ -18,6 +18,7 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
     public DbSet<Rezervacija> Rezervacije { get; set; }
     public DbSet<RezervacijaProstora> RezervacijeProstora { get; set; }
     public DbSet<Tag> Tagovi { get; set; }
+    public DbSet<SurfaceDimension> SurfaceDimensions { get; set; }
 
     public Context(DbContextOptions options) : base(options)
     {
@@ -25,22 +26,22 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
+    {
+        base.OnModelCreating(builder);
 
-            builder.Entity<Korisnik>()
-            .HasOne(korisnik => korisnik.UserRole)
-            .WithOne(korisnik => korisnik.Korisnik);
+        builder.Entity<Korisnik>()
+        .HasOne(korisnik => korisnik.UserRole)
+        .WithOne(korisnik => korisnik.Korisnik);
 
-            builder.Entity<AppRole>()
-            .HasMany(role => role.UserRoles)
-            .WithOne(korisnik => korisnik.Role)
-            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
+        builder.Entity<AppRole>()
+        .HasMany(role => role.UserRoles)
+        .WithOne(korisnik => korisnik.Role)
+        .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
 
 
 
-          
-            
 
-        }
+
+
+    }
 }
