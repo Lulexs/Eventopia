@@ -5,8 +5,12 @@ namespace Backend.Models;
 
     public class AppUserRole : IdentityUserRole<Guid>
     {
-        public required Korisnik Korisnik { get; set; }
+        
+        [ForeignKey("UserRole")]
+        public Korisnik? Korisnik { get; set; }
 
-        public required AppRole Role { get; set; }
+
+        
+        public AppRole? Role { get; set; }
 
     }

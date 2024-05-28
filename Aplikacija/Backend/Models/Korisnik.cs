@@ -9,9 +9,6 @@ namespace Backend.Models;
 public class Korisnik : IdentityUser<Guid>
 {
     
-
-    
-
     
 
     public required string Ime { get; set; }
@@ -20,7 +17,7 @@ public class Korisnik : IdentityUser<Guid>
     public DateTime DatumRodjenja { get; set; }
     public required string SlikaProfila { get; set; }
 
-
+    
     public AppUserRole? UserRole { get; set; }
     // TODO : ostali atributi Korisnika
 }

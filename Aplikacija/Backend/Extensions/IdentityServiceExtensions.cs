@@ -1,12 +1,12 @@
 //definises
 using System.Text;
-using API.Services;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 
-namespace API.Extensions;
+namespace Backend.Extensions;
 
 public static class IdentityServiceExtensions
 {
@@ -54,10 +54,10 @@ public static class IdentityServiceExtensions
         // bez toga bih radio [Authorize(Roles = "Administrator") ]
         //ali sa ovim mogu da radim :[Authorize(Policy = "RequireAdministratorRole")]
         services.AddAuthorization(option => {
-            option.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Administrator"));
-            option.AddPolicy("RequireObicanKorisnikRole", policy => policy.RequireRole("ObicanKorisnik"));
-            option.AddPolicy("RequireVlasnikProstora", policy => policy.RequireRole("VlasnikProstora"));
-            option.AddPolicy("RequireOrganizatorDogadjaja", policy => policy.RequireRole("OrganizatorDogadjaja"));
+            option.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin"));
+            option.AddPolicy("RequireVisitor", policy => policy.RequireRole("Visitor"));
+            option.AddPolicy("RequireSpaceOwner", policy => policy.RequireRole("Space owner"));
+            option.AddPolicy("RequireHost", policy => policy.RequireRole("Host"));
         });
 
         services.AddScoped<TokenService>();

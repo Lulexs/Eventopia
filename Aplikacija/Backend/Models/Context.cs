@@ -30,13 +30,17 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
 
             builder.Entity<Korisnik>()
             .HasOne(korisnik => korisnik.UserRole)
-            .WithOne(korisnik => korisnik.Korisnik)
-            .IsRequired();
+            .WithOne(korisnik => korisnik.Korisnik);
 
             builder.Entity<AppRole>()
             .HasMany(role => role.UserRoles)
             .WithOne(korisnik => korisnik.Role)
-            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId)
-            .IsRequired();
+            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
+
+
+
+          
+            
+
         }
 }

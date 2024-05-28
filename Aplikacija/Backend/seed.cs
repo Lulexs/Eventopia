@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Persistence;
+namespace Backend;
 public class Seed
 {
     
@@ -19,10 +19,10 @@ public class Seed
 
 
             var roles = new List<AppRole> {
-                new AppRole{Name = "ObicanKorisnik"},
-                new AppRole{Name = "VlasnikProstora"},
-                new AppRole{Name = "Administrator"},
-                new AppRole{Name = "OrganizatorDogadjaja"}
+                new AppRole{Name = "Visitor"},
+                new AppRole{Name = "Space Owner"},
+                new AppRole{Name = "Admin"},
+                new AppRole{Name = "Host"}
             };
 
             foreach (var role in roles){
@@ -32,7 +32,7 @@ public class Seed
             foreach(var korisnik in korisnici){
                 await userManager.CreateAsync(korisnik, "PrejaK@s1fra");//da kreiramo korisnika sa sifrom u bazi
                     if (korisnik.Ime == "Luke")
-                        await userManager.AddToRoleAsync(korisnik, "Administrator");
+                        await userManager.AddToRoleAsync(korisnik, "Admin");
             }
         }
 

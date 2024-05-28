@@ -1,3 +1,6 @@
+// servis u kome definisiemo sta sve se prenosi kroz token kako bi se korisnik 
+// autentifikovao i autorizovao i to se radi npr:
+//[Authorize(Policy = "RequireAdministratorRole")]
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,23 +18,35 @@ public class TokenService
         _userManager = userManager;
         _config = config;
     }
-    public async Task<string> CreateToken( Korisnik korisnik)
+    public async Task<string> CreateToken(Korisnik korisnik)
     {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, korisnik.UserName),
-            new Claim(ClaimTypes.NameIdentifier, korisnik.Id.ToString()),//ToString je trenutni fix samo da probam da pokrenem
-            new Claim(ClaimTypes.Email, korisnik.Email),
 
-        };
+        //claims je sta ce token da zna o korisniku, to su username, id, email i role ovo dole na kraju
+        var claims = new List<Claim>();
+
+        if (!string.IsNullOrEmpty(korisnik.UserName))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, korisnik.UserName));
+        }
+
+        
+        claims.Add(new Claim(ClaimTypes.NameIdentifier, korisnik.Id.ToString()));
+        
+
+        if (!string.IsNullOrEmpty(korisnik.Email))
+        {
+            claims.Add(new Claim(ClaimTypes.Email, korisnik.Email));
+        }
 
         var roles = await _userManager.GetRolesAsync(korisnik);//nalazim role za korisnika da ih stavim u token, mora da bude async jer pristupa bazi
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));//stavljam ih u token
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));//stavljam ih u token, retardirano malo, ali tako je
 
+        //kriptovanje tokena
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["TokenKey"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
+        //opis tokena, kolko ce dugo da trajee, sta ce da ima u sebi i kako ce da se potpise
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
