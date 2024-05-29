@@ -115,6 +115,237 @@
       "organizer": "Pjotr Pjotr"
     }
   ],
+  "spaces": [
+    {
+      "id": "0bbd",
+      "surfaceDimension": {
+        "width": 1215.890625,
+        "height": 423.171875
+      },
+      "items": [
+        {
+          "type": "bar",
+          "id": "ID0.3462073188919359",
+          "top": 36,
+          "left": 592,
+          "height": 25,
+          "heightFactor": 0.8
+        },
+        {
+          "type": "bar",
+          "id": "ID0.04042561551459234",
+          "top": 128,
+          "left": 705,
+          "height": 25,
+          "heightFactor": 0.8
+        },
+        {
+          "type": "bar",
+          "id": "ID0.8069020045974749",
+          "top": 161,
+          "left": 268,
+          "height": 25,
+          "heightFactor": 0.8
+        },
+        {
+          "type": "stage",
+          "id": "ID0.21701871756272162",
+          "top": 289,
+          "left": 508,
+          "height": 19,
+          "heightFactor": 0.8
+        },
+        {
+          "type": "table",
+          "id": "ID0.42864250503110024",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 143.171875,
+          "left": 392.453125,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.19883746332180885",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 101,
+          "left": 435,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.1637004245027387",
+          "numberOfSeats": 10,
+          "reserved": false,
+          "price": 15,
+          "top": 289,
+          "left": 719,
+          "height": 50,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.7577012207621285",
+          "numberOfSeats": 4,
+          "reserved": false,
+          "price": 15,
+          "top": 234,
+          "left": 724,
+          "height": 30,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.5165144814061804",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 211,
+          "left": 392,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.6387930715322447",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 279,
+          "left": 392,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.9562508268613856",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 75,
+          "left": 508,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.03333675941895642",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 244,
+          "left": 279,
+          "height": 34,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.2595330203171733",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 319,
+          "left": 277,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.7417297123979985",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 243,
+          "left": 223,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.21159676884646217",
+          "numberOfSeats": 5,
+          "reserved": false,
+          "price": 15,
+          "top": 315,
+          "left": 221,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.1749491935990264",
+          "numberOfSeats": 6,
+          "reserved": false,
+          "price": 15,
+          "top": 121,
+          "left": 582,
+          "height": 35,
+          "heightFactor": 0.2
+        },
+        {
+          "type": "table",
+          "id": "ID0.03042316582467408",
+          "numberOfSeats": 6,
+          "reserved": false,
+          "price": 15,
+          "top": 150,
+          "left": 653,
+          "height": 35,
+          "heightFactor": 0.2
+        }
+      ],
+      "lines": [
+        {
+          "x1": 798,
+          "y1": 363.172,
+          "x2": 351,
+          "y2": 363.172
+        },
+        {
+          "x1": 351,
+          "y1": 116,
+          "x2": 351,
+          "y2": 363.172
+        },
+        {
+          "x1": 798,
+          "y1": 116,
+          "x2": 798,
+          "y2": 363.172
+        },
+        {
+          "x1": 677.453,
+          "y1": 116,
+          "x2": 798,
+          "y2": 116
+        },
+        {
+          "x1": 677.453,
+          "y1": 46.1719,
+          "x2": 677.453,
+          "y2": 116
+        },
+        {
+          "x1": 351,
+          "y1": 116,
+          "x2": 416.453,
+          "y2": 46.1719
+        },
+        {
+          "x1": 416.453,
+          "y1": 46.1719,
+          "x2": 677.453,
+          "y2": 46.1719
+        }
+      ],
+      "image": null
+    }
+  ],
   "space": {
     "reservedSpaceId": 0,
     "image": null,
@@ -174,10 +405,30 @@
       }
     ],
     "lines": [
-      { "x1": 395.047, "y1": 64.2812, "x2": 377.047, "y2": 558.281 },
-      { "x1": 377.047, "y1": 558.281, "x2": 1064.05, "y2": 558.281 },
-      { "x1": 1045.05, "y1": 64.2812, "x2": 1064.05, "y2": 558.281 },
-      { "x1": 395.047, "y1": 64.2812, "x2": 1045.05, "y2": 64.2812 }
+      {
+        "x1": 395.047,
+        "y1": 64.2812,
+        "x2": 377.047,
+        "y2": 558.281
+      },
+      {
+        "x1": 377.047,
+        "y1": 558.281,
+        "x2": 1064.05,
+        "y2": 558.281
+      },
+      {
+        "x1": 1045.05,
+        "y1": 64.2812,
+        "x2": 1064.05,
+        "y2": 558.281
+      },
+      {
+        "x1": 395.047,
+        "y1": 64.2812,
+        "x2": 1045.05,
+        "y2": 64.2812
+      }
     ]
   }
 }

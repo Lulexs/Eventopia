@@ -41,7 +41,7 @@ const data = [
     icon: IconSearch,
     title: "Explore latest events",
     description: "Explore, filter and find events for your next journey",
-    onClick: (navigate: Function) => {
+    onClick: (_userType: string, navigate: Function) => {
       navigate("/");
       document
         .querySelector(".main-ev-listing-div")
@@ -52,27 +52,47 @@ const data = [
     icon: IconTicket,
     title: "Reserve seat",
     description: "Get your seat reservation for your favourite event now",
+    onClick: (_userType: string, navigate: Function) => {
+      navigate("/");
+      document
+        .querySelector(".main-ev-listing-div")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
   },
   {
     icon: IconCalendar,
     title: "Host an event",
     description: "Host next memorable event and let everyone see!",
+    onClick: (userType: string, navigate: Function) => {
+      if (userType == "Host") navigate("/organizerpage");
+    },
   },
   {
     icon: IconChartPie3,
     title: "Statistics",
     description: "Check list of visited events or check event statistics",
+    onClick: (userType: string, navigate: Function) => {
+      if (userType == "Host") navigate("/organizerpage");
+      else if (userType == "Visitor") navigate("/visitorprofile");
+      else if (userType == "Space owner") navigate("/spaceownerpage");
+    },
   },
   {
     icon: IconMapPinShare,
     title: "Rent space for next exciting event",
     description: "Advertise your space and let organizers host their events!",
+    onClick: (userType: string, navigate: Function) => {
+      if (userType == "Host") navigate("/organizerpage");
+    },
   },
   {
     icon: IconNotification,
     title: "Notifications",
     description:
       "Subscribe to get updates about events that might interest you!",
+    onClick: (_userType: string, _navigate: Function) => {
+      console.log("Subscribed");
+    },
   },
 ];
 
@@ -86,7 +106,11 @@ export function HeaderMegaMenu() {
   const dispatch = useDispatch();
 
   const links = data.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
+    <UnstyledButton
+      className={classes.subLink}
+      key={item.title}
+      onClick={() => item.onClick(loggedUser.userType, navigate)}
+    >
       <Group wrap="nowrap" align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">
           <item.icon

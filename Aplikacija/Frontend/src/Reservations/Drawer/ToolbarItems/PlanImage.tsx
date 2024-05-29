@@ -51,7 +51,7 @@ export const PlanImage: FC<StageInterface> = ({
   }
   useEffect(() => {
     exportFunctions.set(id, exportAsJSON);
-  }, [height]);
+  }, [height, top, left]);
 
   if (isDragging) {
     return <img ref={drag} />;

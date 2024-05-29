@@ -44,7 +44,7 @@ export default function Reservation(props: ReservationProps) {
     queryKey: ["reservedSpace"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/space`)
+        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces/0bbd`)
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
@@ -204,7 +204,15 @@ export default function Reservation(props: ReservationProps) {
                 </Flex>
               )}
               {isUserLoggedIn.userType == "Visitor" && (
-                <>
+                <div
+                  style={{
+                    width: data?.surfaceDimension.width,
+                    height: data?.surfaceDimension.height,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                >
                   {data?.items.map((item) => {
                     {
                       if (item.type == "table") {
@@ -229,8 +237,8 @@ export default function Reservation(props: ReservationProps) {
                   })}
                   <svg
                     style={{
-                      width: data?.surfaceDimension.width,
-                      height: data?.surfaceDimension.height,
+                      width: "100%",
+                      height: "100%",
                       position: "absolute",
                       top: 0,
                       left: 0,
@@ -250,7 +258,7 @@ export default function Reservation(props: ReservationProps) {
                       />
                     ))}
                   </svg>
-                </>
+                </div>
               )}
             </div>
           )}

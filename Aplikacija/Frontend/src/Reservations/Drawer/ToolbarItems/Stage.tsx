@@ -59,7 +59,7 @@ export const Stage: FC<StageInterface> = ({
   }
   useEffect(() => {
     exportFunctions.set(id, exportAsJSON);
-  }, [height]);
+  }, [height, top, left]);
 
   if (isDragging) {
     return <div ref={drag}></div>;

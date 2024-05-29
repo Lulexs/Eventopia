@@ -78,10 +78,6 @@ export default function Surface(props: SurfaceProps) {
     return plan;
   }
 
-  useEffect(() => {
-    props.changeExportFunctionRef(exportPlan);
-  }, [items, lines, props.planImage]);
-
   // React DND
   const moveItems = useCallback(
     (id: string, left: number, top: number) => {
@@ -115,6 +111,10 @@ export default function Surface(props: SurfaceProps) {
     }),
     [moveItems]
   );
+
+  useEffect(() => {
+    props.changeExportFunctionRef(exportPlan);
+  }, [items, lines, props.planImage, moveItems, setItems]);
 
   // Manipulating lines
   const rearrangeLines = () => {

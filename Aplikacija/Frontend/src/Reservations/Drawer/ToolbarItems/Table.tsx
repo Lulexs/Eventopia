@@ -55,8 +55,10 @@ export const Table: FC<TableInterface> = ({
       type: ItemTypes.TABLE,
       id: id,
       numberOfSeats: Number.isNaN(parseInt(dialogInputFieldVal))
-        ? numberOfSeats.current
+        ? 4
         : parseInt(dialogInputFieldVal),
+      reserved: false,
+      price: 15,
       top: top,
       left: left,
       height: height,
@@ -66,7 +68,7 @@ export const Table: FC<TableInterface> = ({
 
   useEffect(() => {
     exportFunctions.set(id, exportAsJSON);
-  }, [numberOfSeats.current, height]);
+  }, [numberOfSeats.current, height, top, left]);
 
   if (isDragging) {
     return <div ref={drag}></div>;

@@ -39,7 +39,7 @@ export default function Drawer(props: DrawerProps) {
         justify="center"
         direction="column"
         w="100%"
-        h="120vh"
+        h="100vh"
         className={styles.gradiental}
       >
         <h1 style={{ color: "hsla(0, 0%, 57%, 0.7)", marginBottom: "0" }}>
@@ -88,10 +88,8 @@ export default function Drawer(props: DrawerProps) {
             bg="green"
             m="10px"
             onClick={() => {
-              console.log(
-                exportPlanFunctionRef.current && exportPlanFunctionRef.current()
-              );
-              props.onSubmit();
+              if (exportPlanFunctionRef.current)
+                props.onSubmit(exportPlanFunctionRef.current());
             }}
           >
             Submit

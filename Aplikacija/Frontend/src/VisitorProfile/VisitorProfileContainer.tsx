@@ -13,7 +13,7 @@ export default function VisitorProfileContainer() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (loggedUser.userType == "Unregistered") navigate("/");
+    if (loggedUser.userType != "Visitor") navigate("/");
   }, []);
 
   return (

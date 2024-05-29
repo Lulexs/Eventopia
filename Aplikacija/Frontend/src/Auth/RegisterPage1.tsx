@@ -124,11 +124,13 @@ export function RegisterPage1(props: RegisterPage1Props) {
             {...registerForm.getInputProps("password")}
           />
           <PasswordInput
+            required
             placeholder="Selected password"
             label="Repeat password"
             mt={10}
           />
           <Select
+            required
             mt={10}
             label="User type"
             defaultValue="Visitor"
@@ -193,6 +195,7 @@ export function RegisterPage1(props: RegisterPage1Props) {
                 {...registerForm.getInputProps("city")}
               />
               <FileInput
+                required
                 label="Identification image"
                 description="Image is used for identification purposes and it is not saved"
                 placeholder="Personal identification"
@@ -211,7 +214,27 @@ export function RegisterPage1(props: RegisterPage1Props) {
               >
                 Add space image
               </Button>
+
               <TextInput
+                required
+                label="City"
+                placeholder="New York"
+                mb={10}
+              ></TextInput>
+              <TextInput
+                required
+                label="Country"
+                placeholder="USA"
+                mb={10}
+              ></TextInput>
+              <TextInput
+                required
+                label="Select location address"
+                placeholder="123 Street"
+                mb={10}
+              ></TextInput>
+              <TextInput
+                required
                 label="Select location address"
                 disabled={true}
                 value={`${position.lat} ${position.lng}`}

@@ -20,7 +20,7 @@ export default function OrganizerPageContainer() {
   const [eventId, setEventId] = useState<number>(-1);
 
   useEffect(() => {
-    if (loggedUser.userType == "Unregistered") navigate("/");
+    if (loggedUser.userType != "Host") navigate("/");
   }, []);
 
   return (
