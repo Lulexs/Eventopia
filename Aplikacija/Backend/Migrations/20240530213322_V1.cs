@@ -34,7 +34,9 @@ namespace Backend.Migrations
                     Prezime = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Telefon = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DatumRodjenja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SlikaProfila = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SlikaProfila = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Adresa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Grad = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -343,8 +345,11 @@ namespace Backend.Migrations
                     Tip = table.Column<int>(type: "int", nullable: false),
                     Top = table.Column<double>(type: "float", nullable: false),
                     Left = table.Column<double>(type: "float", nullable: false),
-                    Height = table.Column<double>(type: "float", nullable: false),
-                    BrojMesta = table.Column<int>(type: "int", nullable: false),
+                    Height = table.Column<double>(type: "float", nullable: true),
+                    HeightFactor = table.Column<double>(type: "float", nullable: true),
+                    BrojMesta = table.Column<int>(type: "int", nullable: true),
+                    Reserved = table.Column<bool>(type: "bit", nullable: true),
+                    Price = table.Column<int>(type: "int", nullable: true),
                     PlanProstoraID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -353,6 +358,27 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_DraggableItems_PlanoviProstora_PlanProstoraID",
                         column: x => x.PlanProstoraID,
+                        principalTable: "PlanoviProstora",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SurfaceDimensions",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Height = table.Column<double>(type: "float", nullable: false),
+                    Width = table.Column<double>(type: "float", nullable: false),
+                    SurfaceDimension = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SurfaceDimensions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SurfaceDimensions_PlanoviProstora_SurfaceDimension",
+                        column: x => x.SurfaceDimension,
                         principalTable: "PlanoviProstora",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -559,6 +585,12 @@ namespace Backend.Migrations
                 name: "IX_RezervacijeProstora_ProstorID",
                 table: "RezervacijeProstora",
                 column: "ProstorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SurfaceDimensions_SurfaceDimension",
+                table: "SurfaceDimensions",
+                column: "SurfaceDimension",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -590,6 +622,9 @@ namespace Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Rezervacije");
+
+            migrationBuilder.DropTable(
+                name: "SurfaceDimensions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

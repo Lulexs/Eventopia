@@ -1,18 +1,10 @@
-using System.Security.Claims;
-using Backend.DTOs;
-using Backend.Models;
-using Backend.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace Backend.Controllers;
 
 public class AccountController : ControllerBase
 {
     private readonly UserManager<Korisnik> _userManager;
     private readonly TokenService _tokenService;
+
     public AccountController(UserManager<Korisnik> userManager, TokenService tokenService)
     {
         _tokenService = tokenService;
@@ -21,13 +13,13 @@ public class AccountController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult<KorisnikDto>> Login(LoginDto loginDto)
+    public async Task<ActionResult<KorisnikDto>> Login([FromBody] LoginDto loginDto)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
-        if (korisnik == null) return Unauthorized($"Netacan Vam je email : {loginDto.Email}");
+        if (korisnik == null) return Unauthorized($"User with this email doesn't exist: {loginDto.Email}");
 
-        var result = await _userManager.CheckPasswordAsync(korisnik, loginDto.Password);//aspnet ovde proverava sifru da l se poklapa za nas
+        var result = await _userManager.CheckPasswordAsync(korisnik, loginDto.Password);
 
         if (result)
         {
@@ -35,23 +27,17 @@ public class AccountController : ControllerBase
             return korisnikObject;
         }
 
-        return Unauthorized("Netacna Vam je sifra ");
+        return Unauthorized("Password is incorrect. Please try again.");
     }
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<KorisnikDto>> Register(RegisterDto registerDto)
+    public async Task<ActionResult<KorisnikDto>> Register([FromBody] RegisterDto registerDto)
     {
-        if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
-        {
-            ModelState.AddModelError("username", "Username taken");
-            return ValidationProblem();
-        }
 
         if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
         {
-            ModelState.AddModelError("email", "Email taken");
-            return ValidationProblem();
+            return ValidationProblem("Email is already in use.");
         }
 
         var korisnik = new Korisnik
@@ -59,21 +45,21 @@ public class AccountController : ControllerBase
             Ime = registerDto.Ime,
             Prezime = registerDto.Prezime,
             Email = registerDto.Email,
-            UserName = registerDto.Username,
+            UserName = registerDto.Email,
             Telefon = registerDto.Telefon,
             DatumRodjenja = registerDto.DatumRodjenja,
             SlikaProfila = registerDto.Slika,
-            // posle dodajem role za korisnika
+            Adresa = registerDto.Adresa,
+            Grad = registerDto.Grad
         };
 
-
-        var result = await _userManager.CreateAsync(korisnik, registerDto.Password);//da sacuvamo korisnika u bazu na osnovu passworda
+        var result = await _userManager.CreateAsync(korisnik, registerDto.Password);
 
         if (result.Succeeded)
         {
-            var roleResult = await _userManager.AddToRoleAsync(korisnik, registerDto.UserRole);//implicitno mu za sad uvek dajemo Obicnog korisnika
-            if (!roleResult.Succeeded) return BadRequest(roleResult.Errors);
-            //ako prodje ovo gore onda kreiraj takvog korisnika
+            var roleResult = await _userManager.AddToRoleAsync(korisnik, registerDto.UserType);
+            if (!roleResult.Succeeded)
+                return BadRequest(roleResult.Errors);
             var korisnikObject = await CreateUserObject(korisnik);
             return korisnikObject;
         }
@@ -82,24 +68,25 @@ public class AccountController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet]
+    [HttpGet("getCurrentUser")]
     public async Task<ActionResult<KorisnikDto>> GetCurrentUser()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
-        var korisnikObject = await CreateUserObject(korisnik);
+        var korisnikObject = await CreateUserObject(korisnik!);
         return korisnikObject;
     }
 
-    private async Task<KorisnikDto> CreateUserObject(Korisnik korisnik)//promenjena u async metodu zbog novog nacina dobijanja tokena
+    private async Task<KorisnikDto> CreateUserObject(Korisnik korisnik)
     {
         return new KorisnikDto
         {
-            Ime = korisnik.Ime,
-            Prezime = korisnik.Prezime,
-            Slika = korisnik?.SlikaProfila,
             Token = await _tokenService.CreateToken(korisnik),
-            UserName = korisnik.UserName
+            DateOfBirth = korisnik.DatumRodjenja,
+            PhoneNumber = korisnik.Telefon,
+            Avatar = korisnik.SlikaProfila,
+            Address = korisnik.Adresa,
+            City = korisnik.Grad
         };
     }
 }

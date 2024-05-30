@@ -1,44 +1,35 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Backend.DTOs;
 
-
-/*Ime = registerDto.Ime,
-            Prezime = registerDto.Prezime,
-            Email = registerDto.Email,
-            UserName = registerDto.Username,
-            Telefon = registerDto.Telefon,
-            DatumRodjenja = registerDto.DatumRodjenja,
-            SlikaProfila = registerDto.Slika;*/
 public class RegisterDto
 {
     [Required]
     [EmailAddress]
-    public required string  Email { get; set; }
+    public required string Email { get; set; }
 
     [Required]
-    [RegularExpression("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$", ErrorMessage = "Password must be complex")]
     public required string Password { get; set; }
 
     [Required]
-    public required string Ime { get; set; }
-    [Required]
-    public required string Prezime { get; set; }
+    public required string UserType { get; set; }
 
     [Required]
-    public required string Username { get; set; }
+    public required string Ime { get; set; }
+
+    [Required]
+    public required string Prezime { get; set; }
 
     [Required]
     public required string Telefon { get; set; }
 
     [Required]
-    public required string Slika { get; set; }
+    public DateTime DatumRodjenja { get; set; }
 
-    [Required   ]   
-    public DateTime DatumRodjenja { get; set; } 
+    public string? Slika { get; set; }
 
+    public string? Adresa { get; set; }
 
-    //TODO: USERROLE obrati paznju na tip ovde je string
-    [Required]
-    public required string UserRole { get; set; }
+    public string? Grad { get; set; }
+
+    // TODO: Identification image
+
 }

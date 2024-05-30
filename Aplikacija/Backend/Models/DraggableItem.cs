@@ -10,6 +10,8 @@ public class DraggableItem
     public double? Height { get; set; }
     public double? HeightFactor { get; set; }
     public int? BrojMesta { get; set; }
+    public bool? Reserved { get; set; }
+    public int? Price { get; set; }
     public required PlanProstora PlanProstora { get; set; }
     public Rezervacija? Rezervacija { get; set; }
     [InverseProperty("Corner1")]

@@ -1,7 +1,3 @@
-using Microsoft.OpenApi.Writers;
-using Microsoft.AspNetCore.Identity;
-using Backend.Services;
-using Backend;
 var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
@@ -14,13 +10,6 @@ builder.Services.AddDbContext<Context>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("EventopiaCS"));
 });
-
-builder.Services.AddIdentity<Korisnik, AppRole>()
-    .AddEntityFrameworkStores<Context>()
-    .AddDefaultTokenProviders();
-
-
-builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddCors(options =>
 {
@@ -35,27 +24,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
-{
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidIssuer = config["JwtSettings:Issuer"],
-        ValidAudience = config["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:Issuer"]!)),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true
-
-    };
-});
-
-builder.Services.AddAuthorization();
+builder.Services.AddIdentityServices(config);
 
 builder.Services.AddControllers();
 
@@ -81,18 +50,14 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//Seed seed = new Seed();
 var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 
 try
 {
-    var context = services.GetRequiredService<Context>();
     var userManager = services.GetRequiredService<UserManager<Korisnik>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
-    //await context.Database.MigrateAsync();
-    //await Seed.SeedData(context);
-    await Seed.SeedUsers(userManager, roleManager);//za sad je jos ne pozivam zbog sukija
+    await Seed.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
 {

@@ -1,52 +1,44 @@
-// servis u kome definisiemo sta sve se prenosi kroz token kako bi se korisnik 
-// autentifikovao i autorizovao i to se radi npr:
-//[Authorize(Policy = "RequireAdministratorRole")]
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-
 namespace Backend.Services;
 
 public class TokenService
 {
     private readonly IConfiguration _config;
     private readonly UserManager<Korisnik> _userManager;
+
     public TokenService(IConfiguration config, UserManager<Korisnik> userManager)
     {
         _userManager = userManager;
         _config = config;
     }
+
     public async Task<string> CreateToken(Korisnik korisnik)
     {
-
-        //claims je sta ce token da zna o korisniku, to su username, id, email i role ovo dole na kraju
         var claims = new List<Claim>();
 
-        if (!string.IsNullOrEmpty(korisnik.UserName))
+        if (!String.IsNullOrEmpty(korisnik.Ime))
         {
-            claims.Add(new Claim(ClaimTypes.Name, korisnik.UserName));
+            claims.Add(new Claim("firstName", korisnik.Ime));
         }
 
+        if (!String.IsNullOrEmpty(korisnik.Prezime))
+        {
+            claims.Add(new Claim("lastName", korisnik.Prezime));
+        }
 
         claims.Add(new Claim(ClaimTypes.NameIdentifier, korisnik.Id.ToString()));
-
 
         if (!string.IsNullOrEmpty(korisnik.Email))
         {
             claims.Add(new Claim(ClaimTypes.Email, korisnik.Email));
         }
 
-        var roles = await _userManager.GetRolesAsync(korisnik);//nalazim role za korisnika da ih stavim u token, mora da bude async jer pristupa bazi
+        var roles = await _userManager.GetRolesAsync(korisnik);
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));//stavljam ih u token, retardirano malo, ali tako je
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        //kriptovanje tokena
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:TokenKey"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:TokenKey"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-        //opis tokena, kolko ce dugo da trajee, sta ce da ima u sebi i kako ce da se potpise
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),

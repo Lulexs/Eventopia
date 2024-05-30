@@ -142,6 +142,12 @@ namespace Backend.Migrations
                     b.Property<int>("PlanProstoraID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("Reserved")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Tip")
                         .HasColumnType("int");
 
@@ -164,6 +170,9 @@ namespace Backend.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Adresa")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -177,6 +186,9 @@ namespace Backend.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Grad")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ime")
                         .IsRequired()
@@ -213,7 +225,6 @@ namespace Backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SlikaProfila")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telefon")
