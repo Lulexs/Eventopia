@@ -15,6 +15,9 @@ import { LatLng } from "leaflet";
 
 export default function SpaceOwnerPageContainer() {
   const [position, setPosition] = useState<LatLng>(new LatLng(51.505, -0.09));
+  const [city, setCity] = useState<string>("");
+  const [country, setCountry] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
 
   const loggedUser = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
@@ -37,13 +40,17 @@ export default function SpaceOwnerPageContainer() {
       {view == View.NewSpace && (
         <Flex direction="column" justify="center" align="center">
           <Drawer
-            onSubmit={(spaceObject: any) => {
-              axios
+            onSubmit={async (spaceObject: any) => {
+              if (city == "" || country == "" || address == "") return;
+              spaceObject["city"] = city;
+              spaceObject["country"] = country;
+              spaceObject["address"] = address;
+              spaceObject["latitude"] = position.lat;
+              spaceObject["longitude"] = position.lng;
+              await axios
                 .post(`${import.meta.env.VITE_JSON_SERVER}/spaces`, spaceObject)
                 .then((_) => setView(View.Basic))
-                .catch((_) =>
-                  alert("There was an internal error, please try again latter")
-                );
+                .catch((err) => alert(err));
             }}
             onCancel={() => setView(View.Basic)}
           />
@@ -62,9 +69,24 @@ export default function SpaceOwnerPageContainer() {
             mb={10}
           >
             <Stack w="50%" justify="center">
-              <TextInput label="City"></TextInput>
-              <TextInput label="Country"></TextInput>
-              <TextInput label="Address"></TextInput>
+              <TextInput
+                value={city}
+                onChange={(event) => setCity(event.currentTarget.value)}
+                required
+                label="City"
+              ></TextInput>
+              <TextInput
+                value={country}
+                onChange={(event) => setCountry(event.currentTarget.value)}
+                required
+                label="Country"
+              ></TextInput>
+              <TextInput
+                value={address}
+                onChange={(event) => setAddress(event.currentTarget.value)}
+                required
+                label="Address"
+              ></TextInput>
             </Stack>
             <Stack w="50%" justify="center">
               <TextInput

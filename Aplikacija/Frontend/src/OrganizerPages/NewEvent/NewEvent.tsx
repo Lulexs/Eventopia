@@ -12,6 +12,8 @@ import {
   NumberInput,
   FileInput,
   TagsInput,
+  Table,
+  Checkbox,
 } from "@mantine/core";
 import classes from "./NewEvent.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
@@ -19,6 +21,9 @@ import { AuthState } from "../../store/features/auth";
 import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { SpaceDataType } from "../../Reservations/Reservation/interfaces";
 
 export interface NewEventProps {
   user: AuthState;
@@ -26,13 +31,22 @@ export interface NewEventProps {
 }
 
 export default function NewEvent(props: NewEventProps) {
-  const [testTags, setTestTags] = useState<string[]>([
-    "Rock",
-    "Heavy metal",
-    "Saban Saulic",
-    "film",
-    "comics",
-  ]);
+  const [testTags, setTestTags] = useState<string[]>([]);
+  const [selectedSpaceId, setSelectedSpaceId] = useState<number | string>(-1);
+
+  const {
+    isLoading,
+    data: spaces,
+    isError,
+  } = useQuery<SpaceDataType[]>({
+    queryKey: ["events"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces`)
+        .then((resp) => resp.data);
+    },
+  });
+
   return (
     <>
       <Flex
@@ -79,8 +93,18 @@ export default function NewEvent(props: NewEventProps) {
             mb={10}
           >
             <Stack w="50%">
-              <TextInput label="Event name"></TextInput>
-              <Textarea label="Description" autosize minRows={5} />
+              <TextInput
+                required
+                label="Event name"
+                placeholder="Rambo"
+              ></TextInput>
+              <Textarea
+                required
+                placeholder="Write something about the event..."
+                label="Description"
+                autosize
+                minRows={5}
+              />
               <TagsInput
                 miw="100%"
                 label="Press Enter to submit a tag"
@@ -96,10 +120,14 @@ export default function NewEvent(props: NewEventProps) {
               />
             </Stack>
             <Stack w="50%">
-              <DateInput label="Date" />
-              <TextInput label="Time" />
-              <FileInput label="Promo image" />
-              <TextInput label="Promo video" />
+              <DateInput required placeholder={`May 10, 2024`} label="Date" />
+              <TextInput required placeholder="Military time" label="Time" />
+              <FileInput
+                required
+                placeholder="Image to be displayed"
+                label="Promo image"
+              />
+              <TextInput placeholder="Optional video" label="Promo video" />
               <div
                 style={{
                   width: "100%",
@@ -127,11 +155,13 @@ export default function NewEvent(props: NewEventProps) {
                 display: "flex",
                 justifyContent: "space-between",
                 gap: "10px",
+                flexDirection: "column",
+                alignItems: "center",
               },
             }}
             mb={10}
           >
-            <Group w="100%" justify="center">
+            <Group w="100%" justify="center" mb={10}>
               <Select label="Location" />
               <NumberInput
                 label="Capacity"
@@ -144,6 +174,53 @@ export default function NewEvent(props: NewEventProps) {
                 )}
               />
             </Group>
+            <Checkbox
+              checked={selectedSpaceId != -1}
+              label="Selected space?"
+              disabled
+            />
+            {isLoading || isError ? (
+              <div className={classes.controls}>
+                <div className={classes.ldsRing}>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            ) : (
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>City</Table.Th>
+                    <Table.Th>Country</Table.Th>
+                    <Table.Th>Address</Table.Th>
+                    <Table.Th>Siting capacity</Table.Th>
+                    <Table.Th></Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {spaces?.map((space, idx) => (
+                    <Table.Tr key={idx}>
+                      <Table.Td>{space.city}</Table.Td>
+                      <Table.Td>{space.country}</Table.Td>
+                      <Table.Td>{space.address}</Table.Td>
+                      <Table.Td>{50}</Table.Td>
+                      <Table.Td>
+                        <Button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedSpaceId(space.id);
+                          }}
+                        >
+                          Select
+                        </Button>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            )}
           </Fieldset>
         </Flex>
       </Flex>

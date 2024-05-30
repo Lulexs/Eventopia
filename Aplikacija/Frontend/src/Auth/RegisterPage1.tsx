@@ -16,17 +16,9 @@ import classes from "./RegisterPage.module.css";
 import { PasswordStrength } from "./Utils/PasswordStrength";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MapWithInput from "./Utils/MapInput";
-import { LatLng } from "leaflet";
 import { useForm } from "@mantine/form";
 
-export interface RegisterPage1Props {
-  enterDrawer: Function;
-}
-
-export function RegisterPage1(props: RegisterPage1Props) {
-  const [position, setPosition] = useState<LatLng>(new LatLng(51.505, -0.09));
-
+export function RegisterPage1() {
   const registerForm = useForm({
     mode: "controlled",
     initialValues: {
@@ -202,44 +194,6 @@ export function RegisterPage1(props: RegisterPage1Props) {
                 key={registerForm.key("identificationImage")}
                 {...registerForm.getInputProps("identificationImage")}
               />
-            </>
-          )}
-          {userType == "Space owner" && (
-            <>
-              <Button
-                mt={10}
-                mb={10}
-                fullWidth
-                onClick={() => props.enterDrawer()}
-              >
-                Add space image
-              </Button>
-
-              <TextInput
-                required
-                label="City"
-                placeholder="New York"
-                mb={10}
-              ></TextInput>
-              <TextInput
-                required
-                label="Country"
-                placeholder="USA"
-                mb={10}
-              ></TextInput>
-              <TextInput
-                required
-                label="Select location address"
-                placeholder="123 Street"
-                mb={10}
-              ></TextInput>
-              <TextInput
-                required
-                label="Select location address"
-                disabled={true}
-                value={`${position.lat} ${position.lng}`}
-              ></TextInput>
-              <MapWithInput position={position} setPosition={setPosition} />
             </>
           )}
           <Button

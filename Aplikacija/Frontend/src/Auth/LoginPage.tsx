@@ -62,7 +62,7 @@ export function LoginPage() {
                       userId: "",
                       token: "",
                       email: values.email,
-                      userType: "Space owner",
+                      userType: "Host",
                       firstName: "TEST",
                       lastName: "TEST",
                       avatar:

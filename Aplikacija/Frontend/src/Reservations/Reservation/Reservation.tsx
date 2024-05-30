@@ -44,7 +44,7 @@ export default function Reservation(props: ReservationProps) {
     queryKey: ["reservedSpace"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces/0bbd`)
+        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces/e3cb`)
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
@@ -148,8 +148,8 @@ export default function Reservation(props: ReservationProps) {
             </Group>
 
             <Flex w="100%" h="40vh" mah="400px" mih="200px">
-              {showMap ? (
-                <MapComponent />
+              {showMap && !isLoading && !isError ? (
+                <MapComponent lat={data!.latitude} lng={data!.longitude} />
               ) : (
                 <Text
                   style={{

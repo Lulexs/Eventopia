@@ -1,8 +1,13 @@
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { LatLng } from "leaflet";
 
-function MapComponent() {
-  const position = new LatLng(51.505, -0.09);
+export interface MapComponentProps {
+  lat: number;
+  lng: number;
+}
+
+function MapComponent(props: MapComponentProps) {
+  const position = new LatLng(props.lat, props.lng);
 
   return (
     <MapContainer

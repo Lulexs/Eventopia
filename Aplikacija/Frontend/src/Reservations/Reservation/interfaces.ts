@@ -38,9 +38,14 @@ export interface Line {
 }
 
 export interface SpaceDataType {
-  reservedSpaceId: number;
+  id: number | string;
   items: ItemInterface[];
   image: File | null;
   lines: Line[];
   surfaceDimension: { width: number; height: number };
+  city: string;
+  country: string;
+  address: string;
+  latitude: number;
+  longitude: number;
 }
