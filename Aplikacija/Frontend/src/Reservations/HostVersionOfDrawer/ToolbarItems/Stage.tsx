@@ -1,22 +1,13 @@
-import { CSSProperties, FC, useEffect, useRef, useState } from "react";
+import { CSSProperties, FC, useEffect } from "react";
 import { ItemTypes } from "../ItemTypes";
 import { useDrag } from "react-dnd";
 import StageImage from "../../../assets/stage.png";
-import { useDisclosure } from "@mantine/hooks";
-import {
-  Dialog,
-  Group,
-  Slider,
-  Button,
-  Text,
-  CloseButton,
-} from "@mantine/core";
 
 interface StageInterface {
   id: string;
   top: number;
   left: number;
-  onRemove: () => void;
+  height: number;
   exportFunctions: Map<string, Function | null>;
 }
 
@@ -30,7 +21,7 @@ export const Stage: FC<StageInterface> = ({
   id,
   top,
   left,
-  onRemove,
+  height,
   exportFunctions,
 }) => {
   const [{ isDragging }, drag] = useDrag(
@@ -43,9 +34,6 @@ export const Stage: FC<StageInterface> = ({
     }),
     [id, top, left]
   );
-  const [dialogOpened, { toggle, close }] = useDisclosure(false);
-  const dialogTopLeft = useRef([20, 20]);
-  const [height, setHeight] = useState(30);
 
   function exportAsJSON() {
     return {
@@ -59,7 +47,7 @@ export const Stage: FC<StageInterface> = ({
   }
   useEffect(() => {
     exportFunctions.set(id, exportAsJSON);
-  }, [height, top, left]);
+  }, [top, left]);
 
   if (isDragging) {
     return <div ref={drag}></div>;
@@ -83,60 +71,7 @@ export const Stage: FC<StageInterface> = ({
         onClick={(e) => {
           e.stopPropagation();
         }}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          dialogTopLeft.current = [e.clientY, e.clientX];
-          toggle();
-        }}
-        onDoubleClick={(e) => {
-          e.stopPropagation();
-          onRemove();
-        }}
-      />
-      <Dialog
-        opened={dialogOpened}
-        withCloseButton={false}
-        onClose={close}
-        size="md"
-        radius="md"
-        position={{
-          top: dialogTopLeft.current[0],
-          left: dialogTopLeft.current[1],
-        }}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <Group mb="md" align="center">
-          <Text size="sm" fw={300} flex={1}>
-            Information about stage
-          </Text>
-          <CloseButton
-            onClick={(event) => {
-              event.stopPropagation();
-              close();
-            }}
-          />
-        </Group>
-
-        <Group align="center" mb="xl">
-          <Text size="sm" fw={300} miw="45px">
-            size:{" "}
-          </Text>
-          <Slider
-            flex={1}
-            color="blue"
-            marks={[
-              { value: 20, label: "20%" },
-              { value: 50, label: "50%" },
-              { value: 80, label: "80%" },
-            ]}
-            value={height}
-            onChange={setHeight}
-          />
-        </Group>
-        <Button w="100%" onClick={close}>
-          Save properties
-        </Button>
-      </Dialog>
+      />{" "}
     </>
   );
 };

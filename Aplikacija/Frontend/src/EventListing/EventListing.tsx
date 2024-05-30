@@ -49,7 +49,7 @@ export default function EventListing() {
     queryKey: ["events"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
+        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces`)
         .then((resp) => resp.data);
     },
   });

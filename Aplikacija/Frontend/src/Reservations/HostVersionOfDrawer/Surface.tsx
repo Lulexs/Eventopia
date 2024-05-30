@@ -1,20 +1,12 @@
-import React, {
-  CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { XYCoord, useDrop } from "react-dnd";
 import { ItemTypes } from "./ItemTypes";
 import { DragItem } from "./interfaces";
 import update from "immutability-helper";
 import { Table } from "./ToolbarItems/Table";
-import { Corner } from "./ToolbarItems/Corner";
 import { Stage } from "./ToolbarItems/Stage";
 import { Bar } from "./ToolbarItems/Bar";
-import { PlanImage } from "./ToolbarItems/PlanImage";
-import { SpaceDataType } from "../Reservation/interfaces";
+import { SpaceDataType, TableInterface } from "../Reservation/interfaces";
 
 const styles: CSSProperties = {
   width: "90%",
@@ -35,39 +27,14 @@ export default function Surface(props: SurfaceProps) {
     [key: string]: { top: number; left: number; type: string };
   }>({});
 
-  const [lines, setLines] = useState<
-    {
-      corner1: HTMLElement;
-      corner2: HTMLElement;
-      x1: number;
-      y1: number;
-      x2: number;
-      y2: number;
-    }[]
-  >([]);
-
   const exportFunctionsMapRef = useRef<Map<string, Function | null>>(new Map());
 
-  // Exporting plan as Žson
   function exportPlan() {
-    const surfaceDiv = document.querySelector(".main-surface-container");
-    const dims = surfaceDiv?.getBoundingClientRect();
-
     const plan = {
-      surfaceDimension: {
-        width: dims?.width,
-        height: dims?.height,
-      },
+      ...props.spacePlan,
       items: Array.from(exportFunctionsMapRef.current.values())
         .filter((func) => func != null)
         .map((func) => func!()),
-      lines: lines.map((line) => ({
-        x1: line.x1,
-        y1: line.y1,
-        x2: line.x2,
-        y2: line.y2,
-      })),
-      image: props.im,
     };
     return plan;
   }
@@ -108,164 +75,10 @@ export default function Surface(props: SurfaceProps) {
 
   useEffect(() => {
     props.changeExportFunctionRef(exportPlan);
-  }, [items, lines, props.planImage, moveItems, setItems]);
-
-  // Manipulating lines
-  const rearrangeLines = () => {
-    setLines((l) =>
-      l.map((line) => ({
-        ...line,
-        x1: parseFloat(line.corner1.style.left),
-        y1: parseFloat(line.corner1.style.top),
-        x2: parseFloat(line.corner2.style.left),
-        y2: parseFloat(line.corner2.style.top),
-      }))
-    );
-  };
-
-  useEffect(() => {
-    rearrangeLines();
-  }, [items]);
-
-  useEffect(() => {
-    if (
-      selectedCornersAsEndsForLine[0] &&
-      selectedCornersAsEndsForLine[1] &&
-      selectedCornersAsEndsForLine[0] === selectedCornersAsEndsForLine[1]
-    )
-      setSelectedCornersAsEndsForLine([null, null]);
-    else if (
-      selectedCornersAsEndsForLine[0] &&
-      selectedCornersAsEndsForLine[1] &&
-      !lines.some(
-        (l) =>
-          (l.corner1 === selectedCornersAsEndsForLine[0] &&
-            l.corner2 === selectedCornersAsEndsForLine[1]) ||
-          (l.corner1 === selectedCornersAsEndsForLine[1] &&
-            l.corner2 === selectedCornersAsEndsForLine[0])
-      )
-    ) {
-      const [x1, y1] = [
-        parseFloat(selectedCornersAsEndsForLine[0].style.left),
-        parseFloat(selectedCornersAsEndsForLine[0].style.top),
-      ];
-      const [x2, y2] = [
-        parseFloat(selectedCornersAsEndsForLine[1].style.left),
-        parseFloat(selectedCornersAsEndsForLine[1].style.top),
-      ];
-      setLines((l) => [
-        ...l,
-        {
-          corner1: selectedCornersAsEndsForLine[0]!,
-          corner2: selectedCornersAsEndsForLine[1]!,
-          x1,
-          y1,
-          x2,
-          y2,
-        },
-      ]);
-      setSelectedCornersAsEndsForLine([null, null]);
-      return;
-    } else if (
-      selectedCornersAsEndsForLine[0] &&
-      selectedCornersAsEndsForLine[1]
-    ) {
-      setSelectedCornersAsEndsForLine([null, null]);
-      setLines((l) =>
-        l.filter(
-          (line) =>
-            line.corner1 !== selectedCornersAsEndsForLine[0] &&
-            line.corner1 !== selectedCornersAsEndsForLine[1] &&
-            line.corner2 !== selectedCornersAsEndsForLine[1] &&
-            line.corner2 !== selectedCornersAsEndsForLine[0]
-        )
-      );
-    }
-  }, [selectedCornersAsEndsForLine]);
-
-  // Align corners
-  function cornerAlign(id1: string, id2: string) {
-    let updatedItem: any = null;
-    if (
-      Math.abs(items[id1].top - items[id2].top) <
-      Math.abs(items[id1].left - items[id2].left)
-    ) {
-      updatedItem = {
-        ...items[id1],
-        top: items[id2].top,
-      };
-    } else {
-      updatedItem = {
-        ...items[id1],
-        left: items[id2].left,
-      };
-    }
-
-    setItems((prevItems) => ({
-      ...prevItems,
-      [id1]: updatedItem,
-    }));
-  }
-
-  // Spawn/Unspawn Items
-  function spawnNewItem(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    if (
-      props.isBarSelectedFromToolbar ||
-      props.isCornerSelectedFromToolbar ||
-      props.isStageSelectedFromToolbar ||
-      props.isTableSelectedFromToolbar
-    ) {
-      const { x, y } = event.currentTarget.getBoundingClientRect();
-      const newItem = {
-        top: event.clientY - y,
-        left: event.clientX - x,
-        type: props.isBarSelectedFromToolbar
-          ? ItemTypes.BAR
-          : props.isCornerSelectedFromToolbar
-          ? ItemTypes.CORNER
-          : props.isStageSelectedFromToolbar
-          ? ItemTypes.STAGE
-          : ItemTypes.TABLE,
-      };
-      const newID: string = "ID" + Math.random().toString();
-      exportFunctionsMapRef.current.set(newID, null);
-      setItems({ ...items, [newID]: newItem });
-    }
-  }
-
-  useEffect(() => {
-    if (props.planImage == null) {
-      const updatedItems = { ...items };
-      Object.keys(updatedItems).forEach((key) => {
-        if (updatedItems[key].type == "image") {
-          delete updatedItems[key];
-          exportFunctionsMapRef.current.delete(key);
-        }
-      });
-      setItems(updatedItems);
-    } else {
-      const newImage = {
-        top: 10,
-        left: 10,
-        type: ItemTypes.PLAN_IMAGE,
-      };
-      setItems({ ...items, ["ID" + Math.random().toString()]: newImage });
-    }
-  }, [props.planImage]);
+  }, [items, moveItems, setItems]);
 
   function unspawnItem(key: string) {
-    const cornerForDeletion = document.getElementById(key);
-    if (cornerForDeletion == selectedCornersAsEndsForLine[0])
-      selectedCornersAsEndsForLine[0] = null;
-    else if (cornerForDeletion == selectedCornersAsEndsForLine[1])
-      selectedCornersAsEndsForLine[1] = null;
-    setLines((l) =>
-      l.filter(
-        (line) =>
-          line.corner1 != cornerForDeletion && line.corner2 != cornerForDeletion
-      )
-    );
-
+    if (items[key].type != ItemTypes.TABLE) return;
     setItems((i) => {
       const updatedItems = { ...i };
       delete updatedItems[key];
@@ -274,12 +87,27 @@ export default function Surface(props: SurfaceProps) {
     exportFunctionsMapRef.current.delete(key);
   }
 
+  useEffect(() => {
+    props.spacePlan.items.forEach((x) => {
+      exportFunctionsMapRef.current.set(x.id, null);
+      setItems((prevItems) => ({
+        ...prevItems,
+        [x.id]: { top: x.top, left: x.left, type: x.type },
+      }));
+    });
+  }, []);
+
   return (
     <div
       className="main-surface-container"
       ref={drop}
-      style={{ ...styles, textAlign: "center", zIndex: 1 }}
-      onClick={spawnNewItem}
+      style={{
+        ...styles,
+        textAlign: "center",
+        zIndex: 1,
+        height: props.spacePlan.surfaceDimension.height,
+        width: props.spacePlan.surfaceDimension.width,
+      }}
     >
       {Object.keys(items).map((key) => {
         const { left, top, type } = items[key] as {
@@ -287,32 +115,19 @@ export default function Surface(props: SurfaceProps) {
           left: number;
           type: string;
         };
+        const item = props.spacePlan.items.find((x) => x.id == key)!;
         if (type == ItemTypes.TABLE) {
           return (
             <Table
               key={key}
-              id={key}
+              id={item.id}
               left={left}
+              height={item.height}
+              numberOfSeats={(item as TableInterface).numberOfSeats}
               top={top}
               onRemove={() => {
-                unspawnItem(key);
+                unspawnItem(item.id);
               }}
-              exportFunctions={exportFunctionsMapRef.current}
-            />
-          );
-        } else if (type == ItemTypes.CORNER) {
-          return (
-            <Corner
-              key={key}
-              id={key}
-              left={left}
-              top={top}
-              selectCorner={setSelectedCornersAsEndsForLine}
-              selectedCorners={selectedCornersAsEndsForLine}
-              onRemove={() => {
-                unspawnItem(key);
-              }}
-              alignMyselfWithOtherCorner={cornerAlign}
               exportFunctions={exportFunctionsMapRef.current}
             />
           );
@@ -320,12 +135,10 @@ export default function Surface(props: SurfaceProps) {
           return (
             <Stage
               key={key}
-              id={key}
-              left={left}
-              top={top}
-              onRemove={() => {
-                unspawnItem(key);
-              }}
+              id={item.id}
+              left={item.left}
+              top={item.top}
+              height={item.height}
               exportFunctions={exportFunctionsMapRef.current}
             />
           );
@@ -333,30 +146,17 @@ export default function Surface(props: SurfaceProps) {
           return (
             <Bar
               key={key}
-              id={key}
-              left={left}
-              top={top}
-              onRemove={() => {
-                unspawnItem(key);
-              }}
-              exportFunctions={exportFunctionsMapRef.current}
-            />
-          );
-        } else if (type == ItemTypes.PLAN_IMAGE && props.planImage) {
-          return (
-            <PlanImage
-              key={key}
-              id={key}
-              left={left}
-              top={top}
-              src={URL.createObjectURL(props.planImage!)}
+              id={item.id}
+              left={item.left}
+              top={item.top}
+              height={item.height}
               exportFunctions={exportFunctionsMapRef.current}
             />
           );
         }
       })}
       <svg style={{ width: "100%", height: "100%", zIndex: 2 }}>
-        {lines.map((line, index) => (
+        {props.spacePlan.lines.map((line, index) => (
           <line
             key={index}
             x1={line.x1}

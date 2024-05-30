@@ -24,6 +24,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces";
+import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
 
 export interface NewEventProps {
   user: AuthState;
@@ -223,6 +224,9 @@ export default function NewEvent(props: NewEventProps) {
             )}
           </Fieldset>
         </Flex>
+        {selectedSpaceId != -1 && (
+          <Drawer plan={spaces?.find((x) => x.id == selectedSpaceId)!} />
+        )}
       </Flex>
     </>
   );

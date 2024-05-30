@@ -8,7 +8,6 @@ import {
   CloseButton,
   Dialog,
   Group,
-  Slider,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -17,6 +16,8 @@ interface TableInterface {
   id: string;
   top: number;
   left: number;
+  height: number;
+  numberOfSeats: number;
   onRemove: () => void;
   exportFunctions: Map<string, Function | null>;
 }
@@ -31,6 +32,7 @@ export const Table: FC<TableInterface> = ({
   id,
   top,
   left,
+  height,
   onRemove,
   exportFunctions,
 }) => {
@@ -48,7 +50,7 @@ export const Table: FC<TableInterface> = ({
   const dialogTopLeft = useRef([20, 20]);
   const numberOfSeats = useRef(4);
   const [dialogInputFieldVal, setDialogInputFieldVal] = useState("");
-  const [height, setHeight] = useState(20);
+  const [dialogInputFieldVal1, setDialogInputFieldVal1] = useState("");
 
   function exportAsJSON() {
     return {
@@ -58,7 +60,9 @@ export const Table: FC<TableInterface> = ({
         ? 4
         : parseInt(dialogInputFieldVal),
       reserved: false,
-      price: 15,
+      price: Number.isNaN(parseInt(dialogInputFieldVal))
+        ? 15
+        : parseInt(dialogInputFieldVal),
       top: top,
       left: left,
       height: height,
@@ -68,7 +72,7 @@ export const Table: FC<TableInterface> = ({
 
   useEffect(() => {
     exportFunctions.set(id, exportAsJSON);
-  }, [numberOfSeats.current, height, top, left]);
+  }, [numberOfSeats.current, top, left]);
 
   if (isDragging) {
     return <div ref={drag}></div>;
@@ -144,20 +148,22 @@ export const Table: FC<TableInterface> = ({
             }
           />
         </Group>
-        <Group align="center" mb="xl">
+        <Group align="center" mb="md">
           <Text size="sm" fw={300} miw="45px">
-            size:{" "}
+            Price per seat:{" "}
           </Text>
-          <Slider
-            flex={1}
-            color="blue"
-            marks={[
-              { value: 20, label: "20%" },
-              { value: 50, label: "50%" },
-              { value: 80, label: "80%" },
-            ]}
-            value={height}
-            onChange={setHeight}
+          <TextInput
+            placeholder="Price per seats..."
+            style={{ flex: 1 }}
+            value={dialogInputFieldVal1}
+            onChange={(event) =>
+              setDialogInputFieldVal1(
+                event.currentTarget.value
+                  .split("")
+                  .filter((c) => c >= "0" && c <= "9")
+                  .join("")
+              )
+            }
           />
         </Group>
         <Button
