@@ -1,5 +1,7 @@
 namespace Backend.Controllers;
 
+[ApiController]
+[Route("[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly UserManager<Korisnik> _userManager;
@@ -38,6 +40,11 @@ public class AccountController : ControllerBase
         if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
         {
             return ValidationProblem("Email is already in use.");
+        }
+
+        if (registerDto.UserType == "Admin")
+        {
+            registerDto.UserType = "Visitor";
         }
 
         var korisnik = new Korisnik
@@ -81,6 +88,8 @@ public class AccountController : ControllerBase
     {
         return new KorisnikDto
         {
+            FirstName = korisnik.Ime,
+            LastName = korisnik.Prezime,
             Token = await _tokenService.CreateToken(korisnik),
             DateOfBirth = korisnik.DatumRodjenja,
             PhoneNumber = korisnik.Telefon,

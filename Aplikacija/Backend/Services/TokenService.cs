@@ -15,16 +15,6 @@ public class TokenService
     {
         var claims = new List<Claim>();
 
-        if (!String.IsNullOrEmpty(korisnik.Ime))
-        {
-            claims.Add(new Claim("firstName", korisnik.Ime));
-        }
-
-        if (!String.IsNullOrEmpty(korisnik.Prezime))
-        {
-            claims.Add(new Claim("lastName", korisnik.Prezime));
-        }
-
         claims.Add(new Claim(ClaimTypes.NameIdentifier, korisnik.Id.ToString()));
 
         if (!string.IsNullOrEmpty(korisnik.Email))
