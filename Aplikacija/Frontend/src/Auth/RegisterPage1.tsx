@@ -7,7 +7,6 @@ import {
   Button,
   Select,
   PasswordInput,
-  FileInput,
   SimpleGrid,
   Image,
   InputLabel,
@@ -17,8 +16,17 @@ import { PasswordStrength } from "./Utils/PasswordStrength";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
+import { DateInput } from "@mantine/dates";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login } from "../store/features/auth";
 
 export function RegisterPage1() {
+  const navigate = useNavigate();
+  const [userType, setUserType] = useState<string | null>("Visitor");
+  const [selectedAvatar, setSelectedAvatar] = useState<number>(0);
+  const dispatch = useDispatch();
+
   const registerForm = useForm({
     mode: "controlled",
     initialValues: {
@@ -26,11 +34,13 @@ export function RegisterPage1() {
       lastName: "",
       email: "",
       password: "",
+      phoneNumber: "",
+      birthday: new Date(2024, 1, 1),
       userType: "Visitor",
-      avatar: 0,
+      avatar:
+        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
       address: "",
       city: "",
-      identificationImage: null,
     },
 
     validate: {
@@ -39,20 +49,20 @@ export function RegisterPage1() {
       firstName: (value) =>
         value.length > 0 ? null : "Empty first name field",
       lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
-      address: (value, { userType }) =>
+      phoneNumber: (value) =>
+        value.length > 0 ? null : "Required field missing",
+      address: (value) =>
         userType != "Visitor" && value.length > 0
           ? null
           : "Empty address field",
-      city: (value, { userType }) =>
+      userType: (value) =>
+        value == "Visitor" || value == "Host" || value == "Space owner"
+          ? null
+          : "Wrong user type",
+      city: (value) =>
         userType != "Visitor" && value.length > 0 ? null : "Empty city field",
-      identificationImage: (value, { userType }) =>
-        userType != "Visitor" && value != null ? null : "Id image is required",
     },
   });
-
-  const navigate = useNavigate();
-  const [userType, setUserType] = useState<string | null>("Visitor");
-  const [selectedAvatar, setSelectedAvatar] = useState<number>(0);
 
   return (
     <Paper
@@ -106,29 +116,43 @@ export function RegisterPage1() {
           <TextInput
             mb={10}
             label="Email"
-            placeholder="you@mantine.dev"
+            placeholder="example@gmail.com"
             required
             key={registerForm.key("email")}
             {...registerForm.getInputProps("email")}
           />
-          <PasswordStrength
-            key={registerForm.key("password")}
-            {...registerForm.getInputProps("password")}
-          />
+          <PasswordStrength />
           <PasswordInput
             required
             placeholder="Selected password"
             label="Repeat password"
+            key={registerForm.key("password")}
+            {...registerForm.getInputProps("password")}
             mt={10}
           />
+          <TextInput
+            mb={10}
+            label="Phone number"
+            placeholder="012456789"
+            required
+            key={registerForm.key("phoneNumber")}
+            {...registerForm.getInputProps("phoneNumber")}
+          />
+          <DateInput
+            required
+            label="Birthday"
+            key={registerForm.key("birthday")}
+            {...registerForm.getInputProps("birthday")}
+          />
+
           <Select
             required
             mt={10}
             label="User type"
-            defaultValue="Visitor"
             data={["Visitor", "Host", "Space owner"]}
             key={registerForm.key("userType")}
             {...registerForm.getInputProps("userType")}
+            value={userType}
             onChange={(value) => {
               setUserType(value);
             }}
@@ -159,7 +183,12 @@ export function RegisterPage1() {
                     }
                     onClick={(event) => {
                       event.stopPropagation();
-                      registerForm.setFieldValue("avatar", idx);
+                      registerForm.setFieldValue(
+                        "avatar",
+                        `https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-${
+                          idx + 1
+                        }.png`
+                      );
                       setSelectedAvatar(idx);
                     }}
                   />
@@ -186,23 +215,44 @@ export function RegisterPage1() {
                 key={registerForm.key("city")}
                 {...registerForm.getInputProps("city")}
               />
-              <FileInput
-                required
-                label="Identification image"
-                description="Image is used for identification purposes and it is not saved"
-                placeholder="Personal identification"
-                key={registerForm.key("identificationImage")}
-                {...registerForm.getInputProps("identificationImage")}
-              />
             </>
           )}
           <Button
             type="submit"
             fullWidth
             mt="xl"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.stopPropagation();
-              console.log(registerForm.getValues());
+              const values = registerForm.getValues();
+              await axios
+                .post(`${import.meta.env.VITE_DB_SERVER}/Account/register`, {
+                  ...values,
+                  userType: userType,
+                })
+                .then((resp) => {
+                  const obj = JSON.parse(atob(resp.data.token.split(".")[1]));
+                  dispatch(
+                    login({
+                      userId: obj["nameid"],
+                      token: resp.data.token,
+                      email: obj["email"],
+                      userType: obj["role"],
+
+                      firstName: resp.data.firstName,
+                      lastName: resp.data.lastName,
+                      birthday: resp.data.dateOfBirth,
+                      phoneNumber: resp.data.phoneNumber,
+                      avatar: resp.data.avatar,
+                      address: resp.data.address,
+                      city: resp.data.city,
+                    })
+                  );
+                  navigate("/");
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert(err.response.data.detail);
+                });
             }}
           >
             Sign up

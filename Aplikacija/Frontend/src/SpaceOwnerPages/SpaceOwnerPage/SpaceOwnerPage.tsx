@@ -22,6 +22,7 @@ import { useState, useEffect } from "react";
 import { useIsMobile } from "../../util/useIsMobile";
 import { StatsCard } from "../StatsCard";
 import View from "../SpaceViewPages";
+import { DateInput } from "@mantine/dates";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -117,6 +118,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
               <TextInput label="First name"></TextInput>
               <TextInput label="Last name"></TextInput>
               <TextInput label="Address"></TextInput>
+              <DateInput label="Birthday"></DateInput>
             </Stack>
             <Stack w="50%">
               <TextInput
@@ -129,6 +131,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                 placeholder="Enter new password"
               />
               <TextInput label="City"></TextInput>
+              <TextInput label="Phone number"></TextInput>
               <div
                 style={{
                   width: "100%",

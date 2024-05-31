@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { login } from "../store/features/auth";
+import axios from "axios";
 
 export function LoginPage() {
   const loginForm = useForm({
@@ -54,24 +55,36 @@ export function LoginPage() {
               </Title>
 
               <form
-                onSubmit={loginForm.onSubmit((values, event) => {
+                onSubmit={loginForm.onSubmit(async (values, event) => {
                   event?.stopPropagation();
-                  console.log(values);
-                  dispatch(
-                    login({
-                      userId: "",
-                      token: "",
+                  await axios
+                    .post(`${import.meta.env.VITE_DB_SERVER}/Account/login`, {
                       email: values.email,
-                      userType: "Host",
-                      firstName: "TEST",
-                      lastName: "TEST",
-                      avatar:
-                        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-                      address: null,
-                      city: null,
+                      password: values.password,
                     })
-                  );
-                  navigate("/");
+                    .then((resp) => {
+                      const obj = JSON.parse(
+                        atob(resp.data.token.split(".")[1])
+                      );
+                      dispatch(
+                        login({
+                          userId: obj["nameid"],
+                          token: resp.data.token,
+                          email: obj["email"],
+                          userType: obj["role"],
+
+                          firstName: resp.data.firstName,
+                          lastName: resp.data.lastName,
+                          birthday: resp.data.dateOfBirth,
+                          phoneNumber: resp.data.phoneNumber,
+                          avatar: resp.data.avatar,
+                          address: resp.data.address,
+                          city: resp.data.city,
+                        })
+                      );
+                      navigate("/");
+                    })
+                    .catch((err) => alert(err.response.data));
                 })}
               >
                 <TextInput

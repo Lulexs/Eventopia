@@ -27,6 +27,7 @@ import classes from "./UserProfile.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { StatsCard } from "./StatsCard";
 import { AuthState } from "../store/features/auth";
+import { DateInput } from "@mantine/dates";
 
 export interface VisitorProfileProps {
   user: AuthState;
@@ -215,6 +216,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               ></TextInput>
               <TextInput label="First name"></TextInput>
               <TextInput label="Last name"></TextInput>
+              <DateInput label="Birthday" />
             </Stack>
             <Stack w="50%">
               <TextInput
@@ -226,6 +228,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 label="Password"
                 placeholder="Enter new password"
               ></PasswordInput>
+              <TextInput label="Phone number"></TextInput>
               <div
                 style={{
                   width: "100%",

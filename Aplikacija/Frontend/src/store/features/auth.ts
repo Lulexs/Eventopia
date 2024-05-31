@@ -6,6 +6,8 @@ export interface AuthState {
   email: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
+  birthday: string;
   userType: "Visitor" | "Space owner" | "Host" | "Unregistered" | "Admin";
   avatar: string | null;
   address: string | null;
@@ -18,6 +20,8 @@ const initialState: AuthState = {
   firstName: "",
   lastName: "",
   email: "",
+  phoneNumber: "",
+  birthday: "",
   userType: "Unregistered",
   avatar: null,
   address: null,
@@ -33,6 +37,8 @@ export const authSlice = createSlice({
       state.token = action.payload.token;
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
+      state.birthday = action.payload.birthday;
+      state.phoneNumber = action.payload.phoneNumber;
       state.lastName = action.payload.lastName;
       state.userType = action.payload.userType;
       state.avatar = action.payload.avatar;

@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { StatsCard } from "../StatsCard";
 import { View } from "../EventViewPages";
 import { useIsMobile } from "../../util/useIsMobile";
+import { DateInput } from "@mantine/dates";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -98,6 +99,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               <TextInput label="First name"></TextInput>
               <TextInput label="Last name"></TextInput>
               <TextInput label="Address"></TextInput>
+              <DateInput label="Birthday" />
             </Stack>
             <Stack w="50%">
               <TextInput
@@ -109,6 +111,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 label="Password"
                 placeholder="Enter new password"
               />
+              <TextInput label="Phone number" />
               <TextInput label="City"></TextInput>
               <div
                 style={{
