@@ -27,13 +27,33 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
         base.OnModelCreating(builder);
 
         builder.Entity<Korisnik>()
-        .HasOne(korisnik => korisnik.UserRole)
-        .WithOne(role => role.Korisnik);
+            .HasOne(korisnik => korisnik.UserRole)
+            .WithOne(role => role.Korisnik);
 
         builder.Entity<AppRole>()
-        .HasMany(role => role.UserRoles)
-        .WithOne(korisnik => korisnik.Role)
-        .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
+            .HasMany(role => role.UserRoles)
+            .WithOne(korisnik => korisnik.Role)
+            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
+
+        builder.Entity<Prostor>()
+            .HasMany(prostor => prostor.PlanoviProstora)
+            .WithOne(planProstora => planProstora.Prostor)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<PlanProstora>()
+            .HasMany(planProstora => planProstora.DraggableItems)
+            .WithOne(draggableItem => draggableItem.PlanProstora)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<PlanProstora>()
+            .HasMany(planProstora => planProstora.Lines)
+            .WithOne(line => line.PlanProstora)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<PlanProstora>()
+            .HasOne(planProstora => planProstora.SurfaceDimension)
+            .WithOne(surfaceDimension => surfaceDimension.PlanProstora)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

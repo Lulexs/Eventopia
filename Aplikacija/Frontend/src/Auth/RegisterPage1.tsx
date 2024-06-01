@@ -94,7 +94,6 @@ export function RegisterPage1() {
         <form
           onSubmit={registerForm.onSubmit((values, event) => {
             event?.stopPropagation();
-            console.log(values);
           })}
         >
           <TextInput

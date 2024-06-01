@@ -31,9 +31,9 @@ public static class IdentityServiceExtensions
         services.AddAuthorization(option =>
         {
             option.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Admin"));
-            option.AddPolicy("RequireVisitor", policy => policy.RequireRole("Visitor"));
-            option.AddPolicy("RequireSpaceOwner", policy => policy.RequireRole("Space owner"));
-            option.AddPolicy("RequireHost", policy => policy.RequireRole("Host"));
+            option.AddPolicy("RequireVisitorRole", policy => policy.RequireRole("Visitor"));
+            option.AddPolicy("RequireSpaceOwnerRole", policy => policy.RequireRole("Space owner"));
+            option.AddPolicy("RequireHostRole", policy => policy.RequireRole("Host"));
         });
 
         services.AddScoped<TokenService>();

@@ -11,7 +11,7 @@ public class RezervacijaProstora
 
     public StatusRezervacije Status { get; set; }
 
-    public required Dogadjaj Dogadjaj { get; set; }
+    public Dogadjaj? Dogadjaj { get; set; }
 
-    public required Prostor Prostor { get; set; }
+    public Prostor? Prostor { get; set; }
 }

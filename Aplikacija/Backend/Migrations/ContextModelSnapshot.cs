@@ -93,7 +93,7 @@ namespace Backend.Migrations
                     b.Property<Guid?>("OrganizatorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RezervacijaProstoraFK")
+                    b.Property<int?>("RezervacijaProstoraFK")
                         .HasColumnType("int");
 
                     b.Property<string>("Slika")
@@ -114,7 +114,8 @@ namespace Backend.Migrations
                     b.HasIndex("OrganizatorId");
 
                     b.HasIndex("RezervacijaProstoraFK")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[RezervacijaProstoraFK] IS NOT NULL");
 
                     b.ToTable("Dogadjaji");
                 });
@@ -130,6 +131,10 @@ namespace Backend.Migrations
                     b.Property<int?>("BrojMesta")
                         .HasColumnType("int");
 
+                    b.Property<string>("FrontID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double?>("Height")
                         .HasColumnType("float");
 
@@ -139,7 +144,7 @@ namespace Backend.Migrations
                     b.Property<double>("Left")
                         .HasColumnType("float");
 
-                    b.Property<int>("PlanProstoraID")
+                    b.Property<int?>("PlanProstoraID")
                         .HasColumnType("int");
 
                     b.Property<int?>("Price")
@@ -259,13 +264,7 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("Corner1FK")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Corner2FK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PlanProstoraID")
+                    b.Property<int?>("PlanProstoraID")
                         .HasColumnType("int");
 
                     b.Property<double>("X1")
@@ -281,14 +280,6 @@ namespace Backend.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Corner1FK")
-                        .IsUnique()
-                        .HasFilter("[Corner1FK] IS NOT NULL");
-
-                    b.HasIndex("Corner2FK")
-                        .IsUnique()
-                        .HasFilter("[Corner2FK] IS NOT NULL");
 
                     b.HasIndex("PlanProstoraID");
 
@@ -336,7 +327,7 @@ namespace Backend.Migrations
                     b.Property<int?>("DogadjajID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProstorID")
+                    b.Property<int?>("ProstorID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
@@ -377,20 +368,6 @@ namespace Backend.Migrations
                     b.Property<double>("Longitude")
                         .HasColumnType("float");
 
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("Opis")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Slika")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid?>("VlasnikProstoraId")
                         .HasColumnType("uniqueidentifier");
 
@@ -412,10 +389,10 @@ namespace Backend.Migrations
                     b.Property<int>("BrojMesta")
                         .HasColumnType("int");
 
-                    b.Property<int>("DogadjajID")
+                    b.Property<int?>("DogadjajID")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("KorisnikId")
+                    b.Property<Guid?>("KorisnikId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("StoFK")
@@ -445,7 +422,7 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("ProstorID")
+                    b.Property<int?>("ProstorID")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -475,7 +452,7 @@ namespace Backend.Migrations
                     b.Property<double>("Height")
                         .HasColumnType("float");
 
-                    b.Property<int>("SurfaceDimension")
+                    b.Property<int?>("PlanProstoraFK")
                         .HasColumnType("int");
 
                     b.Property<double>("Width")
@@ -483,8 +460,9 @@ namespace Backend.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("SurfaceDimension")
-                        .IsUnique();
+                    b.HasIndex("PlanProstoraFK")
+                        .IsUnique()
+                        .HasFilter("[PlanProstoraFK] IS NOT NULL");
 
                     b.ToTable("SurfaceDimensions");
                 });
@@ -636,14 +614,12 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Models.Dogadjaj", b =>
                 {
                     b.HasOne("Backend.Models.Korisnik", "Organizator")
-                        .WithMany()
+                        .WithMany("OrganizatorDogadjaji")
                         .HasForeignKey("OrganizatorId");
 
                     b.HasOne("Backend.Models.RezervacijaProstora", "RezervacijaProstora")
                         .WithOne("Dogadjaj")
-                        .HasForeignKey("Backend.Models.Dogadjaj", "RezervacijaProstoraFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Backend.Models.Dogadjaj", "RezervacijaProstoraFK");
 
                     b.Navigation("Organizator");
 
@@ -655,31 +631,17 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.PlanProstora", "PlanProstora")
                         .WithMany("DraggableItems")
                         .HasForeignKey("PlanProstoraID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PlanProstora");
                 });
 
             modelBuilder.Entity("Backend.Models.Line", b =>
                 {
-                    b.HasOne("Backend.Models.DraggableItem", "Corner1")
-                        .WithOne("Line1")
-                        .HasForeignKey("Backend.Models.Line", "Corner1FK");
-
-                    b.HasOne("Backend.Models.DraggableItem", "Corner2")
-                        .WithOne("Line2")
-                        .HasForeignKey("Backend.Models.Line", "Corner2FK");
-
                     b.HasOne("Backend.Models.PlanProstora", "PlanProstora")
                         .WithMany("Lines")
                         .HasForeignKey("PlanProstoraID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Corner1");
-
-                    b.Navigation("Corner2");
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PlanProstora");
                 });
@@ -691,7 +653,7 @@ namespace Backend.Migrations
                         .HasForeignKey("DogadjajID");
 
                     b.HasOne("Backend.Models.Korisnik", "Korisnik")
-                        .WithMany()
+                        .WithMany("Ocene")
                         .HasForeignKey("KorisnikId");
 
                     b.Navigation("Dogadjaj");
@@ -708,8 +670,7 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Prostor", "Prostor")
                         .WithMany("PlanoviProstora")
                         .HasForeignKey("ProstorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Dogadjaj");
 
@@ -719,7 +680,7 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Models.Prostor", b =>
                 {
                     b.HasOne("Backend.Models.Korisnik", "VlasnikProstora")
-                        .WithMany()
+                        .WithMany("VlasnikProstori")
                         .HasForeignKey("VlasnikProstoraId");
 
                     b.Navigation("VlasnikProstora");
@@ -729,15 +690,11 @@ namespace Backend.Migrations
                 {
                     b.HasOne("Backend.Models.Dogadjaj", "Dogadjaj")
                         .WithMany("Rezervacije")
-                        .HasForeignKey("DogadjajID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DogadjajID");
 
                     b.HasOne("Backend.Models.Korisnik", "Korisnik")
-                        .WithMany()
-                        .HasForeignKey("KorisnikId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Rezervacije")
+                        .HasForeignKey("KorisnikId");
 
                     b.HasOne("Backend.Models.DraggableItem", "Sto")
                         .WithOne("Rezervacija")
@@ -754,9 +711,7 @@ namespace Backend.Migrations
                 {
                     b.HasOne("Backend.Models.Prostor", "Prostor")
                         .WithMany("Rezervacije")
-                        .HasForeignKey("ProstorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProstorID");
 
                     b.Navigation("Prostor");
                 });
@@ -765,9 +720,8 @@ namespace Backend.Migrations
                 {
                     b.HasOne("Backend.Models.PlanProstora", "PlanProstora")
                         .WithOne("SurfaceDimension")
-                        .HasForeignKey("Backend.Models.SurfaceDimension", "SurfaceDimension")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Backend.Models.SurfaceDimension", "PlanProstoraFK")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PlanProstora");
                 });
@@ -837,16 +791,20 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.DraggableItem", b =>
                 {
-                    b.Navigation("Line1");
-
-                    b.Navigation("Line2");
-
                     b.Navigation("Rezervacija");
                 });
 
             modelBuilder.Entity("Backend.Models.Korisnik", b =>
                 {
+                    b.Navigation("Ocene");
+
+                    b.Navigation("OrganizatorDogadjaji");
+
+                    b.Navigation("Rezervacije");
+
                     b.Navigation("UserRole");
+
+                    b.Navigation("VlasnikProstori");
                 });
 
             modelBuilder.Entity("Backend.Models.PlanProstora", b =>
@@ -855,8 +813,7 @@ namespace Backend.Migrations
 
                     b.Navigation("Lines");
 
-                    b.Navigation("SurfaceDimension")
-                        .IsRequired();
+                    b.Navigation("SurfaceDimension");
                 });
 
             modelBuilder.Entity("Backend.Models.Prostor", b =>
@@ -868,8 +825,7 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.RezervacijaProstora", b =>
                 {
-                    b.Navigation("Dogadjaj")
-                        .IsRequired();
+                    b.Navigation("Dogadjaj");
                 });
 #pragma warning restore 612, 618
         }

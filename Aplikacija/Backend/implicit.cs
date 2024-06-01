@@ -15,3 +15,5 @@ global using Microsoft.AspNetCore.Identity;
 global using System.IdentityModel.Tokens.Jwt;
 global using Backend;
 global using Backend.Extensions;
+global using System.Text.Json.Serialization;
+global using System.Text.Json;

@@ -1,6 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace Backend.DTOs;
 
 public class RegisterDto
@@ -42,7 +39,4 @@ public class RegisterDto
 
     [JsonPropertyName("city")]
     public string? Grad { get; set; }
-
-    // TODO: Identification image
-
 }

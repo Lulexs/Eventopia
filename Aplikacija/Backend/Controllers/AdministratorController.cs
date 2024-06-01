@@ -11,7 +11,7 @@ public class AdministratorController : ControllerBase
 
     [Authorize(Policy = "RequireAdministratorRole")]
     [HttpGet("getUsersWithRoles")]
-    public async Task<IActionResult> VratiSveKorisnikeSaUlogama()
+    public async Task<IActionResult> GetUsersWithRoles()
     {
         var korisnici = await _userManager.Users.OrderBy(korisnik => korisnik.Ime)
                                                 .ThenBy(korisnik => korisnik.Prezime)

@@ -8,6 +8,6 @@ public class Rezervacija
     public int BrojMesta { get; set; }
     [ForeignKey("StoFK")]
     public DraggableItem? Sto { get; set; }
-    public required Dogadjaj Dogadjaj { get; set; }
-    public required Korisnik Korisnik { get; set; }
+    public Dogadjaj? Dogadjaj { get; set; }
+    public Korisnik? Korisnik { get; set; }
 }

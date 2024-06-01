@@ -2,9 +2,8 @@ namespace Backend.Models;
 
 public enum TipItema
 {
-    Corner = 0,
-    Table = 1,
-    Stage = 2,
-    Bar = 3,
-    Image = 4
+    Table = 0,
+    Stage = 1,
+    Bar = 2,
+    Image = 3
 }

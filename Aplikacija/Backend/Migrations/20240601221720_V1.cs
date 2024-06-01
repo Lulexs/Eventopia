@@ -188,14 +188,11 @@ namespace Backend.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Naziv = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
-                    Opis = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     Grad = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Drzava = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Adresa = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Latitude = table.Column<double>(type: "float", nullable: false),
                     Longitude = table.Column<double>(type: "float", nullable: false),
-                    Slika = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     VlasnikProstoraId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -217,7 +214,7 @@ namespace Backend.Migrations
                     VremeOd = table.Column<DateTime>(type: "datetime2", nullable: false),
                     VremeDo = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    ProstorID = table.Column<int>(type: "int", nullable: false)
+                    ProstorID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -226,8 +223,7 @@ namespace Backend.Migrations
                         name: "FK_RezervacijeProstora_Prostori_ProstorID",
                         column: x => x.ProstorID,
                         principalTable: "Prostori",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
@@ -242,7 +238,7 @@ namespace Backend.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     Slika = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     VideoLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RezervacijaProstoraFK = table.Column<int>(type: "int", nullable: false),
+                    RezervacijaProstoraFK = table.Column<int>(type: "int", nullable: true),
                     OrganizatorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -257,8 +253,7 @@ namespace Backend.Migrations
                         name: "FK_Dogadjaji_RezervacijeProstora_RezervacijaProstoraFK",
                         column: x => x.RezervacijaProstoraFK,
                         principalTable: "RezervacijeProstora",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
@@ -317,7 +312,7 @@ namespace Backend.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProstorID = table.Column<int>(type: "int", nullable: false),
+                    ProstorID = table.Column<int>(type: "int", nullable: true),
                     DogadjajID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -342,6 +337,7 @@ namespace Backend.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    FrontID = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Tip = table.Column<int>(type: "int", nullable: false),
                     Top = table.Column<double>(type: "float", nullable: false),
                     Left = table.Column<double>(type: "float", nullable: false),
@@ -350,7 +346,7 @@ namespace Backend.Migrations
                     BrojMesta = table.Column<int>(type: "int", nullable: true),
                     Reserved = table.Column<bool>(type: "bit", nullable: true),
                     Price = table.Column<int>(type: "int", nullable: true),
-                    PlanProstoraID = table.Column<int>(type: "int", nullable: false)
+                    PlanProstoraID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -358,27 +354,6 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_DraggableItems_PlanoviProstora_PlanProstoraID",
                         column: x => x.PlanProstoraID,
-                        principalTable: "PlanoviProstora",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SurfaceDimensions",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Height = table.Column<double>(type: "float", nullable: false),
-                    Width = table.Column<double>(type: "float", nullable: false),
-                    SurfaceDimension = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SurfaceDimensions", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_SurfaceDimensions_PlanoviProstora_SurfaceDimension",
-                        column: x => x.SurfaceDimension,
                         principalTable: "PlanoviProstora",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -394,26 +369,35 @@ namespace Backend.Migrations
                     X2 = table.Column<double>(type: "float", nullable: false),
                     Y1 = table.Column<double>(type: "float", nullable: false),
                     Y2 = table.Column<double>(type: "float", nullable: false),
-                    PlanProstoraID = table.Column<int>(type: "int", nullable: false),
-                    Corner1FK = table.Column<int>(type: "int", nullable: true),
-                    Corner2FK = table.Column<int>(type: "int", nullable: true)
+                    PlanProstoraID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Lines", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Lines_DraggableItems_Corner1FK",
-                        column: x => x.Corner1FK,
-                        principalTable: "DraggableItems",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_Lines_DraggableItems_Corner2FK",
-                        column: x => x.Corner2FK,
-                        principalTable: "DraggableItems",
-                        principalColumn: "ID");
-                    table.ForeignKey(
                         name: "FK_Lines_PlanoviProstora_PlanProstoraID",
                         column: x => x.PlanProstoraID,
+                        principalTable: "PlanoviProstora",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SurfaceDimensions",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Height = table.Column<double>(type: "float", nullable: false),
+                    Width = table.Column<double>(type: "float", nullable: false),
+                    PlanProstoraFK = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SurfaceDimensions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SurfaceDimensions_PlanoviProstora_PlanProstoraFK",
+                        column: x => x.PlanProstoraFK,
                         principalTable: "PlanoviProstora",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
@@ -428,8 +412,8 @@ namespace Backend.Migrations
                     VremeRezervacije = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BrojMesta = table.Column<int>(type: "int", nullable: false),
                     StoFK = table.Column<int>(type: "int", nullable: true),
-                    DogadjajID = table.Column<int>(type: "int", nullable: false),
-                    KorisnikId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    DogadjajID = table.Column<int>(type: "int", nullable: true),
+                    KorisnikId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -438,14 +422,12 @@ namespace Backend.Migrations
                         name: "FK_Rezervacije_AspNetUsers_KorisnikId",
                         column: x => x.KorisnikId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Rezervacije_Dogadjaji_DogadjajID",
                         column: x => x.DogadjajID,
                         principalTable: "Dogadjaji",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ID");
                     table.ForeignKey(
                         name: "FK_Rezervacije_DraggableItems_StoFK",
                         column: x => x.StoFK,
@@ -508,7 +490,8 @@ namespace Backend.Migrations
                 name: "IX_Dogadjaji_RezervacijaProstoraFK",
                 table: "Dogadjaji",
                 column: "RezervacijaProstoraFK",
-                unique: true);
+                unique: true,
+                filter: "[RezervacijaProstoraFK] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DogadjajTag_TagoviID",
@@ -519,20 +502,6 @@ namespace Backend.Migrations
                 name: "IX_DraggableItems_PlanProstoraID",
                 table: "DraggableItems",
                 column: "PlanProstoraID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Lines_Corner1FK",
-                table: "Lines",
-                column: "Corner1FK",
-                unique: true,
-                filter: "[Corner1FK] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Lines_Corner2FK",
-                table: "Lines",
-                column: "Corner2FK",
-                unique: true,
-                filter: "[Corner2FK] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Lines_PlanProstoraID",
@@ -587,10 +556,11 @@ namespace Backend.Migrations
                 column: "ProstorID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SurfaceDimensions_SurfaceDimension",
+                name: "IX_SurfaceDimensions_PlanProstoraFK",
                 table: "SurfaceDimensions",
-                column: "SurfaceDimension",
-                unique: true);
+                column: "PlanProstoraFK",
+                unique: true,
+                filter: "[PlanProstoraFK] IS NOT NULL");
         }
 
         /// <inheritdoc />

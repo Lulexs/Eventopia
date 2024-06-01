@@ -12,7 +12,7 @@ public static class Seed
 
             var roles = new List<AppRole> {
                 new AppRole{Name = "Visitor"},
-                new AppRole{Name = "Space Owner"},
+                new AppRole{Name = "Space owner"},
                 new AppRole{Name = "Admin"},
                 new AppRole{Name = "Host"}
             };

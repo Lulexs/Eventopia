@@ -9,7 +9,7 @@ import SpaceOwnerPage from "./SpaceOwnerPage/SpaceOwnerPage";
 import classes from "./SpaceOwnerPage/SpaceOwnerPage.module.css";
 import View from "./SpaceViewPages";
 import Drawer from "../Reservations/Drawer/Drawer";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 import MapWithInput from "../Auth/Utils/MapInput";
 import { LatLng } from "leaflet";
 
@@ -47,8 +47,9 @@ export default function SpaceOwnerPageContainer() {
               spaceObject["address"] = address;
               spaceObject["latitude"] = position.lat;
               spaceObject["longitude"] = position.lng;
+              console.log(spaceObject);
               await axios
-                .post(`${import.meta.env.VITE_JSON_SERVER}/spaces`, spaceObject)
+                .post(`${import.meta.env.VITE_DB_SERVER}/Space/addSpace`, spaceObject)
                 .then((_) => setView(View.Basic))
                 .catch((err) => alert(err));
             }}

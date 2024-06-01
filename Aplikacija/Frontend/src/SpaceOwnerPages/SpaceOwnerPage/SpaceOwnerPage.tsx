@@ -15,14 +15,15 @@ import {
   Text,
   Group,
 } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useQuery, useQueryClient} from "@tanstack/react-query";
+import axios from "../../../axiosconfig.ts";
 import { Event } from "../../EventListing/interfaces";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "../../util/useIsMobile";
 import { StatsCard } from "../StatsCard";
 import View from "../SpaceViewPages";
 import { DateInput } from "@mantine/dates";
+import { Space } from "./interfaces.ts";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -31,12 +32,33 @@ export interface OrganizerPageProps {
 
 export default function SpaceOwnerPage(props: OrganizerPageProps) {
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
-  const dummySpaces = [
-    { Adresa: "123 St.John" },
-    { Adresa: "123 St.John" },
-    { Adresa: "123 St.John" },
-  ];
+  const {
+    isLoading: areSpacesLoading,
+    data: spaces,
+    isError: spacesError
+  } = useQuery<Space[]>({
+    queryKey: ["owner_spaces"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Space/getOwnerSpaces`)
+        .then((resp) => {
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((err) => { console.log(err); return [] })
+    },
+  });
+
+  const removeSpace = async (spaceId: number) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_DB_SERVER}/Space/deleteSpace/${spaceId}`);
+      queryClient.invalidateQueries({queryKey: ['owner_spaces']});
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const dummyReservations = [
     {
@@ -196,7 +218,10 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
           )} */}
           {/* {!areEventsLoading &&
             !eventsError && */}
-          {dummySpaces?.map((space, idx) => (
+          {areSpacesLoading || spacesError ? (
+            <div></div>
+          ) : (
+          spaces?.map((space, idx) => (
             <Flex
               key={idx}
               p="sm"
@@ -206,12 +231,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
             >
               <Box className={classes.reservationAndVisitedDivBox}>
                 <Text className={classes.reservationAndVisitedDivText}>
-                  {space.Adresa}
+                  {space.address}
                 </Text>
               </Box>
-              <Button>Remove space</Button>
+              <Button onClick={() => removeSpace(space.id)}>Remove space</Button>
             </Flex>
-          ))}
+          )))}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>

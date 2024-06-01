@@ -26,7 +26,7 @@ public class Dogadjaj
     public List<Ocena>? Ocene { get; set; }
 
     [ForeignKey("RezervacijaProstoraFK")]
-    public required RezervacijaProstora RezervacijaProstora { get; set; }
+    public RezervacijaProstora? RezervacijaProstora { get; set; }
 
     public List<Rezervacija>? Rezervacije { get; set; }
 

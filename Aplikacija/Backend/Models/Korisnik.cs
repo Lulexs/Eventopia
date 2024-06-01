@@ -10,4 +10,8 @@ public class Korisnik : IdentityUser<Guid>
     public string? Adresa { get; set; }
     public string? Grad { get; set; }
     public AppUserRole? UserRole { get; set; }
+    public List<Dogadjaj>? OrganizatorDogadjaji { get; set; }
+    public List<Rezervacija>? Rezervacije { get; set; }
+    public List<Prostor>? VlasnikProstori { get; set; }
+    public List<Ocena>? Ocene { get; set; }
 }

@@ -9,8 +9,8 @@ public class PlanProstora
 
     public List<Line>? Lines { get; set; }
 
-    public required Prostor Prostor { get; set; }
-    public required SurfaceDimension SurfaceDimension { get; set; }
+    public Prostor? Prostor { get; set; }
+    public SurfaceDimension? SurfaceDimension { get; set; }
     public Dogadjaj? Dogadjaj { get; set; }
 
 }
