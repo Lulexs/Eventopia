@@ -11,14 +11,11 @@ import {
   Stack,
   TextInput,
   Title,
-  Image,
   Text,
   Group,
 } from "@mantine/core";
-import { useQuery, useQueryClient} from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
-import { Event } from "../../EventListing/interfaces";
-import { useState, useEffect } from "react";
 import { useIsMobile } from "../../util/useIsMobile";
 import { StatsCard } from "../StatsCard";
 import View from "../SpaceViewPages";
@@ -37,7 +34,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
   const {
     isLoading: areSpacesLoading,
     data: spaces,
-    isError: spacesError
+    isError: spacesError,
   } = useQuery<Space[]>({
     queryKey: ["owner_spaces"],
     queryFn: async () => {
@@ -47,14 +44,19 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
           console.log(resp.data);
           return resp.data;
         })
-        .catch((err) => { console.log(err); return [] })
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
     },
   });
 
   const removeSpace = async (spaceId: number) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_DB_SERVER}/Space/deleteSpace/${spaceId}`);
-      queryClient.invalidateQueries({queryKey: ['owner_spaces']});
+      await axios.delete(
+        `${import.meta.env.VITE_DB_SERVER}/Space/deleteSpace/${spaceId}`
+      );
+      queryClient.invalidateQueries({ queryKey: ["owner_spaces"] });
     } catch (err) {
       console.error(err);
     }
@@ -206,7 +208,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
           </Button>
         </Title>
         <Stack className={classes.contentStack}>
-          {/* {(areEventsLoading || eventsError) && (
+          {areSpacesLoading || spacesError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -215,28 +217,26 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                 <div></div>
               </div>
             </div>
-          )} */}
-          {/* {!areEventsLoading &&
-            !eventsError && */}
-          {areSpacesLoading || spacesError ? (
-            <div></div>
           ) : (
-          spaces?.map((space, idx) => (
-            <Flex
-              key={idx}
-              p="sm"
-              columnGap="md"
-              className={classes.reservationAndVisitedDiv}
-              style={{ justifyContent: "center" }}
-            >
-              <Box className={classes.reservationAndVisitedDivBox}>
-                <Text className={classes.reservationAndVisitedDivText}>
-                  {space.address}
-                </Text>
-              </Box>
-              <Button onClick={() => removeSpace(space.id)}>Remove space</Button>
-            </Flex>
-          )))}
+            spaces?.map((space, idx) => (
+              <Flex
+                key={idx}
+                p="sm"
+                columnGap="md"
+                className={classes.reservationAndVisitedDiv}
+                style={{ justifyContent: "center" }}
+              >
+                <Box className={classes.reservationAndVisitedDivBox}>
+                  <Text className={classes.reservationAndVisitedDivText}>
+                    {space.address}
+                  </Text>
+                </Box>
+                <Button onClick={() => removeSpace(space.id)}>
+                  Remove space
+                </Button>
+              </Flex>
+            ))
+          )}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
