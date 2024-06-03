@@ -14,4 +14,5 @@ public class Korisnik : IdentityUser<Guid>
     public List<Rezervacija>? Rezervacije { get; set; }
     public List<Prostor>? VlasnikProstori { get; set; }
     public List<Ocena>? Ocene { get; set; }
+    public List<Zabrana>? KorisnikZabrane { get; set; }
 }

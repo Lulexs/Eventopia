@@ -8,13 +8,21 @@ import {
   Text,
   Avatar,
 } from "@mantine/core";
-import { Event } from "../../EventListing/interfaces";
 import { AuthState } from "../../store/features/auth";
 import classes from "./AdminPage.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { Comment, EventBasic } from "./interfaces";
+
+export function formatOnlyDate(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}.${month}.${year}.`;
+}
 
 export interface AdminPageProps {
   user: AuthState;
@@ -71,43 +79,9 @@ const dummyUsers = [
   },
 ];
 
-const dummyComments = [
-  {
-    username: "Zika",
-    content:
-      "This Pokémon likes to lick its palms that are sweetened by being soaked" +
-      "in honey. Teddiursa concocts its own honey by blending fruits and pollen" +
-      "collected by Beedrill. Blastoise has water spouts that protrude from its" +
-      "shell. The water spouts are very accurate",
-  },
-  {
-    username: "Zika",
-    content:
-      "This Pokémon likes to lick its palms that are sweetened by being soaked" +
-      "in honey. Teddiursa concocts its own honey by blending fruits and pollen" +
-      "collected by Beedrill. Blastoise has water spouts that protrude from its" +
-      "shell. The water spouts are very accurate",
-  },
-  {
-    username: "Zika",
-    content:
-      "This Pokémon likes to lick its palms that are sweetened by being soaked" +
-      "in honey. Teddiursa concocts its own honey by blending fruits and pollen" +
-      "collected by Beedrill. Blastoise has water spouts that protrude from its" +
-      "shell. The water spouts are very accurate",
-  },
-  {
-    username: "Zika",
-    content:
-      "This Pokémon likes to lick its palms that are sweetened by being soaked" +
-      "in honey. Teddiursa concocts its own honey by blending fruits and pollen" +
-      "collected by Beedrill. Blastoise has water spouts that protrude from its" +
-      "shell. The water spouts are very accurate",
-  },
-];
-
 export default function AdminPage(props: AdminPageProps) {
   const [imageWidth, setImageWidth] = useState("25%");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     function handleResize() {
@@ -129,16 +103,61 @@ export default function AdminPage(props: AdminPageProps) {
     isLoading: areEventsLoading,
     data: events,
     isError: eventsError,
-  } = useQuery<Event[]>({
-    queryKey: ["visited_events"],
+  } = useQuery<EventBasic[]>({
+    queryKey: ["all_events"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
+        .get(`${import.meta.env.VITE_DB_SERVER}/Administrator/getAllEvents`)
         .then((resp) => {
           return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          return [];
         });
     },
   });
+
+  const {
+    isLoading: areCommentsLoading,
+    data: comments,
+    isError: commentsError,
+  } = useQuery<Comment[]>({
+    queryKey: ["all_comments"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Administrator/getAllComments`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
+    },
+  });
+
+  const deleteEvent = async (eventId: number) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_DB_SERVER}/Administrator/deleteEvent/${eventId}`
+      );
+      queryClient.invalidateQueries({ queryKey: ["all_events"] });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteComment = async (commentId: number) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_DB_SERVER}/Administrator/deleteComment/${commentId}`
+      );
+      queryClient.invalidateQueries({ queryKey: ["all_comments"] });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <Flex
@@ -199,20 +218,21 @@ export default function AdminPage(props: AdminPageProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Image
-                  src={new URL("../" + ev.img, import.meta.url).href}
-                  alt={`Couldn't load ${ev.title} image`}
+                  //src={new URL("../" + ev.img, import.meta.url).href}
+                  src={`data:image/jpeg;base64,${ev.image}`}
+                  alt={"Couldn't load image"}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}
                 />
                 <Box className={classes.reservationAndVisitedDivBox}>
                   <Text className={classes.reservationAndVisitedDivText}>
-                    {ev.title}
+                    {ev.name}
                     <br />
-                    {ev.date}
+                    {formatOnlyDate(new Date(ev.date))}
                   </Text>
                 </Box>
-                <Button w="fit-content">Remove</Button>
+                <Button w="fit-content" onClick={() => deleteEvent(ev.id)}>Remove</Button>
               </Flex>
             ))}
         </Stack>
@@ -220,7 +240,7 @@ export default function AdminPage(props: AdminPageProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title>Recent comments</Title>
         <Stack className={classes.contentStack}>
-          {(areEventsLoading || eventsError) && (
+          {(areCommentsLoading || commentsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -232,7 +252,7 @@ export default function AdminPage(props: AdminPageProps) {
           )}
           {!areEventsLoading &&
             !eventsError &&
-            dummyComments?.map((comm, idx) => (
+            comments?.map((comm, idx) => (
               <Flex
                 key={idx}
                 p="sm"
@@ -240,9 +260,9 @@ export default function AdminPage(props: AdminPageProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Box flex={1}>
-                  <Text>{comm.content}</Text>
+                  <Text>{comm.comment}</Text>
                 </Box>
-                <Button w="fit-content" bg="red">
+                <Button w="fit-content" bg="red" onClick={() => deleteComment(comm.id)}>
                   Remove
                 </Button>
               </Flex>

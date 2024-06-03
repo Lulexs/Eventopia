@@ -16,7 +16,7 @@ public class Dogadjaj
 
     public StatusDogadjaja Status { get; set; }
 
-    // Slika se pamti kao lokacija na disku. Treba da se uradi hash-ovanje ID-ja slike
+    // Slika se pamti kao Base64 string. Pogledati ImageController
     public required string Slika { get; set; }
 
     // Video se pamti kao link ka YouTube videu
