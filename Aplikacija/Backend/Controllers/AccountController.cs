@@ -83,6 +83,40 @@ public class AccountController : ControllerBase
         return korisnikObject;
     }
 
+    [Authorize]
+    [HttpPut("updateUser")]
+    public async Task<ActionResult<KorisnikDto>> UpdateUser([FromBody] ChangeUserDto changeUserDto)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        korisnik!.Ime = changeUserDto.Ime;
+        korisnik.Prezime = changeUserDto.Prezime;
+        korisnik.Telefon = changeUserDto.Telefon;
+        korisnik.DatumRodjenja = changeUserDto.DatumRodjenja;
+        korisnik.Adresa = changeUserDto.Adresa;
+        korisnik.Grad = changeUserDto.Grad;
+
+        if (!(String.IsNullOrEmpty(changeUserDto.CurrentPassword) && String.IsNullOrEmpty(changeUserDto.NewPassword)))
+        {
+            var passwordChangeResult = await _userManager.ChangePasswordAsync(korisnik, changeUserDto.CurrentPassword!, changeUserDto.NewPassword!);
+
+            if (!passwordChangeResult.Succeeded)
+            {
+                return BadRequest(passwordChangeResult.Errors);
+            }
+        }
+
+        var result = await _userManager.UpdateAsync(korisnik);
+
+        if (result.Succeeded)
+        {
+            var korisnikObject = await CreateUserObject(korisnik);
+            return korisnikObject;
+        }
+
+        return BadRequest(result.Errors);
+    }
+
     private async Task<KorisnikDto> CreateUserObject(Korisnik korisnik)
     {
         return new KorisnikDto

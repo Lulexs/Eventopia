@@ -6,7 +6,6 @@ import {
   Text,
   Center,
 } from "@mantine/core";
-import { useInputState } from "@mantine/hooks";
 import { IconCheck, IconX } from "@tabler/icons-react";
 
 function PasswordRequirement({
@@ -49,14 +48,21 @@ function getStrength(password: string) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-export function PasswordStrength() {
-  const [value, setValue] = useInputState("");
-  const strength = getStrength(value);
+export interface PasswordStrengthProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export function PasswordStrength(props: PasswordStrengthProps) {
+  const strength = getStrength(props.value);
+
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
       key={index}
       label={requirement.label}
-      meets={requirement.re.test(value)}
+      meets={requirement.re.test(props.value)}
     />
   ));
   const bars = Array(4)
@@ -65,7 +71,7 @@ export function PasswordStrength() {
       <Progress
         styles={{ section: { transitionDuration: "0ms" } }}
         value={
-          value.length > 0 && index === 0
+          props.value.length > 0 && index === 0
             ? 100
             : strength >= ((index + 1) / 4) * 100
             ? 100
@@ -80,10 +86,10 @@ export function PasswordStrength() {
   return (
     <div>
       <PasswordInput
-        value={value}
-        onChange={setValue}
-        placeholder="Your password"
-        label="Password"
+        value={props.value}
+        onChange={props.onChange}
+        placeholder={props.placeholder}
+        label={props.label}
         required
       />
 
@@ -93,7 +99,7 @@ export function PasswordStrength() {
 
       <PasswordRequirement
         label="Has at least 6 characters"
-        meets={value.length > 5}
+        meets={props.value.length > 5}
       />
       {checks}
     </div>

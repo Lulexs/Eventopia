@@ -34,6 +34,7 @@ export function RegisterPage1() {
       lastName: "",
       email: "",
       password: "",
+      confirmPassword: "",
       phoneNumber: "",
       birthday: new Date(2024, 1, 1),
       userType: "Visitor",
@@ -61,8 +62,12 @@ export function RegisterPage1() {
           : "Wrong user type",
       city: (value) =>
         userType != "Visitor" && value.length > 0 ? null : "Empty city field",
+      confirmPassword: (value, values) =>
+        value !== values.password ? 'Passwords did not match' : null,
     },
   });
+
+  const passwordProps = registerForm.getInputProps("password");
 
   return (
     <Paper
@@ -120,13 +125,19 @@ export function RegisterPage1() {
             key={registerForm.key("email")}
             {...registerForm.getInputProps("email")}
           />
-          <PasswordStrength />
+          <PasswordStrength 
+            label="Password" 
+            placeholder="Your password"
+            key={registerForm.key("password")}
+            value={passwordProps.value}
+            onChange={passwordProps.onChange} 
+          />
           <PasswordInput
             required
             placeholder="Selected password"
             label="Repeat password"
-            key={registerForm.key("password")}
-            {...registerForm.getInputProps("password")}
+            key={registerForm.key("confirmPassword")}
+            {...registerForm.getInputProps("confirmPassword")}
             mt={10}
           />
           <TextInput

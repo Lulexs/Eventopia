@@ -4,5 +4,6 @@ public enum StatusDogadjaja
 {
     Active = 0,
     Passed = 1,
-    Cancelled = 2
+    Cancelled = 2,
+    SpaceRejected = 3
 }

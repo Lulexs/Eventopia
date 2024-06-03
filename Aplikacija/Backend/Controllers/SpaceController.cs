@@ -89,6 +89,7 @@ public class SpaceController : ControllerBase
             PlanProstora = planProstora
         };
 
+        await Context.SurfaceDimensions.AddAsync(surfaceDimension);
         await Context.Prostori.AddAsync(prostor);
         await Context.PlanoviProstora.AddAsync(planProstora);
         await Context.SaveChangesAsync();
@@ -136,23 +137,140 @@ public class SpaceController : ControllerBase
             return BadRequest("You are not the owner of this space.");
         }
 
-        var prostor = await Context.Prostori
-                                    .Include(x => x.PlanoviProstora!)
-                                    .ThenInclude(x => x.DraggableItems)
-                                    .Include(x => x.PlanoviProstora!)
-                                    .ThenInclude(x => x.Lines)
-                                    .Include(x => x.PlanoviProstora!)
-                                    .ThenInclude(x => x.SurfaceDimension)
-                                    .FirstOrDefaultAsync(x => x.ID == id);
+        var prostor = await Context.Prostori.Where(x => x.ID == id)
+                                            .Include(x => x.Rezervacije)
+                                            .FirstOrDefaultAsync();
 
         if (prostor == null)
         {
             return BadRequest("Space not found.");
         }
 
+        bool hasConfirmedReservations = false;
+
+        prostor.Rezervacije?.ForEach(x =>
+        {
+            if (x.Status == StatusRezervacije.Confirmed)
+                hasConfirmedReservations = true;
+        });
+
+        if (hasConfirmedReservations)
+            return BadRequest("Space has confirmed reservations.");
+
         Context.Prostori.Remove(prostor);
         await Context.SaveChangesAsync();
         return Ok();
+    }
+
+    [Authorize(Policy = "RequireSpaceOwnerRole")]
+    [HttpPut("respondToSpaceReservation/{id}/{response}")]
+    public async Task<IActionResult> RespondToSpaceReservation([FromRoute] int id, [FromRoute] string response)
+    {
+
+        var rezervacija = await Context.RezervacijeProstora.FirstOrDefaultAsync(x => x.ID == id);
+
+        if (rezervacija == null)
+        {
+            return BadRequest("Reservation not found.");
+        }
+
+        if (rezervacija.Status != StatusRezervacije.WaitingConfirmation)
+        {
+            return BadRequest("Reservation is not pending.");
+        }
+
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).ToListAsync();
+
+        if (korisnik!.VlasnikProstori?.Find(x => x.ID == rezervacija!.Prostor!.ID) == null)
+        {
+            return BadRequest("You are not the owner of this space.");
+        }
+
+        if (response == "accept")
+        {
+            rezervacija.Status = StatusRezervacije.Confirmed;
+        }
+        else if (response == "reject")
+        {
+            rezervacija.Status = StatusRezervacije.Rejected;
+            rezervacija.Dogadjaj!.Status = StatusDogadjaja.SpaceRejected;
+        }
+        else
+        {
+            return BadRequest("Invalid response.");
+        }
+
+        Context.RezervacijeProstora.Update(rezervacija);
+        await Context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [Authorize(Policy = "RequireSpaceOwnerRole")]
+    [HttpGet("getSpacesReservations")]
+    public async Task<ActionResult<List<ProstorRezervacijeDto>>> GetSpacesReservations()
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
+                                            .Include(x => x.Rezervacije!)
+                                            .ThenInclude(x => x.Dogadjaj)
+                                            .ToListAsync();
+
+        List<ProstorRezervacijeDto> rezervacije = new List<ProstorRezervacijeDto>();
+
+        foreach (var prostor in prostori)
+        {
+            foreach (var rezervacija in prostor.Rezervacije!)
+            {
+                string statusRezervacije = rezervacija.Status.ToString();
+                if (statusRezervacije == "Rejected")
+                    continue;
+                string status = rezervacija.Dogadjaj!.Vreme < DateTime.Now ? "Finished" : statusRezervacije;
+                rezervacije.Add(new ProstorRezervacijeDto
+                {
+                    ID = rezervacija.ID,
+                    NazivDogadjaja = rezervacija!.Dogadjaj!.Naziv,
+                    Adresa = prostor.Adresa,
+                    VremeOd = rezervacija.VremeOd,
+                    VremeDo = rezervacija.VremeDo,
+                    Status = status
+                });
+            }
+        }
+
+        return Ok(rezervacije);
+    }
+
+    [Authorize(Policy = "RequireSpaceOwnerRole")]
+    [HttpGet("getStatistics")]
+    public async Task<ActionResult<List<ProstorRezervacijeDto>>> GetStatistics()
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
+                                            .Include(x => x.Rezervacije!)
+                                            .ThenInclude(x => x.Dogadjaj)
+                                            .ToListAsync();
+
+        int rentableSpaces = prostori.Count;
+        int totalRents = 0;
+
+        foreach (var prostor in prostori)
+        {
+            foreach (var rezervacija in prostor.Rezervacije!)
+            {
+                if (rezervacija.Status == StatusRezervacije.Confirmed)
+                    totalRents++;
+            }
+        }
+
+        return Ok(new SpaceOwnerStatisticsDto
+        {
+            RentableSpaces = rentableSpaces,
+            TotalRents = totalRents
+        });
     }
 
 }
