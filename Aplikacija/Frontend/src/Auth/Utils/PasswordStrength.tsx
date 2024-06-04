@@ -51,18 +51,17 @@ function getStrength(password: string) {
 export interface PasswordStrengthProps {
   label: string;
   placeholder: string;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  useFormProps: any;
 }
 
 export function PasswordStrength(props: PasswordStrengthProps) {
-  const strength = getStrength(props.value);
+  const strength = getStrength(props.useFormProps.value);
 
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
       key={index}
       label={requirement.label}
-      meets={requirement.re.test(props.value)}
+      meets={requirement.re.test(props.useFormProps.value)}
     />
   ));
   const bars = Array(4)
@@ -71,7 +70,7 @@ export function PasswordStrength(props: PasswordStrengthProps) {
       <Progress
         styles={{ section: { transitionDuration: "0ms" } }}
         value={
-          props.value.length > 0 && index === 0
+          props.useFormProps.value.length > 0 && index === 0
             ? 100
             : strength >= ((index + 1) / 4) * 100
             ? 100
@@ -86,11 +85,10 @@ export function PasswordStrength(props: PasswordStrengthProps) {
   return (
     <div>
       <PasswordInput
-        value={props.value}
-        onChange={props.onChange}
         placeholder={props.placeholder}
         label={props.label}
         required
+        {...props.useFormProps}
       />
 
       <Group gap={5} grow mt="xs" mb="md">
@@ -99,7 +97,7 @@ export function PasswordStrength(props: PasswordStrengthProps) {
 
       <PasswordRequirement
         label="Has at least 6 characters"
-        meets={props.value.length > 5}
+        meets={props.useFormProps.value.length > 5}
       />
       {checks}
     </div>

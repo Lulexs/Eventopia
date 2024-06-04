@@ -26,8 +26,11 @@ import { Event } from "../EventListing/interfaces";
 import classes from "./UserProfile.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { StatsCard } from "./StatsCard";
-import { AuthState } from "../store/features/auth";
+import { AuthState, login } from "../store/features/auth";
 import { DateInput } from "@mantine/dates";
+import { useDispatch } from "react-redux";
+import { useForm, matches } from "@mantine/form";
+import { PasswordStrength } from "../Auth/Utils/PasswordStrength";
 
 export interface VisitorProfileProps {
   user: AuthState;
@@ -44,6 +47,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const [reviewDialogOpened, { toggle: toggleReview, close: closeReivew }] =
     useDisclosure(false);
@@ -72,6 +76,32 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const updateUserForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      firstName: props.user.firstName,
+      lastName: props.user.lastName,
+      birthday: new Date(props.user.birthday),
+      phoneNumber: props.user.phoneNumber,
+      newPassword: "",
+      currentPassword: "",
+    },
+
+    validate: {
+      firstName: (value) =>
+        value.length > 0 ? null : "Empty first name field",
+      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
+      phoneNumber: (value) =>
+        value.length > 0 ? null : "Empty phone number field",
+      currentPassword: (value) =>
+        value.length >= 0 ? null : "Empty current password field",
+      newPassword: (value) =>
+        value.length == 0 || matches(/(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/)
+          ? null
+          : "Empty new password field",
+    },
+  });
 
   const {
     isLoading: areEventsLoading,
@@ -195,56 +225,129 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               </Group>
             </Flex>
           </Fieldset>
-          <Fieldset
-            legend="Personal information"
-            w="98%"
-            fz="xl"
-            styles={{
-              root: {
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "10px",
-              },
-            }}
-            mb={10}
+          <form
+            onSubmit={updateUserForm.onSubmit((_, event) => {
+              event?.stopPropagation();
+            })}
           >
-            <Stack w="50%">
-              <TextInput
-                label="User ID"
-                disabled
-                value={props.user.userId}
-              ></TextInput>
-              <TextInput label="First name"></TextInput>
-              <TextInput label="Last name"></TextInput>
-              <DateInput label="Birthday" />
-            </Stack>
-            <Stack w="50%">
-              <TextInput
-                label="Email"
-                disabled
-                value={props.user.email}
-              ></TextInput>{" "}
-              <PasswordInput
-                label="Password"
-                placeholder="Enter new password"
-              ></PasswordInput>
-              <TextInput label="Phone number"></TextInput>
-              <div
-                style={{
-                  width: "100%",
+            <Fieldset
+              legend="Personal information"
+              w="98%"
+              fz="xl"
+              styles={{
+                root: {
                   display: "flex",
-                  flexDirection: "column",
-                  lineHeight: "var(--mantine-line-height)",
-                  marginTop: "8px",
-                }}
-              >
-                <InputLabel className="mantine-TextInput-label">
-                  Save changes
-                </InputLabel>
-                <Button>Save changes</Button>
-              </div>
-            </Stack>
-          </Fieldset>
+                  justifyContent: "space-between",
+                  gap: "10px",
+                },
+              }}
+              mb={10}
+            >
+              <Stack w="50%">
+                <TextInput
+                  label="User ID"
+                  disabled
+                  value={props.user.userId}
+                ></TextInput>
+                <TextInput
+                  label="First name"
+                  key={updateUserForm.key("firstName")}
+                  {...updateUserForm.getInputProps("firstName")}
+                />
+                <DateInput
+                  label="Birthday"
+                  key={updateUserForm.key("birthday")}
+                  {...updateUserForm.getInputProps("birthday")}
+                />
+                <PasswordStrength
+                  label="New password"
+                  placeholder="New password"
+                  key={updateUserForm.key("password")}
+                  useFormProps={{
+                    ...updateUserForm.getInputProps("newPassword"),
+                  }}
+                />
+              </Stack>
+              <Stack w="50%">
+                <TextInput label="Email" disabled value={props.user.email} />{" "}
+                <TextInput
+                  label="Last name"
+                  key={updateUserForm.key("lastName")}
+                  {...updateUserForm.getInputProps("lastName")}
+                />
+                <TextInput
+                  label="Phone number"
+                  key={updateUserForm.key("phoneNumber")}
+                  {...updateUserForm.getInputProps("phoneNumber")}
+                />
+                <PasswordInput
+                  label="Current password"
+                  placeholder="Enter current password"
+                  key={updateUserForm.key("currentPassword")}
+                  {...updateUserForm.getInputProps("currentPassword")}
+                />
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    lineHeight: "var(--mantine-line-height)",
+                    marginTop: "8px",
+                  }}
+                >
+                  <InputLabel className="mantine-TextInput-label">
+                    Save changes
+                  </InputLabel>
+                  <Button
+                    type="submit"
+                    onClick={async (event) => {
+                      event.stopPropagation();
+                      const values = updateUserForm.getValues();
+                      console.log(values);
+                      await axios
+                        .put(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Account/updateUser`,
+                          {
+                            ...values,
+                          }
+                        )
+                        .then((resp) => {
+                          alert("Successfully changed user info!");
+                          const obj = JSON.parse(
+                            atob(resp.data.token.split(".")[1])
+                          );
+                          dispatch(
+                            login({
+                              userId: obj["nameid"],
+                              token: resp.data.token,
+                              email: obj["email"],
+                              userType: obj["role"],
+
+                              firstName: resp.data.firstName,
+                              lastName: resp.data.lastName,
+                              birthday: resp.data.dateOfBirth,
+                              phoneNumber: resp.data.phoneNumber,
+                              avatar: resp.data.avatar,
+                              address: resp.data.address,
+                              city: resp.data.city,
+                            })
+                          );
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          alert(err.response.data[0].description);
+                        });
+                    }}
+                  >
+                    Save changes
+                  </Button>
+                </div>
+              </Stack>
+            </Fieldset>
+          </form>
+
           <Fieldset
             legend="Statistics"
             w="98%"

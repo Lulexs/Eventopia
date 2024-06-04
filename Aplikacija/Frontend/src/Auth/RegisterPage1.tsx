@@ -53,7 +53,7 @@ export function RegisterPage1() {
       phoneNumber: (value) =>
         value.length > 0 ? null : "Required field missing",
       address: (value) =>
-        userType != "Visitor" && value.length > 0
+        userType == "Visitor" || (userType != "Visitor" && value.length > 0)
           ? null
           : "Empty address field",
       userType: (value) =>
@@ -61,13 +61,13 @@ export function RegisterPage1() {
           ? null
           : "Wrong user type",
       city: (value) =>
-        userType != "Visitor" && value.length > 0 ? null : "Empty city field",
+        userType == "Visitor" || (userType != "Visitor" && value.length > 0)
+          ? null
+          : "Empty city field",
       confirmPassword: (value, values) =>
-        value !== values.password ? 'Passwords did not match' : null,
+        value !== values.password ? "Passwords did not match" : null,
     },
   });
-
-  const passwordProps = registerForm.getInputProps("password");
 
   return (
     <Paper
@@ -97,7 +97,7 @@ export function RegisterPage1() {
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <form
-          onSubmit={registerForm.onSubmit((values, event) => {
+          onSubmit={registerForm.onSubmit((_, event) => {
             event?.stopPropagation();
           })}
         >
@@ -125,12 +125,11 @@ export function RegisterPage1() {
             key={registerForm.key("email")}
             {...registerForm.getInputProps("email")}
           />
-          <PasswordStrength 
-            label="Password" 
+          <PasswordStrength
+            label="Password"
             placeholder="Your password"
             key={registerForm.key("password")}
-            value={passwordProps.value}
-            onChange={passwordProps.onChange} 
+            useFormProps={{ ...registerForm.getInputProps("password") }}
           />
           <PasswordInput
             required
@@ -234,6 +233,10 @@ export function RegisterPage1() {
             onClick={async (event) => {
               event.stopPropagation();
               const values = registerForm.getValues();
+              if (registerForm.validate().hasErrors) {
+                console.log("Here");
+                return;
+              }
               await axios
                 .post(`${import.meta.env.VITE_DB_SERVER}/Account/register`, {
                   ...values,
