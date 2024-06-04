@@ -2,7 +2,7 @@ namespace Backend;
 
 public static class Seed
 {
-    public static async Task SeedUsers(UserManager<Korisnik> userManager, RoleManager<AppRole> roleManager)
+    public static async Task SeedData(UserManager<Korisnik> userManager, RoleManager<AppRole> roleManager, Context context)
     {
         if (!userManager.Users.Any())
         {
@@ -32,7 +32,26 @@ public static class Seed
                 if (korisnik.Ime == "Luka")
                     await userManager.AddToRoleAsync(korisnik, "Admin");
             }
+
         }
 
+        int rankCount = context.VisitorRanks.Select(x => x.RankName).Count();
+        if (rankCount != 5)
+        {
+            var visitorRanks = new List<VisitorRank> {
+                new VisitorRank{RankName = "Newcomer", Points = 0},
+                new VisitorRank{RankName = "Regular", Points = 4},
+                new VisitorRank{RankName = "Enthusiast", Points = 11},
+                new VisitorRank{RankName = "Master", Points = 21},
+                new VisitorRank{RankName = "Legend", Points = 36}
+            };
+
+            foreach (var rank in visitorRanks)
+            {
+                await context.VisitorRanks.AddAsync(rank);
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

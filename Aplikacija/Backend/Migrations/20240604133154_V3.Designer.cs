@@ -4,6 +4,7 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240604133154_V3")]
+    partial class V3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,9 +246,6 @@ namespace Backend.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("VisitorRankID")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -256,32 +256,7 @@ namespace Backend.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("VisitorRankID");
-
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Backend.Models.KorisnikTagovi", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<Guid?>("KorisnikId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserTagTagName")
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("KorisnikId");
-
-                    b.HasIndex("UserTagTagName");
-
-                    b.ToTable("KorisnikTagovi");
                 });
 
             modelBuilder.Entity("Backend.Models.Line", b =>
@@ -517,26 +492,6 @@ namespace Backend.Migrations
                     b.ToTable("UserTags");
                 });
 
-            modelBuilder.Entity("Backend.Models.VisitorRank", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RankName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("VisitorRanks");
-                });
-
             modelBuilder.Entity("Backend.Models.Zabrana", b =>
                 {
                     b.Property<int>("Id")
@@ -577,6 +532,21 @@ namespace Backend.Migrations
                     b.HasIndex("TagoviTagName");
 
                     b.ToTable("DogadjajTag");
+                });
+
+            modelBuilder.Entity("KorisnikUserTag", b =>
+                {
+                    b.Property<Guid>("KorisniciId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TagoviTagName")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("KorisniciId", "TagoviTagName");
+
+                    b.HasIndex("TagoviTagName");
+
+                    b.ToTable("KorisnikUserTag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -715,30 +685,6 @@ namespace Backend.Migrations
                     b.Navigation("PlanProstora");
                 });
 
-            modelBuilder.Entity("Backend.Models.Korisnik", b =>
-                {
-                    b.HasOne("Backend.Models.VisitorRank", "VisitorRank")
-                        .WithMany("Korisnik")
-                        .HasForeignKey("VisitorRankID");
-
-                    b.Navigation("VisitorRank");
-                });
-
-            modelBuilder.Entity("Backend.Models.KorisnikTagovi", b =>
-                {
-                    b.HasOne("Backend.Models.Korisnik", "Korisnik")
-                        .WithMany("Tagovi")
-                        .HasForeignKey("KorisnikId");
-
-                    b.HasOne("Backend.Models.UserTag", "UserTag")
-                        .WithMany("Korisnici")
-                        .HasForeignKey("UserTagTagName");
-
-                    b.Navigation("Korisnik");
-
-                    b.Navigation("UserTag");
-                });
-
             modelBuilder.Entity("Backend.Models.Line", b =>
                 {
                     b.HasOne("Backend.Models.PlanProstora", "PlanProstora")
@@ -853,6 +799,21 @@ namespace Backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("KorisnikUserTag", b =>
+                {
+                    b.HasOne("Backend.Models.Korisnik", null)
+                        .WithMany()
+                        .HasForeignKey("KorisniciId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.UserTag", null)
+                        .WithMany()
+                        .HasForeignKey("TagoviTagName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Backend.Models.AppRole", null)
@@ -916,8 +877,6 @@ namespace Backend.Migrations
 
                     b.Navigation("Rezervacije");
 
-                    b.Navigation("Tagovi");
-
                     b.Navigation("UserRole");
 
                     b.Navigation("VlasnikProstori");
@@ -942,16 +901,6 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Models.RezervacijaProstora", b =>
                 {
                     b.Navigation("Dogadjaj");
-                });
-
-            modelBuilder.Entity("Backend.Models.UserTag", b =>
-                {
-                    b.Navigation("Korisnici");
-                });
-
-            modelBuilder.Entity("Backend.Models.VisitorRank", b =>
-                {
-                    b.Navigation("Korisnik");
                 });
 #pragma warning restore 612, 618
         }

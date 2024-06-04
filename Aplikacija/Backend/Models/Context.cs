@@ -17,6 +17,9 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
     public DbSet<Tag> Tagovi { get; set; }
     public DbSet<SurfaceDimension> SurfaceDimensions { get; set; }
     public DbSet<Zabrana> Zabrane { get; set; }
+    public DbSet<UserTag> UserTags { get; set; }
+    public DbSet<KorisnikTagovi> KorisnikTagovi { get; set; }
+    public DbSet<VisitorRank> VisitorRanks { get; set; }
 
     public Context(DbContextOptions options) : base(options)
     {

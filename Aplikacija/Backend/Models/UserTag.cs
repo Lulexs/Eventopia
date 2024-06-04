@@ -1,9 +1,9 @@
 namespace Backend.Models;
 
-public class Tag
+public class UserTag
 {
     [Key]
     [MaxLength(50)]
     public required string TagName { get; set; }
-    public List<Dogadjaj>? Dogadjaji { get; set; }
+    public List<KorisnikTagovi>? Korisnici { get; set; }
 }

@@ -55,9 +55,10 @@ var services = scope.ServiceProvider;
 
 try
 {
+    var context = services.GetRequiredService<Context>();
     var userManager = services.GetRequiredService<UserManager<Korisnik>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
-    await Seed.SeedUsers(userManager, roleManager);
+    await Seed.SeedData(userManager, roleManager, context);
 }
 catch (Exception ex)
 {

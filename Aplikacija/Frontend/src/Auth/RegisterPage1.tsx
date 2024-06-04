@@ -264,7 +264,7 @@ export function RegisterPage1() {
                 })
                 .catch((err) => {
                   console.error(err);
-                  alert(err.response.data.detail);
+                  alert(err.response.data[0].description);
                 });
             }}
           >

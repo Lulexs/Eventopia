@@ -4,13 +4,15 @@ namespace Backend.Controllers;
 [Route("[controller]")]
 public class AccountController : ControllerBase
 {
+    public Context Context { get; set; }
     private readonly UserManager<Korisnik> _userManager;
     private readonly TokenService _tokenService;
 
-    public AccountController(UserManager<Korisnik> userManager, TokenService tokenService)
+    public AccountController(UserManager<Korisnik> userManager, TokenService tokenService, Context context)
     {
         _tokenService = tokenService;
         _userManager = userManager;
+        Context = context;
     }
 
     [AllowAnonymous]

@@ -4,6 +4,7 @@ using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240604141422_V4")]
+    partial class V4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,9 +246,6 @@ namespace Backend.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("VisitorRankID")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -255,8 +255,6 @@ namespace Backend.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("VisitorRankID");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -517,26 +515,6 @@ namespace Backend.Migrations
                     b.ToTable("UserTags");
                 });
 
-            modelBuilder.Entity("Backend.Models.VisitorRank", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RankName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("VisitorRanks");
-                });
-
             modelBuilder.Entity("Backend.Models.Zabrana", b =>
                 {
                     b.Property<int>("Id")
@@ -713,15 +691,6 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PlanProstora");
-                });
-
-            modelBuilder.Entity("Backend.Models.Korisnik", b =>
-                {
-                    b.HasOne("Backend.Models.VisitorRank", "VisitorRank")
-                        .WithMany("Korisnik")
-                        .HasForeignKey("VisitorRankID");
-
-                    b.Navigation("VisitorRank");
                 });
 
             modelBuilder.Entity("Backend.Models.KorisnikTagovi", b =>
@@ -947,11 +916,6 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Models.UserTag", b =>
                 {
                     b.Navigation("Korisnici");
-                });
-
-            modelBuilder.Entity("Backend.Models.VisitorRank", b =>
-                {
-                    b.Navigation("Korisnik");
                 });
 #pragma warning restore 612, 618
         }

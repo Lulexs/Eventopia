@@ -15,4 +15,6 @@ public class Korisnik : IdentityUser<Guid>
     public List<Prostor>? VlasnikProstori { get; set; }
     public List<Ocena>? Ocene { get; set; }
     public List<Zabrana>? KorisnikZabrane { get; set; }
+    public List<KorisnikTagovi>? Tagovi { get; set; }
+    public VisitorRank? VisitorRank { get; set; }
 }

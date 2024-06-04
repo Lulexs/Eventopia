@@ -20,34 +20,36 @@ import {
 } from "@mantine/core";
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { Event } from "../EventListing/interfaces";
 import classes from "./UserProfile.module.css";
 import { useDisclosure } from "@mantine/hooks";
-import { StatsCard } from "./StatsCard";
-import { AuthState, login } from "../store/features/auth";
+import { CustomStatsCard } from "./CustomStatsCard";
+import { login } from "../store/features/auth";
 import { DateInput } from "@mantine/dates";
 import { useDispatch } from "react-redux";
 import { useForm, matches } from "@mantine/form";
 import { PasswordStrength } from "../Auth/Utils/PasswordStrength";
+import { StatsCard } from "../SpaceOwnerPages/StatsCard";
+import { ActiveReservations, VisitorProfileProps, VisitorStatistics } from "./interfaces";
+import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
 
-export interface VisitorProfileProps {
-  user: AuthState;
+export function formatTimeOnly(date: Date) {
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${hours}:${minutes}`;
 }
 
+
 export default function VisitorProfile(props: VisitorProfileProps) {
-  const [testTags, setTestTags] = useState<string[]>([
-    "Rock",
-    "Heavy metal",
-    "Saban Saulic",
-    "film",
-    "comics",
-  ]);
+  const [tags, setTags] = useState<string[]>([]);
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [reviewDialogOpened, { toggle: toggleReview, close: closeReivew }] =
     useDisclosure(false);
@@ -104,19 +106,84 @@ export default function VisitorProfile(props: VisitorProfileProps) {
   });
 
   const {
-    isLoading: areEventsLoading,
-    data: events,
-    isError: eventsError,
-  } = useQuery<Event[]>({
-    queryKey: ["visited_events"],
+    isLoading: areReservationsLoading,
+    data: reservations,
+    isError: reservationsError,
+  } = useQuery<ActiveReservations[]>({
+    queryKey: ["active_reservations"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
+        .get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getActiveReservations`)
         .then((resp) => {
           return resp.data;
         });
     },
   });
+
+  const {
+    isLoading: areVisitedEventsLoading,
+    data: visitedEvents,
+    isError: visitedEventsError,
+  } = useQuery<ActiveReservations[]>({
+    queryKey: ["visited_events"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getVisitedEvents`)
+        .then((resp) => {
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
+    },
+  });
+
+  const {
+    isLoading: isStatisticsLoading,
+    data: statistics,
+    isError: statisticsError,
+  } = useQuery<VisitorStatistics>({
+    queryKey: ["visitor_statistics"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getStatistics`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
+    },
+  });
+
+  useEffect(() => {
+    const fetchAvatarAndTags = async () => {
+      try {
+        const resp = await axios.get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getAvatarAndTags`);
+        setAvatarN(resp.data.avatar);
+        setTags(resp.data.tags);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  
+    fetchAvatarAndTags();
+  }, []);
+
+  const cancelReservation = async (reservationId: number) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_DB_SERVER}/Visitor/cancelReservation/${reservationId}`
+      );
+      queryClient.invalidateQueries({ queryKey: ["active_reservations"] });
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  };
 
   return (
     <Flex
@@ -211,8 +278,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 miw="100%"
                 label="Press Enter to submit a tag"
                 placeholder="Enter tag"
-                value={testTags}
-                onChange={setTestTags}
+                value={tags}
+                onChange={setTags}
                 styles={{
                   input: {
                     overflowY: "scroll",
@@ -221,7 +288,28 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 }}
               />
               <Group w="100%" justify="center">
-                <Button>Save changes</Button>
+                <Button onClick = {
+                    async (event) => {
+                      event.stopPropagation();
+                      await axios
+                        .put(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Visitor/updateUserAvatarAndTags`,
+                          {
+                            avatar: avatarN,
+                            tags: tags
+                          }
+                        )
+                        .then(() => {
+                          alert("Successfully changed user info!");
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          alert(err.response.data[0].description);
+                        });
+                    }}
+                >Save changes</Button>
               </Group>
             </Flex>
           </Fieldset>
@@ -303,14 +391,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
-                      console.log(values);
                       await axios
                         .put(
                           `${
                             import.meta.env.VITE_DB_SERVER
                           }/Account/updateUser`,
                           {
-                            ...values,
+                            ...values, avatar: avatarN
                           }
                         )
                         .then((resp) => {
@@ -360,17 +447,19 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               },
             }}
           >
-            <StatsCard
+            <CustomStatsCard
               title="Visited events"
-              level="Rookie"
-              current={15}
-              nextStage={30}
+              level={isStatisticsLoading || statisticsError
+                ? "" : statistics?.rankName || ""}
+              current={isStatisticsLoading || statisticsError
+                ? 0 : statistics?.visitedEventsCount || 0}
+              nextStage={isStatisticsLoading || statisticsError
+                ? 0 : statistics?.nextRankPoints || 0}
             />
             <StatsCard
               title="Money spent"
-              level="Marco Polo"
-              current={85}
-              nextStage={100}
+              current={isStatisticsLoading || statisticsError
+                ? 0 : statistics?.moneySpent || 0}
             />
           </Fieldset>
         </Stack>
@@ -378,7 +467,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title>Active reservations</Title>
         <Stack className={classes.contentStack}>
-          {(areEventsLoading || eventsError) && (
+          {(areReservationsLoading || reservationsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -388,9 +477,9 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               </div>
             </div>
           )}
-          {!areEventsLoading &&
-            !eventsError &&
-            events?.map((ev, idx) => (
+          {!areReservationsLoading &&
+            !reservationsError &&
+            reservations?.map((reservation, idx) => (
               <Flex
                 key={idx}
                 p="sm"
@@ -398,22 +487,24 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Image
-                  src={new URL(ev.img, import.meta.url).href}
-                  alt={`Couldn't load ${ev.title} image`}
+                  src={`data:image/jpeg;base64,${reservation.image}`}
+                  alt={`Couldn't load image`}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}
                 />
                 <Box className={classes.reservationAndVisitedDivBox}>
                   <Text className={classes.reservationAndVisitedDivText}>
-                    {ev.title}
+                    {reservation.title}
                     <br />
-                    {ev.date}
+                    {formatOnlyDate(new Date(reservation.date))}
+                    <br />
+                    {formatTimeOnly(new Date(reservation.date))}
                   </Text>
                 </Box>
-                <Button w="fit-content">Cancel</Button>
+                <Button w="fit-content" onClick={() => cancelReservation(reservation.reservationId)}>Cancel</Button>
                 <Text w="10%" ta="center">
-                  15$
+                  {reservation.price}$
                 </Text>
               </Flex>
             ))}
@@ -422,7 +513,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title>Visited events</Title>
         <Stack className={classes.contentStack}>
-          {(areEventsLoading || eventsError) && (
+          {(areVisitedEventsLoading || visitedEvents) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -432,9 +523,9 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               </div>
             </div>
           )}
-          {!areEventsLoading &&
-            !eventsError &&
-            events?.map((ev, idx) => (
+          {!areVisitedEventsLoading &&
+            !visitedEventsError &&
+            visitedEvents?.map((ev, idx) => (
               <Flex
                 key={idx}
                 p="sm"
@@ -443,8 +534,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               >
                 <Image
                   className={classes.reservationAndVisitedDivImage}
-                  src={new URL(ev.img, import.meta.url).href}
-                  alt={`Couldn't load ${ev.title} image`}
+                  src={`data:image/jpeg;base64,${ev.image}`}
+                  alt={`Couldn't load image`}
                   fit="cover"
                   w={imageWidth}
                 />
@@ -452,7 +543,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   <Text className={classes.reservationAndVisitedDivText}>
                     {ev.title}
                     <br />
-                    {ev.date}
+                    {formatOnlyDate(new Date(ev.date))}
                   </Text>
                 </Box>
                 <Button
@@ -462,7 +553,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     toggleReview();
                   }}
                 >
-                  Leave reaview
+                  Leave review
                 </Button>
               </Flex>
             ))}

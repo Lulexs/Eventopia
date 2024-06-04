@@ -7,7 +7,7 @@ public static class IdentityServiceExtensions
 
         services.AddIdentityCore<Korisnik>(opt =>
         {
-            opt.Password.RequireNonAlphanumeric = false;
+            opt.Password.RequireNonAlphanumeric = true;
             opt.User.RequireUniqueEmail = true;
 
         }).AddRoles<AppRole>()

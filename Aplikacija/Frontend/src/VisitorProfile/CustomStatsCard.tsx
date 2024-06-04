@@ -8,7 +8,9 @@ export interface StatsCardProps {
   nextStage: number;
 }
 
-export function StatsCard(props: StatsCardProps) {
+export function CustomStatsCard(props: StatsCardProps) {
+  const isLastStage = props.nextStage === -1;
+
   return (
     <Card
       className={classes.statisticsCard}
@@ -23,10 +25,10 @@ export function StatsCard(props: StatsCardProps) {
         {props.level}
       </Text>
       <Text fz="lg" fw={500} ta="center">
-        {`${props.current} / ${props.nextStage}`}
+        {isLastStage ? `${props.current}` : `${props.current} / ${props.nextStage}`}
       </Text>
       <Progress
-        value={(props.current / props.nextStage) * 100}
+        value={isLastStage ? 100 : (props.current / props.nextStage) * 100}
         mt="md"
         size="lg"
         radius="xl"
