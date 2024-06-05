@@ -416,7 +416,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                             import.meta.env.VITE_DB_SERVER
                           }/Account/updateUser`,
                           {
-                            ...values, avatar: avatarN
+                            ...values, avatar: avatarN, birthday: values.birthday.toISOString()
                           }
                         )
                         .then((resp) => {
@@ -485,7 +485,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Active reservations</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {(areReservationsLoading || reservationsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
@@ -531,7 +531,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Visited events</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {areVisitedEventsLoading || visitedEventsError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>

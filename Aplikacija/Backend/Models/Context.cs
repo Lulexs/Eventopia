@@ -32,12 +32,13 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
 
         builder.Entity<Korisnik>()
             .HasOne(korisnik => korisnik.UserRole)
-            .WithOne(role => role.Korisnik);
+            .WithOne(userRole => userRole.Korisnik)
+            .HasForeignKey<AppUserRole>(userRole => userRole.UserId);
 
         builder.Entity<AppRole>()
             .HasMany(role => role.UserRoles)
-            .WithOne(korisnik => korisnik.Role)
-            .HasForeignKey(korisnikRoles => korisnikRoles.RoleId);
+            .WithOne(userRole => userRole.Role)
+            .HasForeignKey(userRole => userRole.RoleId);
 
         builder.Entity<Prostor>()
             .HasMany(prostor => prostor.PlanoviProstora)

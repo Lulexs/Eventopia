@@ -241,6 +241,7 @@ export function RegisterPage1() {
                 .post(`${import.meta.env.VITE_DB_SERVER}/Account/register`, {
                   ...values,
                   userType: userType,
+                  birthday: values.birthday.toISOString()
                 })
                 .then((resp) => {
                   const obj = JSON.parse(atob(resp.data.token.split(".")[1]));

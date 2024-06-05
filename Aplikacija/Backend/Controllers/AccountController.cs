@@ -56,7 +56,7 @@ public class AccountController : ControllerBase
             Email = registerDto.Email,
             UserName = registerDto.Email,
             Telefon = registerDto.Telefon,
-            DatumRodjenja = registerDto.DatumRodjenja,
+            DatumRodjenja = DateTime.Parse(registerDto.DatumRodjenja),
             SlikaProfila = registerDto.Slika,
             Adresa = registerDto.Adresa,
             Grad = registerDto.Grad
@@ -94,7 +94,7 @@ public class AccountController : ControllerBase
         korisnik!.Ime = changeUserDto.Ime;
         korisnik.Prezime = changeUserDto.Prezime;
         korisnik.Telefon = changeUserDto.Telefon;
-        korisnik.DatumRodjenja = changeUserDto.DatumRodjenja;
+        korisnik.DatumRodjenja = DateTime.Parse(changeUserDto.DatumRodjenja);
         korisnik.Adresa = changeUserDto.Adresa;
         korisnik.Grad = changeUserDto.Grad;
 

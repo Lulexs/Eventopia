@@ -209,6 +209,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                           }/Account/updateUser`,
                           {
                             ...values,
+                            birthday: values.birthday.toISOString()
                           }
                         )
                         .then((resp) => {
@@ -282,7 +283,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
             New event
           </Button>
         </Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
@@ -338,7 +339,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Past events</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>

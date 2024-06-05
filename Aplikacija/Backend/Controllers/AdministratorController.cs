@@ -56,6 +56,7 @@ public class AdministratorController : ControllerBase
                     Ime = korisnik.Ime,
                     Prezime = korisnik.Prezime,
                     Avatar = korisnik.SlikaProfila,
+                    Role = korisnik.UserRole!.Role!.Name,
                     DatumOd = zabrana.DatumOd,
                     DatumDo = zabrana.DatumDo,
                     Razlog = zabrana.Razlog
@@ -67,7 +68,9 @@ public class AdministratorController : ControllerBase
                 {
                     KorisnikId = korisnik.Id.ToString(),
                     Ime = korisnik.Ime,
-                    Prezime = korisnik.Prezime
+                    Prezime = korisnik.Prezime,
+                    Avatar = korisnik.SlikaProfila,
+                    Role = korisnik.UserRole!.Role!.Name,
                 });
             }
         }
@@ -82,7 +85,7 @@ public class AdministratorController : ControllerBase
     {
         var admin = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
-        var korisnik = await _userManager.FindByIdAsync(banUserDto.KorisnikId);
+        var korisnik = await _userManager.Users.Include(x => x.KorisnikZabrane).Where(x => x.Id.ToString() == banUserDto.KorisnikId).FirstOrDefaultAsync();
 
         if (korisnik == null)
             return BadRequest("User does not exist.");
@@ -93,7 +96,7 @@ public class AdministratorController : ControllerBase
         Zabrana zabrana = new()
         {
             DatumOd = banUserDto.DatumOd,
-            DatumDo = banUserDto.DatumDo,
+            DatumDo = DateTime.Parse(banUserDto.DatumDo),
             Razlog = banUserDto.Razlog,
             Korisnik = korisnik
         };

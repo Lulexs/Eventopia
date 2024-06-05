@@ -274,6 +274,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                           }/Account/updateUser`,
                           {
                             ...values,
+                            birthday: values.birthday.toISOString(),
                           }
                         )
                         .then((resp) => {
@@ -359,7 +360,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
             New space
           </Button>
         </Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {areSpacesLoading || spacesError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
@@ -393,7 +394,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Reservation statuses</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {areReservationsLoading || reservationsError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>

@@ -29,7 +29,7 @@ public class RegisterDto
 
     [Required]
     [JsonPropertyName("birthday")]
-    public DateTime DatumRodjenja { get; set; }
+    public required string DatumRodjenja { get; set; }
 
     [JsonPropertyName("avatar")]
     public string? Slika { get; set; }

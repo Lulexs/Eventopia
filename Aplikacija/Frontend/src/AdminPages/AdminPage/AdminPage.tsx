@@ -10,7 +10,6 @@ import {
   CloseButton,
   Dialog,
   Group,
-  Slider,
   Textarea,
 } from "@mantine/core";
 import { AuthState } from "../../store/features/auth";
@@ -35,9 +34,12 @@ export interface AdminPageProps {
   user: AuthState;
 }
 
-export default function AdminPage(props: AdminPageProps) {
+export default function AdminPage() {
   const [imageWidth, setImageWidth] = useState("25%");
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
+  const [userId, setUserId] = useState<string>("");
+  const [banUntil, setBanUntil] = useState<Date | null>(null);
+  const [banReason, setBanReason] = useState<string>("");
   const dialogTopLeft = useRef([20, 20]);
   const queryClient = useQueryClient();
 
@@ -138,6 +140,35 @@ export default function AdminPage(props: AdminPageProps) {
     }
   };
 
+  const banUser = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_DB_SERVER}/Administrator/banUser`, {
+        userId: userId,
+        timeTo: banUntil?.toISOString(),
+        reason: banReason,
+      });
+      setUserId("");
+      setBanReason("");
+      setBanUntil(null);
+      queryClient.invalidateQueries({ queryKey: ["user_list"] });
+      alert("User is successfully banned!");
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  }
+
+  const unbanUser = async (banId : number) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_DB_SERVER}/Administrator/unbanUser/${banId}`);
+      queryClient.invalidateQueries({ queryKey: ["user_list"] });
+      alert("User is successfully unbanned!");
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  }
+
   return (
     <Flex
       className={classes.mainContentFlex}
@@ -150,8 +181,18 @@ export default function AdminPage(props: AdminPageProps) {
     >
       <Flex className={classes.contentContainerFlex}>
         <Title mb={10}>All users</Title>
-        <Stack className={classes.contentStack}>
-          {users?.map((user, idx) => (
+        <Stack className={classes.contentStack} align="center">
+        {areUsersLoading || usersError ? (
+            <div className={classes.controls}>
+              <div className={classes.ldsRing}>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          ) : (
+          users?.map((user, idx) => (
             <Flex
               key={idx}
               p="sm"
@@ -159,30 +200,39 @@ export default function AdminPage(props: AdminPageProps) {
               className={classes.reservationAndVisitedDiv}
               style={{ justifyContent: "center" }}
             >
-              <Avatar src={user.avatar} w="70px" h="70px" />
-              <Box className={classes.reservationAndVisitedDivBox}>
+              <Avatar src={user.role == "Visitor" ? user.avatar : null} w="70px" h="70px" />
+              <Box className={classes.usersDivBox}>
                 <Text className={classes.reservationAndVisitedDivText}>
                   {user.firstName} {user.lastName}
                   <br />
-                  {user.reason != null ? (`${formatOnlyDate(new Date(user.timeFrom))} - ${new Date(formatOnlyDate(user.timeTo))}`) : ""}
+                  {user.role}
+                  <br />
+                  {user.reason != null ? (`${formatOnlyDate(new Date(user.timeFrom))} - ${(formatOnlyDate(new Date(user.timeTo)))}`) : ""}
                 </Text>
               </Box>
               <Button
                 w="30%"
                 bg={user.reason == null ?  "red" : "green"}
                 onClick={() => {
-                  user.reason == null ? toggle() : close();
+                  setUserId(user.userId);
+                  if (user.reason == null) {
+                    toggle();
+                  }
+                  else {
+                    close();
+                    unbanUser(user.banId);
+                  }
                 }}
               >
                 {user.reason == null ? "Ban" : "Unban"}
               </Button>
             </Flex>
-          ))}
+          )))}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Active events</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
@@ -225,7 +275,7 @@ export default function AdminPage(props: AdminPageProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>Recent comments</Title>
-        <Stack className={classes.contentStack}>
+        <Stack className={classes.contentStack} align="center">
           {(areCommentsLoading || commentsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
@@ -274,7 +324,7 @@ export default function AdminPage(props: AdminPageProps) {
         {" "}
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Leave a review
+            Ban user
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -290,19 +340,24 @@ export default function AdminPage(props: AdminPageProps) {
           <DateInput
             placeholder={`${formatOnlyDate(new Date(Date.now()))}`}
             flex={1}
+            value={banUntil}
+            onChange={(date) => setBanUntil(date) }
           />
         </Group>
         <Textarea
           mb={10}
           label="Reason:"
-          placeholder="User was annoying..."
+          placeholder="User was rude to others..."
           maxRows={8}
           minRows={3}
           autosize
+          value={banReason}
+          onChange={(event) => setBanReason(event.currentTarget.value)}
         />
         <Button
           w="100%"
           onClick={() => {
+            banUser();
             close();
           }}
         >

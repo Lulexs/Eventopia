@@ -23,7 +23,7 @@ public class ChangeUserDto
 
     [Required]
     [JsonPropertyName("birthday")]
-    public DateTime DatumRodjenja { get; set; }
+    public required string DatumRodjenja { get; set; }
 
     [JsonPropertyName("address")]
     public string? Adresa { get; set; }

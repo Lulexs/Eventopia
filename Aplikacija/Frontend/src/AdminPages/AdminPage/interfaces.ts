@@ -16,7 +16,8 @@ export interface UserWithBans {
   firstName: string;
   lastName: string;
   avatar: string;
-  timeFrom: Date;
-  timeTo: Date;
+  role: string;
+  timeFrom: string;
+  timeTo: string;
   reason: string;
 }

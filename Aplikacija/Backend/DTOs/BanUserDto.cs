@@ -8,11 +8,11 @@ public class BanUserDto
 
     [Required]
     [JsonPropertyName("timeFrom")]
-    public DateTime DatumOd { get; set; }
+    public DateTime DatumOd { get; set; } = DateTime.Now;
 
     [Required]
     [JsonPropertyName("timeTo")]
-    public DateTime DatumDo { get; set; }
+    public required string DatumDo { get; set; }
 
     [Required]
     [JsonPropertyName("reason")]
