@@ -48,19 +48,18 @@ public class AdministratorController : ControllerBase
         {
             if (korisnik.KorisnikZabrane?.Count > 0)
             {
-                foreach (var zabrana in korisnik.KorisnikZabrane)
+                Zabrana? zabrana = korisnik.KorisnikZabrane.OrderBy(x => x.DatumOd).LastOrDefault();
+                korisniciSaZabranama.Add(new KorisnikSaZabranamaDto
                 {
-                    korisniciSaZabranama.Add(new KorisnikSaZabranamaDto
-                    {
-                        KorisnikId = korisnik.Id.ToString(),
-                        ZabranaId = zabrana.Id,
-                        Ime = korisnik.Ime,
-                        Prezime = korisnik.Prezime,
-                        DatumOd = zabrana.DatumOd,
-                        DatumDo = zabrana.DatumDo,
-                        Razlog = zabrana.Razlog
-                    });
-                }
+                    KorisnikId = korisnik.Id.ToString(),
+                    ZabranaId = zabrana!.Id,
+                    Ime = korisnik.Ime,
+                    Prezime = korisnik.Prezime,
+                    Avatar = korisnik.SlikaProfila,
+                    DatumOd = zabrana.DatumOd,
+                    DatumDo = zabrana.DatumDo,
+                    Razlog = zabrana.Razlog
+                });
             }
             else
             {

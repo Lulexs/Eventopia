@@ -10,6 +10,8 @@ public class KorisnikSaZabranamaDto
     public string? Ime { get; set; }
     [JsonPropertyName("lastName")]
     public string? Prezime { get; set; }
+    [JsonPropertyName("avatar")]
+    public string? Avatar { get; set; }
     [JsonPropertyName("timeFrom")]
     public DateTime DatumOd { get; set; }
     [JsonPropertyName("timeTo")]

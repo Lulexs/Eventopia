@@ -19,7 +19,7 @@ import EventBgImage from "../../assets/event_listing_bg_op.png";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { Comment, EventBasic } from "./interfaces";
+import { Comment, EventBasic, UserWithBans } from "./interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 
@@ -34,57 +34,6 @@ export function formatOnlyDate(date: Date | null) {
 export interface AdminPageProps {
   user: AuthState;
 }
-
-const dummyUsers = [
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Free",
-  },
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Banned",
-  },
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Banned",
-  },
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Free",
-  },
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Free",
-  },
-  {
-    Ime: "Zika",
-    Prezime: "Zika",
-    Username: "Zile",
-    avatar:
-      "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png",
-    status: "Free",
-  },
-];
 
 export default function AdminPage(props: AdminPageProps) {
   const [imageWidth, setImageWidth] = useState("25%");
@@ -107,6 +56,25 @@ export default function AdminPage(props: AdminPageProps) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const {
+    isLoading: areUsersLoading,
+    data: users,
+    isError: usersError,
+  } = useQuery<UserWithBans[]>({
+    queryKey: ["user_list"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Administrator/getUsersWithBans`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          return [];
+        });
+    },
+  });
 
   const {
     isLoading: areEventsLoading,
@@ -183,7 +151,7 @@ export default function AdminPage(props: AdminPageProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title mb={10}>All users</Title>
         <Stack className={classes.contentStack}>
-          {dummyUsers?.map((user, idx) => (
+          {users?.map((user, idx) => (
             <Flex
               key={idx}
               p="sm"
@@ -194,19 +162,19 @@ export default function AdminPage(props: AdminPageProps) {
               <Avatar src={user.avatar} w="70px" h="70px" />
               <Box className={classes.reservationAndVisitedDivBox}>
                 <Text className={classes.reservationAndVisitedDivText}>
-                  {user.Ime} {user.Prezime}
+                  {user.firstName} {user.lastName}
                   <br />
-                  {user.Username}
+                  {user.reason != null ? (`${formatOnlyDate(new Date(user.timeFrom))} - ${new Date(formatOnlyDate(user.timeTo))}`) : ""}
                 </Text>
               </Box>
               <Button
                 w="30%"
-                bg={user.status == "Free" ? "red" : "green"}
+                bg={user.reason == null ?  "red" : "green"}
                 onClick={() => {
-                  user.status == "Free" ? toggle() : close();
+                  user.reason == null ? toggle() : close();
                 }}
               >
-                {user.status == "Free" ? "Ban" : "Unban"}
+                {user.reason == null ? "Ban" : "Unban"}
               </Button>
             </Flex>
           ))}

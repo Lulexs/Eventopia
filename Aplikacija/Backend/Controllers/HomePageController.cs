@@ -53,12 +53,13 @@ public class HomePageController : ControllerBase
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
+                                    .Where(x => x.Status == StatusDogadjaja.Active)
                                     .Select(x => new FullEventDto
                                     {
                                         ID = x.ID,
                                         Naziv = x.Naziv,
                                         Slika = x.Slika,
-                                        Datum = x.Vreme.ToString("dd.MM.yyyy"),
+                                        Datum = x.Vreme.ToString("dd.MM.yyyy."),
                                         Vreme = x.Vreme.ToString("HH:mm"),
                                         Lokacija = $"{x.RezervacijaProstora!.Prostor!.Grad}, {x.RezervacijaProstora.Prostor.Drzava}",
                                         OrganizatorID = x.Organizator!.Id.ToString(),
@@ -80,7 +81,8 @@ public class HomePageController : ControllerBase
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
-                                    .Where(x => (String.IsNullOrEmpty(location) ? true : (x.RezervacijaProstora!.Prostor!.Grad + ", " + x.RezervacijaProstora.Prostor.Drzava) == location)
+                                    .Where(x => x.Status == StatusDogadjaja.Active
+                                                && (String.IsNullOrEmpty(location) ? true : (x.RezervacijaProstora!.Prostor!.Grad + ", " + x.RezervacijaProstora.Prostor.Drzava) == location)
                                                 && (String.IsNullOrEmpty(search) ? true : x.Naziv.ToLower().Contains(search.ToLower()))
                                                 && (!dateFilter ? true : x.Vreme.Date == dateParsed.Date)
                                                 && (tags!.Length == 0 ? true : x.Tagovi!.Any(y => tags.Contains(y.TagName))))
