@@ -14,7 +14,7 @@ import EventBgImage from "../assets/event_listing_bg_op.png";
 import EventCard from "./EventCard";
 import classes from "./EventListing.module.css";
 import axios from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Event } from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
 
@@ -23,7 +23,6 @@ export default function EventListing() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateTime, setDateTime] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const queryClient = useQueryClient();
 
   const {
     isLoading: areLocationsLoading,
@@ -57,6 +56,8 @@ export default function EventListing() {
     isLoading,
     data: events,
     isError,
+    isRefetching,
+    refetch,
   } = useQuery<Event[]>({
     queryKey: ["events"],
     queryFn: async () => {
@@ -65,29 +66,24 @@ export default function EventListing() {
           .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getAllEvents`)
           .then((resp) => resp.data)
           .catch((err) => console.error(err));
-      }
-      else
-      {
+      } else {
         const params = new URLSearchParams();
-        if (selectedCity) 
-          params.append('location', selectedCity);
-        if (searchTerm) 
-          params.append('search', searchTerm);
+        if (selectedCity) params.append("location", selectedCity);
+        if (searchTerm) params.append("search", searchTerm);
         if (selectedTags && selectedTags.length > 0)
-          selectedTags.forEach(tag => params.append('tags', tag));
-        if (dateTime) 
-          params.append('date', formatOnlyDate(dateTime));
+          selectedTags.forEach((tag) => params.append("tags", tag));
+        if (dateTime) params.append("date", formatOnlyDate(dateTime));
 
         return await axios
-        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getFilteredEvents`, {
-          params
-        })
-        .then((resp) => resp.data )
-        .catch((err) => {
-          console.error(err);
-          return [];
-        });
-      } 
+          .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getFilteredEvents`, {
+            params,
+          })
+          .then((resp) => resp.data)
+          .catch((err) => {
+            console.error(err);
+            return [];
+          });
+      }
     },
   });
 
@@ -116,19 +112,18 @@ export default function EventListing() {
         Explore, Connect, Experience
       </Title>
       <Group align="flex-end" justify="center" mb={50}>
-
         <TextInput
-            label="Search by name"
-            placeholder="Enter event name..."
-            maw={229}
-            styles={{
-              label: {
-                fontFamily: "Greycliff CF, var(--mantine-font-family)",
-                fontSize: "1.01rem",
-              },
-            }}
-            value={searchTerm}
-            onChange={(e => setSearchTerm(e.target.value))}
+          label="Search by name"
+          placeholder="Enter event name..."
+          maw={229}
+          styles={{
+            label: {
+              fontFamily: "Greycliff CF, var(--mantine-font-family)",
+              fontSize: "1.01rem",
+            },
+          }}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
 
         <Autocomplete
@@ -190,7 +185,10 @@ export default function EventListing() {
           variant="outline"
           color="gray"
           size="md"
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["events"] })}
+          onClick={async () => {
+            await refetch();
+            console.log(isError);
+          }}
         >
           Search
         </Button>
@@ -206,7 +204,7 @@ export default function EventListing() {
         gap="30px"
         wrap="wrap"
       >
-        {isLoading || isError ? (
+        {isLoading || isError || isRefetching ? (
           <div className={classes.controls}>
             <div className={classes.ldsRing}>
               <div></div>
