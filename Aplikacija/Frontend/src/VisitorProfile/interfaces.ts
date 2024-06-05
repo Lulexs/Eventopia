@@ -21,6 +21,7 @@ export interface ActiveReservations {
 }
 
 export interface VisitedEvents {
+  eventId: number;
   title: string;
   date: Date;
   image: string;

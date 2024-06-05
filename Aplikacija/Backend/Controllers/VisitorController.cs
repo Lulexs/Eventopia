@@ -196,21 +196,58 @@ public class VisitorController : ControllerBase
 
         var rezervacije = await Context.Rezervacije.Include(x => x.Korisnik)
                                                     .Include(x => x.Dogadjaj)
-                                                    .Include(x => x.Sto)
                                                     .Where(x => x.Korisnik == korisnik
                                                     && x.Dogadjaj!.Vreme < DateTime.Now)
                                                     .ToListAsync();
 
         var visitedEvents = rezervacije.Select(x => new
         {
-            ReservationId = x.ID,
+            EventId = x.Dogadjaj!.ID,
             Title = x.Dogadjaj!.Naziv,
             Date = x.Dogadjaj.Vreme,
             Image = x.Dogadjaj.Slika,
-            Price = x.Sto!.Price * x.BrojMesta
         });
 
         return Ok(visitedEvents);
+    }
+
+    [Authorize(Policy = "RequireVisitorRole")]
+    [HttpPost("postComment")]
+    public async Task<IActionResult> PostComment([FromBody] CommentDto commentDto)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Rezervacije!)
+                                              .ThenInclude(x => x.Korisnik)
+                                              .FirstOrDefaultAsync(x => x.ID == commentDto.DogadjajId);
+
+        if (dogadjaj == null)
+        {
+            return NotFound("Event not found.");
+        }
+
+        if (!dogadjaj.Rezervacije!.Any(x => x.Korisnik == korisnik))
+        {
+            return Unauthorized("You can't comment on event you did not attend.");
+        }
+
+        if (dogadjaj.Vreme > DateTime.Now)
+        {
+            return BadRequest("You can't comment on event that has not happened yet.");
+        }
+
+        var komentar = new Ocena
+        {
+            Korisnik = korisnik,
+            Dogadjaj = dogadjaj,
+            Komentar = commentDto.Komentar,
+            Vrednost = commentDto.Ocena
+        };
+
+        await Context.Ocene.AddAsync(komentar);
+        await Context.SaveChangesAsync();
+
+        return Ok();
     }
 
 

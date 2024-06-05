@@ -31,7 +31,7 @@ import { useDispatch } from "react-redux";
 import { useForm, matches } from "@mantine/form";
 import { PasswordStrength } from "../Auth/Utils/PasswordStrength";
 import { StatsCard } from "../SpaceOwnerPages/StatsCard";
-import { ActiveReservations, VisitorProfileProps, VisitorStatistics } from "./interfaces";
+import { ActiveReservations, VisitedEvents, VisitorProfileProps, VisitorStatistics } from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
 
 export function formatTimeOnly(date: Date) {
@@ -48,10 +48,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
+  const [eventSelectedForReview, setEventSelectedForReview] = useState<number | null>(null);
+  const [review, setReview] = useState<string>("");
+  const [rating, setRating] = useState<number>(-1);
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
-  const [reviewDialogOpened, { toggle: toggleReview, close: closeReivew }] =
+  const [reviewDialogOpened, { toggle: toggleReview, close: closeReview }] =
     useDisclosure(false);
   const reviewDialogTopLeft = useRef([
     document.body.clientHeight / 2 - 200,
@@ -124,13 +127,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
     isLoading: areVisitedEventsLoading,
     data: visitedEvents,
     isError: visitedEventsError,
-  } = useQuery<ActiveReservations[]>({
+  } = useQuery<VisitedEvents[]>({
     queryKey: ["visited_events"],
     queryFn: async () => {
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getVisitedEvents`)
         .then((resp) => {
-          console.log(resp.data);
           return resp.data;
         })
         .catch((err) => {
@@ -184,6 +186,23 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       alert(err.response.data);
     }
   };
+
+  const postReview = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_DB_SERVER}/Visitor/postComment`, {
+        eventId: eventSelectedForReview,
+        rating: rating,
+        comment: review,
+      });
+      setRating(-1);
+      setReview("");
+      setEventSelectedForReview(null);
+      alert("Review posted successfully!");
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  }
 
   return (
     <Flex
@@ -513,7 +532,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title>Visited events</Title>
         <Stack className={classes.contentStack}>
-          {(areVisitedEventsLoading || visitedEvents) && (
+          {areVisitedEventsLoading || visitedEventsError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -522,9 +541,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 <div></div>
               </div>
             </div>
-          )}
-          {!areVisitedEventsLoading &&
-            !visitedEventsError &&
+          ) : (
             visitedEvents?.map((ev, idx) => (
               <Flex
                 key={idx}
@@ -550,13 +567,15 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   w="fit-content"
                   onClick={(e) => {
                     e.stopPropagation();
+                    setEventSelectedForReview(ev.eventId);
                     toggleReview();
                   }}
                 >
                   Leave review
                 </Button>
               </Flex>
-            ))}
+              ))
+            )}
         </Stack>
       </Flex>
       <Dialog
@@ -579,7 +598,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
           <CloseButton
             onClick={(event) => {
               event.stopPropagation();
-              closeReivew();
+              closeReview();
             }}
           />
         </Group>
@@ -606,6 +625,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               { value: 10, label: "10" },
             ]}
             scale={(value) => value}
+            value={rating}
+            onChange={(value) => setRating(value)}
           />
         </Group>
         <Textarea
@@ -615,8 +636,22 @@ export default function VisitorProfile(props: VisitorProfileProps) {
           maxRows={8}
           minRows={3}
           autosize
+          value={review}
+          onChange={(event) => setReview(event.currentTarget.value)}
         />
-        <Button w="100%" onClick={close}>
+        <Button w="100%" onClick={() => {
+          if (rating == -1) {
+            alert("Please choose rating for review!");
+            return;
+          }
+          if (review.length == 0) {
+            alert("Please write a review!");
+            return;
+          }
+
+          closeReview();
+          postReview();
+        }}>
           Post review
         </Button>
       </Dialog>
