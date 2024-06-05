@@ -21,7 +21,6 @@ import {
 import Logo from "../../assets/logo.png";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  IconNotification,
   IconChartPie3,
   IconChevronDown,
   IconTicket,
@@ -65,6 +64,7 @@ const data = [
     description: "Host next memorable event and let everyone see!",
     onClick: (userType: string, navigate: Function) => {
       if (userType == "Host") navigate("/organizerpage");
+      else alert("You aren't logged in as a host");
     },
   },
   {
@@ -75,6 +75,7 @@ const data = [
       if (userType == "Host") navigate("/organizerpage");
       else if (userType == "Visitor") navigate("/visitorprofile");
       else if (userType == "Space owner") navigate("/spaceownerpage");
+      else navigate("/login");
     },
   },
   {
@@ -83,15 +84,7 @@ const data = [
     description: "Advertise your space and let organizers host their events!",
     onClick: (userType: string, navigate: Function) => {
       if (userType == "Host") navigate("/organizerpage");
-    },
-  },
-  {
-    icon: IconNotification,
-    title: "Notifications",
-    description:
-      "Subscribe to get updates about events that might interest you!",
-    onClick: (_userType: string, _navigate: Function) => {
-      console.log("Subscribed");
+      else alert("You aren't logged in as a host");
     },
   },
 ];
@@ -181,9 +174,6 @@ export function HeaderMegaMenu() {
                 <div className={classes.dropdownFooter}>
                   <Group justify="space-between">
                     <div>
-                      <Text fw={500} fz="sm">
-                        loring
-                      </Text>
                       <Text size="xs" c="dimmed">
                         Explore, Conenct, Experience
                       </Text>

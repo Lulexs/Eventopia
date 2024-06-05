@@ -1,3 +1,4 @@
+using System.Globalization;
 using Castle.Components.DictionaryAdapter;
 
 namespace Backend.Controllers;
@@ -8,6 +9,7 @@ namespace Backend.Controllers;
 public class HomePageController : ControllerBase
 {
     public Context Context { get; set; }
+
     public HomePageController(Context context)
     {
         Context = context;
@@ -46,14 +48,17 @@ public class HomePageController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("getAllEvents")]
-    public async Task<ActionResult<List<FullEventDto>>> GetAllEvents()
+    [HttpGet("getAllEvents/{currentPage}")]
+    public async Task<ActionResult<List<FullEventDto>>> GetAllEvents(int currentPage)
     {
         var events = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
                                     .Where(x => x.Status == StatusDogadjaja.Active)
+                                    .OrderBy(x => x.ID)
+                                    .Skip(currentPage * 10)
+                                    .Take(10)
                                     .Select(x => new FullEventDto
                                     {
                                         ID = x.ID,
@@ -66,16 +71,18 @@ public class HomePageController : ControllerBase
                                         Organizator = $"{x.Organizator!.Ime} {x.Organizator!.Prezime}",
                                     })
                                     .ToListAsync();
+        if (events.Count == 0)
+            return NotFound();
 
         return Ok(events);
     }
 
     [AllowAnonymous]
-    [HttpGet("getFilteredEvents")]
-    public async Task<ActionResult<List<FullEventDto>>> GetFilteredEvents([FromQuery] string? location, [FromQuery] string? search, [FromQuery] string? date, [FromQuery] string[]? tags)
+    [HttpGet("getFilteredEvents/{currentPage}")]
+    public async Task<ActionResult<List<FullEventDto>>> GetFilteredEvents(int currentPage, [FromQuery] string? location, [FromQuery] string? search, [FromQuery] string? date, [FromQuery] string[]? tags)
     {
         DateTime dateParsed = DateTime.Now;
-        bool dateFilter = !String.IsNullOrEmpty(date) && DateTime.TryParse(date, out dateParsed);
+        bool dateFilter = !String.IsNullOrEmpty(date) && DateTime.TryParseExact(date, "dd.MM.yyyy.", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateParsed);
 
         var events = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
@@ -86,6 +93,9 @@ public class HomePageController : ControllerBase
                                                 && (String.IsNullOrEmpty(search) ? true : x.Naziv.ToLower().Contains(search.ToLower()))
                                                 && (!dateFilter ? true : x.Vreme.Date == dateParsed.Date)
                                                 && (tags!.Length == 0 ? true : x.Tagovi!.Any(y => tags.Contains(y.TagName))))
+                                    .OrderBy(x => x.ID)
+                                    .Skip(currentPage * 10)
+                                    .Take(10)
                                     .Select(x => new FullEventDto
                                     {
                                         ID = x.ID,

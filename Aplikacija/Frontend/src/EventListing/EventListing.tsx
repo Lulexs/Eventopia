@@ -14,7 +14,7 @@ import EventBgImage from "../assets/event_listing_bg_op.png";
 import EventCard from "./EventCard";
 import classes from "./EventListing.module.css";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Event } from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
 
@@ -23,6 +23,7 @@ export default function EventListing() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateTime, setDateTime] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
 
   const {
     isLoading: areLocationsLoading,
@@ -52,39 +53,47 @@ export default function EventListing() {
     },
   });
 
+  const fetchEvents = async (page = 0) => {
+    if (!selectedCity && !searchTerm && !selectedTags.length && !dateTime) {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getAllEvents/${page}`)
+        .then((resp) => resp.data)
+        .catch((err) => console.error(err));
+    } else {
+      const params = new URLSearchParams();
+      if (selectedCity) params.append("location", selectedCity);
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedTags && selectedTags.length > 0)
+        selectedTags.forEach((tag) => params.append("tags", tag));
+      if (dateTime) params.append("date", formatOnlyDate(dateTime));
+      return await axios
+        .get(
+          `${
+            import.meta.env.VITE_DB_SERVER
+          }/HomePage/getFilteredEvents/${page}`,
+          {
+            params,
+          }
+        )
+        .then((resp) => resp.data)
+        .catch((err) => {
+          console.error(err);
+          return [];
+        });
+    }
+  };
+
   const {
     isLoading,
     data: events,
     isError,
     isRefetching,
     refetch,
+    isPlaceholderData,
   } = useQuery<Event[]>({
-    queryKey: ["events"],
-    queryFn: async () => {
-      if (!selectedCity && !searchTerm && !selectedTags.length && !dateTime) {
-        return await axios
-          .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getAllEvents`)
-          .then((resp) => resp.data)
-          .catch((err) => console.error(err));
-      } else {
-        const params = new URLSearchParams();
-        if (selectedCity) params.append("location", selectedCity);
-        if (searchTerm) params.append("search", searchTerm);
-        if (selectedTags && selectedTags.length > 0)
-          selectedTags.forEach((tag) => params.append("tags", tag));
-        if (dateTime) params.append("date", formatOnlyDate(dateTime));
-
-        return await axios
-          .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getFilteredEvents`, {
-            params,
-          })
-          .then((resp) => resp.data)
-          .catch((err) => {
-            console.error(err);
-            return [];
-          });
-      }
-    },
+    queryKey: ["events", page],
+    queryFn: () => fetchEvents(page),
+    placeholderData: keepPreviousData,
   });
 
   return (
@@ -187,7 +196,6 @@ export default function EventListing() {
           size="md"
           onClick={async () => {
             await refetch();
-            console.log(isError);
           }}
         >
           Search
@@ -219,6 +227,25 @@ export default function EventListing() {
           ))
         )}
       </Flex>
+      <Group mb={20}>
+        <Button
+          onClick={() => setPage((old) => Math.max(old - 1, 0))}
+          disabled={page === 0}
+        >
+          {"<"}
+        </Button>
+        <Button disabled>{page + 1}</Button>
+        <Button
+          onClick={() => {
+            if (!isPlaceholderData && events?.length === 10) {
+              setPage((old) => old + 1);
+            }
+          }}
+          disabled={isPlaceholderData || !(events?.length === 10)}
+        >
+          {">"}
+        </Button>
+      </Group>
     </Flex>
   );
 }

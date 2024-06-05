@@ -1,12 +1,13 @@
-import { Group, Anchor, Image, Flex, Select } from "@mantine/core";
+import { Group, Anchor, Image, Flex } from "@mantine/core";
 import Logo from "../../assets/logo.png";
 import classes from "./Footer.module.css";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LanguagePicker } from "../LanguagePicker/LanguagePicker";
 
 export function Footer() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const links = [
     { link: "/contact", label: "FooterContact" },
@@ -14,11 +15,6 @@ export function Footer() {
     { link: "/faq", label: "FooterFaq" },
     { link: "/", label: "FooterCopyright" },
   ];
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem("i18nextLng", lng);
-  };
 
   const items = links.map((link, idx) => (
     <Anchor<"a">
@@ -47,13 +43,7 @@ export function Footer() {
       <Flex p={30} pl={40} pr={40} className={classes.inner} align="center">
         <Image h={35} src={Logo} />
         <Group className={classes.links}>
-          <Select
-            size="md"
-            w="max-content"
-            value={i18n.language}
-            onChange={(_value) => changeLanguage(_value!)}
-            data={["en", "sr"]}
-          />
+          <LanguagePicker />
           {items}
         </Group>
       </Flex>
