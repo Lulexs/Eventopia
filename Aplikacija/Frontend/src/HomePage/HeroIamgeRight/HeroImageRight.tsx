@@ -3,9 +3,11 @@ import classes from "./HeroImageRight.module.css";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import { useTranslation } from "react-i18next";
 
 export function HeroImageRight() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const loggedUser = useSelector((state: RootState) => state.auth);
 
   return (
@@ -20,7 +22,7 @@ export function HeroImageRight() {
                 variant="gradient"
                 gradient={{ from: "pink", to: "yellow" }}
               >
-                Explore, Connect, Experience:
+                {t("Welcome1")}
               </Text>{" "}
               Your Gateway to Event Discovery
             </Title>

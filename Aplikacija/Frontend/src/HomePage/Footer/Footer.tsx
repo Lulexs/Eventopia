@@ -1,17 +1,24 @@
-import { Group, Anchor, Image, Flex } from "@mantine/core";
+import { Group, Anchor, Image, Flex, Select } from "@mantine/core";
 import Logo from "../../assets/logo.png";
 import classes from "./Footer.module.css";
 import { useNavigate } from "react-router-dom";
-
-const links = [
-  { link: "/contact", label: "Contact" },
-  { link: "/privacy", label: "Privacy" },
-  { link: "/faq", label: "Faq" },
-  { link: "/", label: "©Copyright 2024 AverageDebuggingEnjoyers" },
-];
+import { useTranslation } from "react-i18next";
 
 export function Footer() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const links = [
+    { link: "/contact", label: "FooterContact" },
+    { link: "/privacy", label: "FooterPrivacy" },
+    { link: "/faq", label: "FooterFaq" },
+    { link: "/", label: "FooterCopyright" },
+  ];
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem("i18nextLng", lng);
+  };
 
   const items = links.map((link, idx) => (
     <Anchor<"a">
@@ -24,7 +31,7 @@ export function Footer() {
       size="md"
       underline={idx == links.length - 1 ? "never" : "hover"}
     >
-      {link.label}
+      {t(link.label)}
     </Anchor>
   ));
 
@@ -39,7 +46,16 @@ export function Footer() {
     >
       <Flex p={30} pl={40} pr={40} className={classes.inner} align="center">
         <Image h={35} src={Logo} />
-        <Group className={classes.links}>{items}</Group>
+        <Group className={classes.links}>
+          <Select
+            size="md"
+            w="max-content"
+            value={i18n.language}
+            onChange={(_value) => changeLanguage(_value!)}
+            data={["en", "sr"]}
+          />
+          {items}
+        </Group>
       </Flex>
     </div>
   );
