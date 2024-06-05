@@ -11,8 +11,15 @@ export default function HomePage() {
     queryKey: ["highlights"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/highlights`)
-        .then((resp) => resp.data);
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getHighlights`)
+        .then((resp) => {
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          return [];
+        });
     },
   });
 

@@ -19,7 +19,7 @@ public class Dogadjaj
     // Slika se pamti kao Base64 string. Pogledati ImageController
     public required string Slika { get; set; }
 
-    // Video se pamti kao link ka YouTube videu
+    // Video se pamti kao link ka YouTube videu (embed link)
     public string? VideoLink { get; set; }
 
     public List<Tag>? Tagovi { get; set; }
