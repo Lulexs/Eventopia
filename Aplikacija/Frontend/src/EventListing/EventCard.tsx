@@ -13,7 +13,7 @@ export default function EventCard(props: EventCardProps) {
     <Card shadow="sm" padding="lg" radius="lg" withBorder w="20%" miw={300}>
       <Card.Section>
         <Image
-          src={new URL(props.event.img, import.meta.url).href}
+          src={`data:image/jpeg;base64,${props.event.img}`}
           height={160}
           alt={`Couldn't load ${props.event.title} image`}
           fit="cover"
@@ -45,8 +45,7 @@ export default function EventCard(props: EventCardProps) {
           e.stopPropagation();
           dispatch(
             setEvent({
-              ...props.event,
-              img: `../../src/${props.event.img.slice(3)}`,
+              ...props.event
             })
           );
           navigate(`/eventinfo`);

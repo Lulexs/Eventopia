@@ -23,10 +23,10 @@ import { Comment, EventBasic } from "./interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 
-export function formatOnlyDate(date: Date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+export function formatOnlyDate(date: Date | null) {
+  const day = String(date?.getDate()).padStart(2, '0');
+  const month = String(date?.getMonth()! + 1).padStart(2, '0');
+  const year = date?.getFullYear();
 
   return `${day}.${month}.${year}.`;
 }
@@ -235,9 +235,8 @@ export default function AdminPage(props: AdminPageProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Image
-                  //src={new URL("../" + ev.img, import.meta.url).href}
                   src={`data:image/jpeg;base64,${ev.image}`}
-                  alt={"Couldn't load image"}
+                  alt={`Couldn't load ${ev.name} image`}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}

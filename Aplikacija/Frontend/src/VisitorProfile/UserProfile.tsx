@@ -507,7 +507,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               >
                 <Image
                   src={`data:image/jpeg;base64,${reservation.image}`}
-                  alt={`Couldn't load image`}
+                  alt={`Couldn't load ${reservation.title} image`}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}
@@ -552,7 +552,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 <Image
                   className={classes.reservationAndVisitedDivImage}
                   src={`data:image/jpeg;base64,${ev.image}`}
-                  alt={`Couldn't load image`}
+                  alt={`Couldn't load ${ev.title} image`}
                   fit="cover"
                   w={imageWidth}
                 />

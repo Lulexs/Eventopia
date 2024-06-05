@@ -13,7 +13,6 @@ export default function HomePage() {
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getHighlights`)
         .then((resp) => {
-          console.log(resp.data);
           return resp.data;
         })
         .catch((err) => {

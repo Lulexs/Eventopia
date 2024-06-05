@@ -4,6 +4,7 @@ import {
   Flex,
   Group,
   MultiSelect,
+  TextInput,
   Title,
 } from "@mantine/core";
 import { useState } from "react";
@@ -13,33 +14,44 @@ import EventBgImage from "../assets/event_listing_bg_op.png";
 import EventCard from "./EventCard";
 import classes from "./EventListing.module.css";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Event } from "./interfaces";
-
-const gradOptions = [
-  "Nis, Serbia",
-  "Belgrade, Serbia",
-  "Prague, Checkia",
-  "Moscow, Russia",
-  "Berlin, Germany",
-  "Rome, Italy",
-  "Novi Sad, Serbia",
-  "Copenhagen, Denmark",
-  "Cleavland, USA",
-  "LA, USA",
-  "San Francisco, USA",
-  "Donji Milanovac, Serbia",
-];
-
-const organizers = ["Milenium house", "Petar Petrovic"];
-
-const tags = ["Rock", "Hip hop", "Eating", "Old music", "Sport"];
+import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
 
 export default function EventListing() {
   const [selectedCity, setSelectedCity] = useState("");
-  const [selectedOrganizer, setSelectedOrganizer] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateTime, setDateTime] = useState<Date | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const queryClient = useQueryClient();
+
+  const {
+    isLoading: areLocationsLoading,
+    data: locations,
+    isError: locationsError,
+  } = useQuery<string[]>({
+    queryKey: ["locations"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getLocations`)
+        .then((resp) => resp.data)
+        .catch((err) => console.error(err));
+    },
+  });
+
+  const {
+    isLoading: areTagsLoading,
+    data: tags,
+    isError: tagsError,
+  } = useQuery<string[]>({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getTags`)
+        .then((resp) => resp.data)
+        .catch((err) => console.error(err));
+    },
+  });
 
   const {
     isLoading,
@@ -48,9 +60,34 @@ export default function EventListing() {
   } = useQuery<Event[]>({
     queryKey: ["events"],
     queryFn: async () => {
-      return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces`)
-        .then((resp) => resp.data);
+      if (!selectedCity && !searchTerm && !selectedTags.length && !dateTime) {
+        return await axios
+          .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getAllEvents`)
+          .then((resp) => resp.data)
+          .catch((err) => console.error(err));
+      }
+      else
+      {
+        const params = new URLSearchParams();
+        if (selectedCity) 
+          params.append('location', selectedCity);
+        if (searchTerm) 
+          params.append('search', searchTerm);
+        if (selectedTags && selectedTags.length > 0)
+          selectedTags.forEach(tag => params.append('tags', tag));
+        if (dateTime) 
+          params.append('date', formatOnlyDate(dateTime));
+
+        return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getFilteredEvents`, {
+          params
+        })
+        .then((resp) => resp.data )
+        .catch((err) => {
+          console.error(err);
+          return [];
+        });
+      } 
     },
   });
 
@@ -79,8 +116,23 @@ export default function EventListing() {
         Explore, Connect, Experience
       </Title>
       <Group align="flex-end" justify="center" mb={50}>
+
+        <TextInput
+            label="Search by name"
+            placeholder="Enter event name..."
+            maw={229}
+            styles={{
+              label: {
+                fontFamily: "Greycliff CF, var(--mantine-font-family)",
+                fontSize: "1.01rem",
+              },
+            }}
+            value={searchTerm}
+            onChange={(e => setSearchTerm(e.target.value))}
+        />
+
         <Autocomplete
-          data={gradOptions}
+          data={areLocationsLoading || locationsError ? [] : locations}
           value={selectedCity}
           onChange={setSelectedCity}
           placeholder="Select location..."
@@ -95,22 +147,7 @@ export default function EventListing() {
           rightSectionPointerEvents="none"
           maw={229}
         />
-        <Autocomplete
-          data={organizers}
-          value={selectedOrganizer}
-          onChange={setSelectedOrganizer}
-          placeholder="Select organizer..."
-          label="Filter by organizer"
-          styles={{
-            label: {
-              fontFamily: "Greycliff CF, var(--mantine-font-family)",
-              fontSize: "1.01rem",
-            },
-          }}
-          rightSection={<IconSelect />}
-          rightSectionPointerEvents="none"
-          maw={229}
-        />
+
         <DateInput
           value={dateTime}
           onChange={setDateTime}
@@ -125,11 +162,12 @@ export default function EventListing() {
           }}
           rightSection={<IconSelect />}
           rightSectionPointerEvents="none"
+          clearable
         />
 
         <MultiSelect
           label="Filter by event tags"
-          data={tags}
+          data={areTagsLoading || tagsError ? [] : tags}
           placeholder="Select tags..."
           value={selectedTags}
           onChange={setSelectedTags}
@@ -152,6 +190,7 @@ export default function EventListing() {
           variant="outline"
           color="gray"
           size="md"
+          onClick={() => queryClient.invalidateQueries({ queryKey: ["events"] })}
         >
           Search
         </Button>
