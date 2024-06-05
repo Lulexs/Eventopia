@@ -357,6 +357,15 @@ export default function AdminPage() {
         <Button
           w="100%"
           onClick={() => {
+            if (!banReason) {
+              alert("Please enter a reason for the ban!");
+              return;
+            }
+      
+            if (!banUntil || (banUntil && banUntil < new Date(Date.now()))) {
+              alert("Please enter a valid date for the ban!");
+              return;
+            }
             banUser();
             close();
           }}

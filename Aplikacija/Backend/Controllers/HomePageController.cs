@@ -1,6 +1,3 @@
-using System.Globalization;
-using Castle.Components.DictionaryAdapter;
-
 namespace Backend.Controllers;
 
 [Authorize]

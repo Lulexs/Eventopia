@@ -88,7 +88,6 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/Space/getOwnerSpaces`)
         .then((resp) => {
-          console.log(resp.data);
           return resp.data;
         })
         .catch((err) => {
@@ -108,7 +107,6 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/Space/getSpacesReservations`)
         .then((resp) => {
-          console.log(resp.data);
           return resp.data;
         })
         .catch((err) => {
@@ -128,7 +126,6 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/Space/getStatistics`)
         .then((resp) => {
-          console.log(resp.data);
           return resp.data;
         })
         .catch((err) => {
@@ -149,8 +146,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         }/Space/respondToSpaceReservation/${reservationId}/${response}`
       );
       queryClient.invalidateQueries({ queryKey: ["owner_reservations"] });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err.response.status == 401)
+        alert(err.response.data)
+      else
+        alert(err.response.data[0].description);
     }
   };
 
@@ -160,8 +161,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         `${import.meta.env.VITE_DB_SERVER}/Space/deleteSpace/${spaceId}`
       );
       queryClient.invalidateQueries({ queryKey: ["owner_spaces"] });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err.response.status == 401)
+        alert(err.response.data)
+      else
+        alert(err.response.data[0].description);
     }
   };
 
@@ -266,7 +271,6 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
-                      console.log(values);
                       await axios
                         .put(
                           `${
@@ -301,7 +305,10 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          alert(err.response.data[0].description);
+                          if (err.response.status == 401)
+                            alert(err.response.data)
+                          else
+                            alert(err.response.data[0].description);
                         });
                     }}
                   >

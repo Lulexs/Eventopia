@@ -14,7 +14,7 @@ import MapWithInput from "../Auth/Utils/MapInput";
 import { LatLng } from "leaflet";
 
 export default function SpaceOwnerPageContainer() {
-  const [position, setPosition] = useState<LatLng>(new LatLng(51.505, -0.09));
+  const [position, setPosition] = useState<LatLng>(new LatLng(44.787197, 20.457273));
   const [city, setCity] = useState<string>("");
   const [country, setCountry] = useState<string>("");
   const [address, setAddress] = useState<string>("");
@@ -51,7 +51,13 @@ export default function SpaceOwnerPageContainer() {
               await axios
                 .post(`${import.meta.env.VITE_DB_SERVER}/Space/addSpace`, spaceObject)
                 .then((_) => setView(View.Basic))
-                .catch((err) => alert(err));
+                .catch((err) => {
+                  console.error(err);
+                  if (err.response.status == 401)
+                    alert(err.response.data)
+                  else
+                    alert(err.response.data[0].description);
+                });
             }}
             onCancel={() => setView(View.Basic)}
           />

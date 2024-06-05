@@ -22,6 +22,13 @@ public class SpaceController : ControllerBase
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         Prostor prostor = new Prostor
         {
             Grad = prostorDto.Grad,
@@ -104,6 +111,13 @@ public class SpaceController : ControllerBase
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         if (korisnik == null)
         {
             return BadRequest("User not found.");
@@ -129,6 +143,13 @@ public class SpaceController : ControllerBase
     {
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).ToListAsync();
 
@@ -181,6 +202,13 @@ public class SpaceController : ControllerBase
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).ToListAsync();
 
         if (korisnik!.VlasnikProstori?.Find(x => x.ID == rezervacija!.Prostor!.ID) == null)
@@ -212,6 +240,13 @@ public class SpaceController : ControllerBase
     public async Task<ActionResult<List<ProstorRezervacijeDto>>> GetSpacesReservations()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
                                             .Include(x => x.Rezervacije!)
@@ -248,6 +283,13 @@ public class SpaceController : ControllerBase
     public async Task<ActionResult<List<ProstorRezervacijeDto>>> GetStatistics()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
                                             .Include(x => x.Rezervacije!)

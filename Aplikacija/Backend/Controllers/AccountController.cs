@@ -23,6 +23,13 @@ public class AccountController : ControllerBase
 
         if (korisnik == null) return Unauthorized($"User with this email doesn't exist: {loginDto.Email}");
 
+        var banned = await UserUtils.IsBanned(korisnik, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var result = await _userManager.CheckPasswordAsync(korisnik, loginDto.Password);
 
         if (result)
@@ -81,6 +88,14 @@ public class AccountController : ControllerBase
     public async Task<ActionResult<KorisnikDto>> GetCurrentUser()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var korisnikObject = await CreateUserObject(korisnik!);
         return korisnikObject;
     }
@@ -90,6 +105,13 @@ public class AccountController : ControllerBase
     public async Task<ActionResult<KorisnikDto>> UpdateUser([FromBody] ChangeUserDto changeUserDto)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         korisnik!.Ime = changeUserDto.Ime;
         korisnik.Prezime = changeUserDto.Prezime;

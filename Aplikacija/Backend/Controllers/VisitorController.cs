@@ -20,6 +20,13 @@ public class VisitorController : ControllerBase
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         if (korisnik == null)
             return NotFound("User not found.");
 
@@ -64,6 +71,13 @@ public class VisitorController : ControllerBase
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var tagovi = await Context.UserTags.Where(x => x.Korisnici!.Any(x => x.Korisnik == korisnik)).Select(x => x.TagName).ToListAsync();
 
         var avatarAndTags = new
@@ -81,6 +95,13 @@ public class VisitorController : ControllerBase
     public async Task<IActionResult> GetStatistics()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var rezervacije = await Context.Rezervacije.Include(x => x.Korisnik)
                                                     .Include(x => x.Dogadjaj)
@@ -136,6 +157,13 @@ public class VisitorController : ControllerBase
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var rezervacije = await Context.Rezervacije.Include(x => x.Korisnik)
                                                     .Include(x => x.Dogadjaj)
                                                     .Include(x => x.Sto)
@@ -160,6 +188,13 @@ public class VisitorController : ControllerBase
     public async Task<IActionResult> CancelReservation(int reservationId)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var rezervacija = await Context.Rezervacije.Include(x => x.Korisnik)
                                                     .Include(x => x.Dogadjaj)
@@ -194,6 +229,13 @@ public class VisitorController : ControllerBase
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var rezervacije = await Context.Rezervacije.Include(x => x.Korisnik)
                                                     .Include(x => x.Dogadjaj)
                                                     .Where(x => x.Korisnik == korisnik
@@ -216,6 +258,13 @@ public class VisitorController : ControllerBase
     public async Task<IActionResult> PostComment([FromBody] CommentDto commentDto)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
 
         var dogadjaj = await Context.Dogadjaji.Include(x => x.Rezervacije!)
                                               .ThenInclude(x => x.Korisnik)

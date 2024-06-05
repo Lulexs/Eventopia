@@ -325,7 +325,10 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          alert(err.response.data[0].description);
+                          if (err.response.status == 401)
+                            alert(err.response.data)
+                          else
+                            alert(err.response.data[0].description);
                         });
                     }}
                 >Save changes</Button>
@@ -443,7 +446,10 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          alert(err.response.data[0].description);
+                          if (err.response.status == 401)
+                            alert(err.response.data)
+                          else
+                            alert(err.response.data[0].description);
                         });
                     }}
                   >
