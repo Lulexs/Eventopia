@@ -7,18 +7,25 @@ import {
   Image,
   Text,
   Avatar,
+  CloseButton,
+  Dialog,
+  Group,
+  Slider,
+  Textarea,
 } from "@mantine/core";
 import { AuthState } from "../../store/features/auth";
 import classes from "./AdminPage.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Comment, EventBasic } from "./interfaces";
+import { useDisclosure } from "@mantine/hooks";
+import { DateInput } from "@mantine/dates";
 
 export function formatOnlyDate(date: Date) {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
 
   return `${day}.${month}.${year}.`;
@@ -81,6 +88,8 @@ const dummyUsers = [
 
 export default function AdminPage(props: AdminPageProps) {
   const [imageWidth, setImageWidth] = useState("25%");
+  const [dialogOpened, { toggle, close }] = useDisclosure(false);
+  const dialogTopLeft = useRef([20, 20]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -151,7 +160,9 @@ export default function AdminPage(props: AdminPageProps) {
   const deleteComment = async (commentId: number) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_DB_SERVER}/Administrator/deleteComment/${commentId}`
+        `${
+          import.meta.env.VITE_DB_SERVER
+        }/Administrator/deleteComment/${commentId}`
       );
       queryClient.invalidateQueries({ queryKey: ["all_comments"] });
     } catch (err) {
@@ -188,7 +199,13 @@ export default function AdminPage(props: AdminPageProps) {
                   {user.Username}
                 </Text>
               </Box>
-              <Button w="30%" bg={user.status == "Free" ? "red" : "green"}>
+              <Button
+                w="30%"
+                bg={user.status == "Free" ? "red" : "green"}
+                onClick={() => {
+                  user.status == "Free" ? toggle() : close();
+                }}
+              >
                 {user.status == "Free" ? "Ban" : "Unban"}
               </Button>
             </Flex>
@@ -232,7 +249,9 @@ export default function AdminPage(props: AdminPageProps) {
                     {formatOnlyDate(new Date(ev.date))}
                   </Text>
                 </Box>
-                <Button w="fit-content" onClick={() => deleteEvent(ev.id)}>Remove</Button>
+                <Button w="fit-content" onClick={() => deleteEvent(ev.id)}>
+                  Remove
+                </Button>
               </Flex>
             ))}
         </Stack>
@@ -262,13 +281,67 @@ export default function AdminPage(props: AdminPageProps) {
                 <Box flex={1}>
                   <Text>{comm.comment}</Text>
                 </Box>
-                <Button w="fit-content" bg="red" onClick={() => deleteComment(comm.id)}>
+                <Button
+                  w="fit-content"
+                  bg="red"
+                  onClick={() => deleteComment(comm.id)}
+                >
                   Remove
                 </Button>
               </Flex>
             ))}
         </Stack>
       </Flex>
+      <Dialog
+        opened={dialogOpened}
+        withCloseButton={false}
+        onClose={close}
+        size="md"
+        radius="md"
+        position={{
+          top: dialogTopLeft.current[0],
+          left: dialogTopLeft.current[1],
+        }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {" "}
+        <Group mb="md" align="center">
+          <Text size="sm" fw={300} flex={1}>
+            Leave a review
+          </Text>
+          <CloseButton
+            onClick={(event) => {
+              event.stopPropagation();
+              close();
+            }}
+          />
+        </Group>
+        <Group align="center" mb={10}>
+          <Text size="sm" fw={300} miw="45px">
+            Until:{" "}
+          </Text>
+          <DateInput
+            placeholder={`${formatOnlyDate(new Date(Date.now()))}`}
+            flex={1}
+          />
+        </Group>
+        <Textarea
+          mb={10}
+          label="Reason:"
+          placeholder="User was annoying..."
+          maxRows={8}
+          minRows={3}
+          autosize
+        />
+        <Button
+          w="100%"
+          onClick={() => {
+            close();
+          }}
+        >
+          Ban user
+        </Button>
+      </Dialog>
     </Flex>
   );
 }
