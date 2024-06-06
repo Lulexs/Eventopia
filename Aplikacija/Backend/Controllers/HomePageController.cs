@@ -11,8 +11,8 @@ namespace Backend.Controllers;
 public class HomePageController : ControllerBase
 {
     public Context Context { get; set; }
-
-    public HomePageController(Context context)
+    private readonly UserManager<Korisnik> _userManager;
+    public HomePageController(Context context, UserManager<Korisnik> userManager)
     {
         Context = context;
     }
@@ -175,6 +175,8 @@ public class HomePageController : ControllerBase
     [HttpGet("GetRecommendedEvents")]
     public async Task<IActionResult> GetRecommendedEvents(FullEventDto trenutniDogadjaj)
     {
+
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
         List<Dogadjaj> dogadjaji = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
