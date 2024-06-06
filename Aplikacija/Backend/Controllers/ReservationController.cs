@@ -18,7 +18,6 @@ public class ReservationController : ControllerBase
     [HttpGet("getSpacePlan/{eventId}")]
     public async Task<ActionResult<SpaceDto?>> GetSpacePlan(int eventId)
     {
-
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         var banned = await UserUtils.IsBanned(korisnik!, Context);
@@ -32,6 +31,8 @@ public class ReservationController : ControllerBase
                                                .ThenInclude(x => x!.DraggableItems)
                                                .Include(x => x.PlanProstora)
                                                .ThenInclude(x => x!.Lines)
+                                               .Include(x => x.PlanProstora)
+                                               .ThenInclude(x => x!.SurfaceDimension)
                                                .Where(x => x.ID == eventId)
                                                .Select(x => new SpaceDto
                                                {
@@ -60,17 +61,39 @@ public class ReservationController : ControllerBase
                                                    {
                                                        Width = x.PlanProstora!.SurfaceDimension!.Width,
                                                        Height = x.PlanProstora!.SurfaceDimension!.Height
-                                                   },
+                                                   }
+                                               })
+                                               .FirstOrDefaultAsync();
+
+        return Ok(spacePlan);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("getEventDetails/{eventId}")]
+    public async Task<ActionResult<EventDetailsDto?>> GetEventDetails(int eventId)
+    {
+
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        EventDetailsDto? eventDetails = await Context.Dogadjaji.Include(x => x.PlanProstora)
+                                               .ThenInclude(x => x!.Prostor)
+                                               .Where(x => x.ID == eventId)
+                                               .Select(x => new EventDetailsDto
+                                               {
                                                    Opis = x.Opis,
-                                                   Grad = x.PlanProstora!.Prostor!.Grad,
-                                                   Drzava = x.PlanProstora!.Prostor!.Drzava,
-                                                   Adresa = x.PlanProstora!.Prostor!.Adresa,
                                                    Latitude = x.PlanProstora!.Prostor!.Latitude,
                                                    Longitude = x.PlanProstora!.Prostor!.Longitude
                                                })
                                                .FirstOrDefaultAsync();
 
-        return Ok(spacePlan);
+        return Ok(eventDetails);
     }
 
     [Authorize(Policy = "RequireVisitorRole")]

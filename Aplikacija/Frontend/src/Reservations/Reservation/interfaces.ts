@@ -43,10 +43,10 @@ export interface SpaceDataType {
   items: ItemInterface[];
   lines: Line[];
   surfaceDimension: { width: number; height: number };
+}
+
+export interface EventDetails {
   description: string;
-  city: string;
-  country: string;
-  address: string;
   latitude: number;
   longitude: number;
 }

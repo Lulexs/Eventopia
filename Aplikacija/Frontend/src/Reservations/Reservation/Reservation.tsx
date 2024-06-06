@@ -10,7 +10,7 @@ import {
   Image,
   Group,
 } from "@mantine/core";
-import { SpaceDataType, TableInterface } from "./interfaces";
+import { EventDetails, SpaceDataType, TableInterface } from "./interfaces";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
 import BarImage from "../../assets/bar.png";
 import StageImage from "../../assets/stage.png";
@@ -40,19 +40,45 @@ export default function Reservation(props: ReservationProps) {
   const [showMap, setShowMap] = useState(false);
 
   const { 
-    isLoading,
-    data, 
-    isError
+    isLoading : isSpaceLoading,
+    data : space, 
+    isError : isSpaceError
   } = useQuery<SpaceDataType>({
     queryKey: ["reservedSpace"],
     queryFn: async () => {
+      if (isUserLoggedIn.userType != "Visitor") 
+        return null;
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/Reservation/getSpacePlan/${props.id}`)
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err); 
+          return null;
+        });
+    },
+  });
+
+  
+  const { 
+    isLoading : areEventDetailsLoading,
+    data : eventDetails, 
+    isError : isEventDetailsError
+  } = useQuery<EventDetails>({
+    queryKey: ["event_details"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Reservation/getEventDetails/${props.id}`)
+        .then((resp) => {
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch(err => {
+          console.error(err); 
+          return null;
+        });
     },
   });
 
@@ -144,8 +170,8 @@ export default function Reservation(props: ReservationProps) {
             </Group>
 
             <Flex w="100%" h="40vh" mah="400px" mih="200px">
-              {showMap && !isLoading && !isError ? (
-                <MapComponent lat={data?.latitude ?? 0} lng={data?.longitude ?? 0} />
+              {showMap && !areEventDetailsLoading && !isEventDetailsError ? (
+                <MapComponent lat={eventDetails?.latitude ?? 0} lng={eventDetails?.longitude ?? 0} />
               ) : (
                 <Text
                   style={{
@@ -154,13 +180,13 @@ export default function Reservation(props: ReservationProps) {
                     color: "#453636",
                   }}
                 >
-                  {data?.description}
+                  {eventDetails?.description}
                 </Text>
               )}
             </Flex>
           </Flex>
 
-          {isLoading || isError ? (
+          {isSpaceLoading || isSpaceError ? (
             <div className={classes.ldsRing}>
               <div></div>
               <div></div>
@@ -200,14 +226,14 @@ export default function Reservation(props: ReservationProps) {
               {isUserLoggedIn.userType == "Visitor" && (
                 <div
                   style={{
-                    width: data?.surfaceDimension?.width,
-                    height: data?.surfaceDimension?.height,
+                    width: space?.surfaceDimension?.width,
+                    height: space?.surfaceDimension?.height,
                     position: "absolute",
                     top: 0,
                     left: 0,
                   }}
                 >
-                  {data?.items?.map((item) => {
+                  {space?.items?.map((item) => {
                     {
                       if (item.type == "table") {
                         return (
@@ -238,7 +264,7 @@ export default function Reservation(props: ReservationProps) {
                       left: 0,
                     }}
                   >
-                    {data?.lines?.map((line, index) => (
+                    {space?.lines?.map((line, index) => (
                       <line
                         key={index}
                         x1={line.x1}

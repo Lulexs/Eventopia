@@ -15,28 +15,22 @@ public class SpaceDto
     [JsonPropertyName("surfaceDimension")]
     public SurfaceDimensionDto? SurfaceDimension { get; set; }
 
-    [Required]
     [JsonPropertyName("description")]
-    public required string Opis { get; set; }
+    public string? Opis { get; set; }
 
-    [Required]
     [JsonPropertyName("city")]
-    public required string Grad { get; set; }
+    public string? Grad { get; set; }
 
-    [Required]
     [JsonPropertyName("country")]
-    public required string Drzava { get; set; }
+    public string? Drzava { get; set; }
 
-    [Required]
     [JsonPropertyName("address")]
-    public required string Adresa { get; set; }
+    public string? Adresa { get; set; }
 
-    [Required]
     [Range(-90, 90)]
     [JsonPropertyName("latitude")]
     public double Latitude { get; set; }
 
-    [Required]
     [Range(-180, 180)]
     [JsonPropertyName("longitude")]
     public double Longitude { get; set; }
