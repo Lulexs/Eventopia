@@ -19,3 +19,4 @@ global using System.Text.Json.Serialization;
 global using System.Text.Json;
 global using Backend.Utils;
 global using System.Globalization;
+global using Microsoft.Data.SqlClient;

@@ -26,6 +26,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddIdentityServices(config);
 
+builder.Services.AddHostedService<EventUpdateService>();
+
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

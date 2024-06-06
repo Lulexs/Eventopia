@@ -234,7 +234,6 @@ public class HostController : ControllerBase
         return Ok();
     }
 
-
     [Authorize(Policy = "RequireHostRole")]
     [HttpGet("getIncomingEvents")]
     public async Task<ActionResult> GetIncomingEvents()
@@ -266,9 +265,6 @@ public class HostController : ControllerBase
 
         return Ok(events);
     }
-
-
-
 
     [Authorize(Policy = "RequireHostRole")]
     [HttpGet("getPastEvents")]
