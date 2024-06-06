@@ -38,22 +38,21 @@ export default function NewEvent(props: NewEventProps) {
   const [selectedSpaceId, setSelectedSpaceId] = useState<number | string>(-1);
 
   const {
-    isLoading : areSpacesLoading,
+    isLoading: areSpacesLoading,
     data: spaces,
-    isError : spacesError,
+    isError: spacesError,
   } = useQuery<SpaceBasic[]>({
     queryKey: ["new_event_spaces"],
     queryFn: async () => {
-      if (false)
-      {
-      return await axios
-        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces`)
-        .then((resp) => resp.data)
-        .catch((err) => {
-          console.error(err);
-          alert(err.resp.data);
-          return [];
-        })
+      if (false) {
+        return await axios
+          .get(`${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces`)
+          .then((resp) => resp.data)
+          .catch((err) => {
+            console.error(err);
+            alert(err.resp.data);
+            return [];
+          });
       }
       return [];
     },
@@ -73,9 +72,10 @@ export default function NewEvent(props: NewEventProps) {
     validate: {
       eventName: (value) =>
         value.length > 0 ? null : "Empty event name field",
-      description: (value) => (value.length > 0 ? null : "Empty description field"),
+      description: (value) =>
+        value.length > 0 ? null : "Empty description field",
       time: (value) =>
-        value != null && value.length > 0 && matches(/^(?:[01]\d|2[0-3]):[0-5]\d$/) ? null : "Empty time field",
+        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? null : "Wrong time format",
     },
   });
 
@@ -106,156 +106,160 @@ export default function NewEvent(props: NewEventProps) {
           w="100%"
           h="100%"
           mt="20"
+          gap="15px"
           align="center"
           justify="center"
           className={classes.subTitleContainer}
         >
-
           <form
+            style={{
+              width: "50%",
+              height: "fit-content",
+              marginBottom: "10px",
+            }}
             onSubmit={createEventForm.onSubmit((_, event) => {
               event?.stopPropagation();
             })}
           >
-
-          <Fieldset
-            legend="Basic information"
-            w="50%"
-            h="fit-content"
-            fz="xl"
-            styles={{
-              root: {
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "10px",
-              },
-            }}
-            mb={10}
-          >
-            <Stack w="50%">
-              <TextInput
-                required
-                label="Event name"
-                placeholder="Event name..."
-                key={createEventForm.key("eventName")}
-                {...createEventForm.getInputProps("eventName")}
-              ></TextInput>
-              <Textarea
-                required
-                placeholder="Write something about the event..."
-                label="Description"
-                autosize
-                minRows={5}
-                key={createEventForm.key("description")}
-                {...createEventForm.getInputProps("description")}
-              />
-              <TagsInput
-                miw="100%"
-                label="Press Enter to submit a tag"
-                placeholder="Enter tag"
-                value={tags}
-                onChange={setTags}
-                styles={{
-                  input: {
-                    overflowY: "scroll",
-                    height: "7rem",
-                  },
-                }}
-              />
-            </Stack>
-            <Stack w="50%">
-              <DateInput 
-                required 
-                placeholder={formatOnlyDate(new Date(Date.now()))} 
-                label="Date" 
-                key={createEventForm.key("date")}
-                {...createEventForm.getInputProps("date")}
-              />
-              <TextInput 
-                required 
-                placeholder="HH:mm" 
-                label="Time"
-                key={createEventForm.key("time")}
-                {...createEventForm.getInputProps("time")} 
-              />
-              <FileInput
-                required
-                placeholder="Image to be displayed"
-                label="Promo image"
-                key={createEventForm.key("image")}
-                {...createEventForm.getInputProps("image")}
-              />
-              <TextInput 
-                placeholder="Optional video" 
-                label="Promo video" 
-                key={createEventForm.key("video")}
-                {...createEventForm.getInputProps("video")}
-              />
-              <div
-                style={{
-                  width: "100%",
+            <Fieldset
+              legend="Basic information"
+              w="100%"
+              h="fit-content"
+              fz="xl"
+              styles={{
+                root: {
                   display: "flex",
-                  flexDirection: "column",
-                  lineHeight: "var(--mantine-line-height)",
-                  marginTop: "8px",
-                }}
-              >
-                <InputLabel className="mantine-TextInput-label">
-                  Schedule
-                </InputLabel>
-                <Button
-                  type="submit"
-                  onClick={async (event) => {
-                  event.stopPropagation();
-                  const values = createEventForm.getValues();
-                  console.log(values);
-                  await axios
-                    .put(
-                      `${
-                        import.meta.env.VITE_DB_SERVER
-                      }/Account/updateUser`,
-                      {
-                        ...values,
-                        birthday: values.birthday.toISOString()
-                      }
-                    )
-                    .then((resp) => {
-                      alert("Successfully changed user info!");
-                      const obj = JSON.parse(
-                        atob(resp.data.token.split(".")[1])
-                      );
-                      dispatch(
-                        login({
-                          userId: obj["nameid"],
-                          token: resp.data.token,
-                          email: obj["email"],
-                          userType: obj["role"],
-
-                          firstName: resp.data.firstName,
-                          lastName: resp.data.lastName,
-                          birthday: resp.data.dateOfBirth,
-                          phoneNumber: resp.data.phoneNumber,
-                          avatar: resp.data.avatar,
-                          address: resp.data.address,
-                          city: resp.data.city,
-                        })
-                      );
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                        alert(err.response.data[0].description);
-                      }
-                      else {
-                        alert(err.response.data);
-                      }
-                    });
-                }}
+                  justifyContent: "space-between",
+                  gap: "10px",
+                },
+              }}
+              mb={10}
+            >
+              <Stack w="50%">
+                <TextInput
+                  required
+                  label="Event name"
+                  placeholder="Event name..."
+                  key={createEventForm.key("eventName")}
+                  {...createEventForm.getInputProps("eventName")}
+                ></TextInput>
+                <Textarea
+                  required
+                  placeholder="Write something about the event..."
+                  label="Description"
+                  autosize
+                  minRows={5}
+                  key={createEventForm.key("description")}
+                  {...createEventForm.getInputProps("description")}
+                />
+                <TagsInput
+                  miw="100%"
+                  label="Press Enter to submit a tag"
+                  placeholder="Enter tag"
+                  value={tags}
+                  onChange={setTags}
+                  styles={{
+                    input: {
+                      overflowY: "scroll",
+                      height: "7rem",
+                    },
+                  }}
+                />
+              </Stack>
+              <Stack w="50%">
+                <DateInput
+                  required
+                  placeholder={formatOnlyDate(new Date(Date.now()))}
+                  label="Date"
+                  key={createEventForm.key("date")}
+                  {...createEventForm.getInputProps("date")}
+                />
+                <TextInput
+                  required
+                  placeholder="HH:mm"
+                  label="Time"
+                  key={createEventForm.key("time")}
+                  {...createEventForm.getInputProps("time")}
+                />
+                <FileInput
+                  required
+                  placeholder="Image to be displayed"
+                  label="Promo image"
+                  key={createEventForm.key("image")}
+                  {...createEventForm.getInputProps("image")}
+                />
+                <TextInput
+                  placeholder="Optional video"
+                  label="Promo video"
+                  key={createEventForm.key("video")}
+                  {...createEventForm.getInputProps("video")}
+                />
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    lineHeight: "var(--mantine-line-height)",
+                    marginTop: "8px",
+                  }}
                 >
-                  Schedule event
-                </Button>
-              </div>
-            </Stack>
-          </Fieldset>
+                  <InputLabel className="mantine-TextInput-label">
+                    Schedule
+                  </InputLabel>
+                  <Button
+                    type="submit"
+                    onClick={async (event) => {
+                      event.stopPropagation();
+                      const values = createEventForm.getValues();
+                      console.log(values);
+                      // await axios
+                      //   .put(
+                      //     `${
+                      //       import.meta.env.VITE_DB_SERVER
+                      //     }/Account/updateUser`,
+                      //     {
+                      //       ...values,
+                      //       birthday: values.birthday.toISOString()
+                      //     }
+                      //   )
+                      //   .then((resp) => {
+                      //     alert("Successfully changed user info!");
+                      //     const obj = JSON.parse(
+                      //       atob(resp.data.token.split(".")[1])
+                      //     );
+                      //     dispatch(
+                      //       login({
+                      //         userId: obj["nameid"],
+                      //         token: resp.data.token,
+                      //         email: obj["email"],
+                      //         userType: obj["role"],
+
+                      //         firstName: resp.data.firstName,
+                      //         lastName: resp.data.lastName,
+                      //         birthday: resp.data.dateOfBirth,
+                      //         phoneNumber: resp.data.phoneNumber,
+                      //         avatar: resp.data.avatar,
+                      //         address: resp.data.address,
+                      //         city: resp.data.city,
+                      //       })
+                      //     );
+                      //   })
+                      //   .catch((err) => {
+                      //     console.error(err);
+                      //     if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                      //       alert(err.response.data[0].description);
+                      //     }
+                      //     else {
+                      //       alert(err.response.data);
+                      //     }
+                      //   });
+                    }}
+                  >
+                    Schedule event
+                  </Button>
+                </div>
+              </Stack>
+            </Fieldset>
           </form>
 
           <Fieldset
