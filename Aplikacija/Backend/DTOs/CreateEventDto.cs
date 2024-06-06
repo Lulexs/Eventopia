@@ -12,7 +12,7 @@ namespace Backend.DTOs
 
         [Required]
         [JsonPropertyName("date")]
-        public required DateTime Datum { get; set; }
+        public required string Datum { get; set; }
 
         [Required]
         [JsonPropertyName("time")]

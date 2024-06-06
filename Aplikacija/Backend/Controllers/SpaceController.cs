@@ -31,9 +31,9 @@ public class SpaceController : ControllerBase
 
         Prostor prostor = new Prostor
         {
-            Grad = prostorDto.Grad,
-            Drzava = prostorDto.Drzava,
-            Adresa = prostorDto.Adresa,
+            Grad = prostorDto.Grad!,
+            Drzava = prostorDto.Drzava!,
+            Adresa = prostorDto.Adresa!,
             Latitude = prostorDto.Latitude,
             Longitude = prostorDto.Longitude,
             VlasnikProstora = korisnik

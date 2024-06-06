@@ -23,8 +23,10 @@ import { DateInput } from "@mantine/dates";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
-import { SpaceDataType } from "../../Reservations/Reservation/interfaces";
 import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
+import { SpaceBasic } from "../interfaces.ts";
+import { matches, useForm } from "@mantine/form";
+import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 
 export interface NewEventProps {
   user: AuthState;
@@ -32,19 +34,48 @@ export interface NewEventProps {
 }
 
 export default function NewEvent(props: NewEventProps) {
-  const [testTags, setTestTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<number | string>(-1);
 
   const {
-    isLoading,
+    isLoading : areSpacesLoading,
     data: spaces,
-    isError,
-  } = useQuery<SpaceDataType[]>({
-    queryKey: ["events"],
+    isError : spacesError,
+  } = useQuery<SpaceBasic[]>({
+    queryKey: ["new_event_spaces"],
     queryFn: async () => {
+      if (false)
+      {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces`)
-        .then((resp) => resp.data);
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces`)
+        .then((resp) => resp.data)
+        .catch((err) => {
+          console.error(err);
+          alert(err.resp.data);
+          return [];
+        })
+      }
+      return [];
+    },
+  });
+
+  const createEventForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      eventName: "",
+      description: "",
+      date: new Date(Date.now()),
+      time: "",
+      image: null,
+      video: "",
+    },
+
+    validate: {
+      eventName: (value) =>
+        value.length > 0 ? null : "Empty event name field",
+      description: (value) => (value.length > 0 ? null : "Empty description field"),
+      time: (value) =>
+        value != null && value.length > 0 && matches(/^(?:[01]\d|2[0-3]):[0-5]\d$/) ? null : "Empty time field",
     },
   });
 
@@ -68,7 +99,7 @@ export default function NewEvent(props: NewEventProps) {
           >
             Go back
           </Button>
-          <Title c="#5a5959">Scheduele new event</Title>
+          <Title c="#5a5959">Schedule new event</Title>
         </Group>
 
         <Flex
@@ -79,6 +110,13 @@ export default function NewEvent(props: NewEventProps) {
           justify="center"
           className={classes.subTitleContainer}
         >
+
+          <form
+            onSubmit={createEventForm.onSubmit((_, event) => {
+              event?.stopPropagation();
+            })}
+          >
+
           <Fieldset
             legend="Basic information"
             w="50%"
@@ -97,7 +135,9 @@ export default function NewEvent(props: NewEventProps) {
               <TextInput
                 required
                 label="Event name"
-                placeholder="Rambo"
+                placeholder="Event name..."
+                key={createEventForm.key("eventName")}
+                {...createEventForm.getInputProps("eventName")}
               ></TextInput>
               <Textarea
                 required
@@ -105,13 +145,15 @@ export default function NewEvent(props: NewEventProps) {
                 label="Description"
                 autosize
                 minRows={5}
+                key={createEventForm.key("description")}
+                {...createEventForm.getInputProps("description")}
               />
               <TagsInput
                 miw="100%"
                 label="Press Enter to submit a tag"
                 placeholder="Enter tag"
-                value={testTags}
-                onChange={setTestTags}
+                value={tags}
+                onChange={setTags}
                 styles={{
                   input: {
                     overflowY: "scroll",
@@ -121,14 +163,33 @@ export default function NewEvent(props: NewEventProps) {
               />
             </Stack>
             <Stack w="50%">
-              <DateInput required placeholder={`May 10, 2024`} label="Date" />
-              <TextInput required placeholder="Military time" label="Time" />
+              <DateInput 
+                required 
+                placeholder={formatOnlyDate(new Date(Date.now()))} 
+                label="Date" 
+                key={createEventForm.key("date")}
+                {...createEventForm.getInputProps("date")}
+              />
+              <TextInput 
+                required 
+                placeholder="HH:mm" 
+                label="Time"
+                key={createEventForm.key("time")}
+                {...createEventForm.getInputProps("time")} 
+              />
               <FileInput
                 required
                 placeholder="Image to be displayed"
                 label="Promo image"
+                key={createEventForm.key("image")}
+                {...createEventForm.getInputProps("image")}
               />
-              <TextInput placeholder="Optional video" label="Promo video" />
+              <TextInput 
+                placeholder="Optional video" 
+                label="Promo video" 
+                key={createEventForm.key("video")}
+                {...createEventForm.getInputProps("video")}
+              />
               <div
                 style={{
                   width: "100%",
@@ -141,10 +202,61 @@ export default function NewEvent(props: NewEventProps) {
                 <InputLabel className="mantine-TextInput-label">
                   Schedule
                 </InputLabel>
-                <Button>Schedule event</Button>
+                <Button
+                  type="submit"
+                  onClick={async (event) => {
+                  event.stopPropagation();
+                  const values = createEventForm.getValues();
+                  console.log(values);
+                  await axios
+                    .put(
+                      `${
+                        import.meta.env.VITE_DB_SERVER
+                      }/Account/updateUser`,
+                      {
+                        ...values,
+                        birthday: values.birthday.toISOString()
+                      }
+                    )
+                    .then((resp) => {
+                      alert("Successfully changed user info!");
+                      const obj = JSON.parse(
+                        atob(resp.data.token.split(".")[1])
+                      );
+                      dispatch(
+                        login({
+                          userId: obj["nameid"],
+                          token: resp.data.token,
+                          email: obj["email"],
+                          userType: obj["role"],
+
+                          firstName: resp.data.firstName,
+                          lastName: resp.data.lastName,
+                          birthday: resp.data.dateOfBirth,
+                          phoneNumber: resp.data.phoneNumber,
+                          avatar: resp.data.avatar,
+                          address: resp.data.address,
+                          city: resp.data.city,
+                        })
+                      );
+                    })
+                    .catch((err) => {
+                      console.error(err);
+                      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                        alert(err.response.data[0].description);
+                      }
+                      else {
+                        alert(err.response.data);
+                      }
+                    });
+                }}
+                >
+                  Schedule event
+                </Button>
               </div>
             </Stack>
           </Fieldset>
+          </form>
 
           <Fieldset
             legend="Query spaces"
@@ -180,7 +292,7 @@ export default function NewEvent(props: NewEventProps) {
               label="Selected space?"
               disabled
             />
-            {isLoading || isError ? (
+            {areSpacesLoading || spacesError ? (
               <div className={classes.controls}>
                 <div className={classes.ldsRing}>
                   <div></div>

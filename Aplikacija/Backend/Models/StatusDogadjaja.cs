@@ -5,5 +5,6 @@ public enum StatusDogadjaja
     Active = 0,
     Passed = 1,
     Cancelled = 2,
-    SpaceRejected = 3
+    WaitingForSpaceApproval = 3,
+    SpaceRejected = 4
 }
