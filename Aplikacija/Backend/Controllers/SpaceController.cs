@@ -19,7 +19,6 @@ public class SpaceController : ControllerBase
     [HttpPost("addSpace")]
     public async Task<IActionResult> AddSpace([FromBody] SpaceDto prostorDto)
     {
-
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         var banned = await UserUtils.IsBanned(korisnik!, Context);
@@ -51,8 +50,18 @@ public class SpaceController : ControllerBase
 
         List<DraggableItem> draggableItems = new List<DraggableItem>();
 
+        int capacity = 0;
+
         foreach (DraggableItemDto draggableItemDto in prostorDto.DraggableItems!)
         {
+
+            if (draggableItemDto.Tip.ToEnum<TipItema>() == TipItema.Table && draggableItemDto.BrojMesta == 0)
+                draggableItemDto.BrojMesta = 4;
+
+
+            if (draggableItemDto.Tip.ToEnum<TipItema>() == TipItema.Table)
+                capacity += draggableItemDto.BrojMesta ?? 0;
+
             DraggableItem draggableItem = new DraggableItem
             {
                 FrontID = draggableItemDto.FrontID,
@@ -66,10 +75,12 @@ public class SpaceController : ControllerBase
                 Price = draggableItemDto.Price,
                 PlanProstora = planProstora
             };
+
             draggableItems.Add(draggableItem);
         }
 
         planProstora.DraggableItems = draggableItems;
+        planProstora.Kapacitet = capacity;
 
         List<Line> lines = new List<Line>();
 
@@ -123,7 +134,7 @@ public class SpaceController : ControllerBase
             return BadRequest("User not found.");
         }
 
-        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).ToListAsync();
+        var prostori = await Context.Prostori.Include(x => x.PlanoviProstora).Where(x => x.VlasnikProstora == korisnik).ToListAsync();
 
         return Ok(prostori?.Select(x => new
         {
@@ -132,8 +143,9 @@ public class SpaceController : ControllerBase
             Country = x.Drzava,
             Address = x.Adresa,
             Latitude = x.Latitude,
-            Longitude = x.Longitude
-        }).OrderBy(x => x.Id));
+            Longitude = x.Longitude,
+            Capacity = x.PlanoviProstora!.Where(x => x.Dogadjaj == null).FirstOrDefault()!.Kapacitet,
+        }).OrderByDescending(x => x.Capacity));
 
     }
 

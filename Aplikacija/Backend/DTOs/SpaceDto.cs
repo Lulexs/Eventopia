@@ -2,7 +2,6 @@ namespace Backend.DTOs;
 
 public class SpaceDto
 {
-
     [JsonPropertyName("id")]
     public int ID { get; set; }
 

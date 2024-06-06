@@ -237,12 +237,12 @@ export default function Reservation(props: ReservationProps) {
                     {
                       if (item.type == "table") {
                         return (
-                          <Table key={item.frontId} item={item as TableInterface}/>
+                          <Table key={item.id} item={item as TableInterface}/>
                         );
                       } else {
                         return (
                           <img
-                            key={item.frontId}
+                            key={item.id}
                             style={{
                               position: "absolute",
                               top: item.top,

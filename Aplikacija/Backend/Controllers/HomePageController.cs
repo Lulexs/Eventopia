@@ -122,13 +122,11 @@ public class HomePageController : ControllerBase
     [HttpGet("getLocations")]
     public async Task<IActionResult> GetLocations()
     {
-        var locations = await Context.Dogadjaji
-                                        .Include(x => x.RezervacijaProstora)
-                                        .ThenInclude(x => x!.Prostor)
+        var locations = await Context.Prostori
                                         .Select(x => new
                                         {
-                                            x.RezervacijaProstora!.Prostor!.Grad,
-                                            x.RezervacijaProstora!.Prostor!.Drzava
+                                            x.Grad,
+                                            x.Drzava
                                         })
                                         .Distinct()
                                         .OrderBy(x => x.Drzava)
@@ -196,7 +194,7 @@ public class HomePageController : ControllerBase
         List<FullEventDto> povratniDogadjaji = new List<FullEventDto>();
 
         List<FullEventForRecomm> zaRejtovanje = new List<FullEventForRecomm>();
-        
+
         double trenutniLat = trenutni.RezervacijaProstora!.Prostor!.Latitude;
         double trenutniLongt = trenutni.RezervacijaProstora.Prostor.Longitude;
 
@@ -213,12 +211,12 @@ public class HomePageController : ControllerBase
             {
                 foreach (var tag in trenutni.Tagovi)
                 {
-                    foreach(var tag2 in dogadjaj.Tagovi)
+                    foreach (var tag2 in dogadjaj.Tagovi)
                     {
                         if (HomePageUtils.LevenshteinDistance(tag.TagName, tag2.TagName) < 3)
                             rejt += 1;
                     }
-                 }
+                }
             }
 
             //mora vidim da l da ogranicim rejt za pogadjanje u tagovima
@@ -228,7 +226,7 @@ public class HomePageController : ControllerBase
             //pogadjanje u lokaciji
             double dogadjajLat = dogadjaj.RezervacijaProstora!.Prostor!.Latitude;
             double dogadjajLongt = dogadjaj.RezervacijaProstora.Prostor.Longitude;
-            double distance = HomePageUtils.HaversineDistance(trenutniLat, trenutniLongt, dogadjajLat, dogadjajLongt)/ 1000; // da bude u km
+            double distance = HomePageUtils.HaversineDistance(trenutniLat, trenutniLongt, dogadjajLat, dogadjajLongt) / 1000; // da bude u km
             rejt += HomePageUtils.CalculateScoreDistance(distance, 300); // znaci kad dalje od 300km, rejt je 0
 
 
@@ -237,7 +235,7 @@ public class HomePageController : ControllerBase
             double vreme = Math.Abs((trenutni.Vreme - dogadjaj.Vreme).TotalHours);
             rejt += HomePageUtils.CalculateScoreTime(vreme, 72); // znaci kad je vise od 74h razlike, rejt opada linearno
 
-            
+
             //max je 10 za rezervacije
             //izvlacenje ocene na osnovu broja rezervacija
             int rezervisanaMesta = dogadjaj.Rezervacije!.Sum(rezervacija => rezervacija.BrojMesta);

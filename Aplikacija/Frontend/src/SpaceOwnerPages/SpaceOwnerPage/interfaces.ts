@@ -5,6 +5,7 @@ export interface Space {
   address: string;
   latitude: string;
   longitude: string;
+  capacity: number;
 }
 
 export interface SpaceReservation {

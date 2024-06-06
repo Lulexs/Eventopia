@@ -1,7 +1,7 @@
 export interface ItemInterface {
   type: "table" | "corner" | "stage" | "bar" | "image";
-  id: number;
-  frontId: string;
+  id: string;
+  realId: number;
   top: number;
   left: number;
   height: number;

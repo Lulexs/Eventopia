@@ -122,7 +122,7 @@ export default function Table({ item }: TableProps) {
               alert(`Table only has ${item.numberOfSeats} seats!`);
               return;
             }
-            makeReservation(item.id, parseInt(dialogInputFieldVal));
+            makeReservation(item.realId, parseInt(dialogInputFieldVal));
             close();
           }}
         >
