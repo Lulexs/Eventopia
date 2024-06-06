@@ -130,6 +130,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         })
         .catch((err) => {
           console.log(err);
+          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+            alert(err.response.data[0].description);
+          }
+          else {
+            alert(err.response.data);
+          }
           return [];
         });
     },
@@ -148,10 +154,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       queryClient.invalidateQueries({ queryKey: ["owner_reservations"] });
     } catch (err: any) {
       console.error(err);
-      if (err.response.status == 401)
-        alert(err.response.data)
-      else
+      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
+      }
+      else {
+        alert(err.response.data);
+      }
     }
   };
 
@@ -163,10 +171,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       queryClient.invalidateQueries({ queryKey: ["owner_spaces"] });
     } catch (err: any) {
       console.error(err);
-      if (err.response.status == 401)
-        alert(err.response.data)
-      else
+      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
+      }
+      else {
+        alert(err.response.data);
+      }
     }
   };
 
@@ -305,10 +315,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (err.response.status == 401)
-                            alert(err.response.data)
-                          else
+                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
                             alert(err.response.data[0].description);
+                          }
+                          else {
+                            alert(err.response.data);
+                          }
                         });
                     }}
                   >

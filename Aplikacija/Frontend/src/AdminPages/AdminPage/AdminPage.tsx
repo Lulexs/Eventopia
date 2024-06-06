@@ -122,8 +122,9 @@ export default function AdminPage() {
         `${import.meta.env.VITE_DB_SERVER}/Administrator/deleteEvent/${eventId}`
       );
       queryClient.invalidateQueries({ queryKey: ["all_events"] });
-    } catch (err) {
+    } catch (err : any) {
       console.error(err);
+      alert(err.response.data);
     }
   };
 
@@ -135,8 +136,9 @@ export default function AdminPage() {
         }/Administrator/deleteComment/${commentId}`
       );
       queryClient.invalidateQueries({ queryKey: ["all_comments"] });
-    } catch (err) {
+    } catch (err : any) {
       console.error(err);
+      alert(err.response.data);
     }
   };
 

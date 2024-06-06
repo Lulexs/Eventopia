@@ -53,10 +53,12 @@ export default function SpaceOwnerPageContainer() {
                 .then((_) => setView(View.Basic))
                 .catch((err) => {
                   console.error(err);
-                  if (err.response.status == 401)
-                    alert(err.response.data)
-                  else
+                  if (Array.isArray(err.response.data) && err.response.data.length > 0) {
                     alert(err.response.data[0].description);
+                  }
+                  else {
+                    alert(err.response.data);
+                  }
                 });
             }}
             onCancel={() => setView(View.Basic)}

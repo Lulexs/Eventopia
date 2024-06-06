@@ -84,7 +84,15 @@ export function LoginPage() {
                       );
                       navigate("/");
                     })
-                    .catch((err) => alert(err.response.data));
+                    .catch((err) =>  {
+                      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                        alert(err.response.data[0].description);
+                      }
+                      else {
+                        alert(err.response.data);
+                      }
+                      console.error(err);
+                    });
                 })}
               >
                 <TextInput

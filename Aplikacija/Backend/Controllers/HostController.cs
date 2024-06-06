@@ -17,7 +17,7 @@ namespace Backend.Controllers
             Context = context;
             _userManager = userManager;
         }
-        
+
         [Authorize(Policy = "RequireHostRole")]
         [HttpPost("createEvent")]
         public async Task<ActionResult> newEvent([FromBody] CreateEventDto createEventDto)
@@ -33,25 +33,25 @@ namespace Backend.Controllers
             if (DateTime.TryParseExact(dateTimeString, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
             {
 
-                    List<Tag> tags = new List<Tag>();
-                    foreach (var tag in createEventDto.Tags)
+                List<Tag> tags = new List<Tag>();
+                foreach (var tag in createEventDto.Tags)
+                {
+                    Tag existingTag = await Context.Tagovi.FirstOrDefaultAsync(x => x.TagName == tag);
+                    if (existingTag != null)
                     {
-                        Tag existingTag = await Context.Tagovi.FirstOrDefaultAsync(x => x.TagName == tag);
-                        if (existingTag != null)
-                        {
-                            tags.Add(existingTag);
-                        }
-                        else
-                        {
-                            Tag newTag = new Tag
-                            {
-                                TagName = tag,
-                                Dogadjaji = new List<Dogadjaj>()
-                            };
-                            tags.Add(newTag);
-                        }
+                        tags.Add(existingTag);
                     }
-                    var dogadjaj = new Dogadjaj
+                    else
+                    {
+                        Tag newTag = new Tag
+                        {
+                            TagName = tag,
+                            Dogadjaji = new List<Dogadjaj>()
+                        };
+                        tags.Add(newTag);
+                    }
+                }
+                var dogadjaj = new Dogadjaj
                 {
                     Naziv = createEventDto.Naziv,
                     Opis = createEventDto.Opis,
@@ -64,10 +64,10 @@ namespace Backend.Controllers
                     //ne znam za rezervacijaProstora i Rezervacija treba
                 };
 
-                foreach(var tag in dogadjaj.Tagovi)
+                foreach (var tag in dogadjaj.Tagovi)
                 {
                     Tag existingTag = await Context.Tagovi.FirstOrDefaultAsync(x => x.TagName == tag.TagName);
-                    if(existingTag != null)
+                    if (existingTag != null)
                     {
                         existingTag.Dogadjaji.Add(dogadjaj);
                     }
@@ -80,7 +80,7 @@ namespace Backend.Controllers
 
                 await Context.Dogadjaji.AddAsync(dogadjaj);
             }
-            else 
+            else
             {
                 return BadRequest("Invalid date and time format.");
             }
@@ -88,7 +88,10 @@ namespace Backend.Controllers
 
             return Ok();
         }
-        
+
+
+        [Authorize(Policy = "RequireHostRole")]
+        [HttpPost("manageEvent")]
         public async Task<ActionResult> manageEvent([FromBody] CreateEventDto createEventDto)
         {
             var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
@@ -102,6 +105,7 @@ namespace Backend.Controllers
 
 
         [Authorize(Policy = "RequireHostRole")]
+        [HttpDelete("deleteEvent/{id}")]
         public async Task<ActionResult> deleteEvent([FromRoute] int id)
         {
             var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
@@ -133,8 +137,8 @@ namespace Backend.Controllers
             }
 
             var dogadjaji = await Context.Dogadjaji.Where(x => x.Organizator == korisnik && x.Vreme > DateTime.Now).ToListAsync();
-            
-            if(dogadjaji == null)
+
+            if (dogadjaji == null)
             {
                 return NotFound("No incoming events found for the given host.");
             }
@@ -150,7 +154,7 @@ namespace Backend.Controllers
                 });
             }
 
-            
+
             return Ok(events);
         }
 
@@ -168,12 +172,12 @@ namespace Backend.Controllers
             }
 
             var dogadjaji = await Context.Dogadjaji.Where(x => x.Organizator == korisnik && x.Vreme < DateTime.Now).ToListAsync();
-            if(dogadjaji == null)
+            if (dogadjaji == null)
             {
                 return NotFound("No past events found for the given host.");
             }
-            
-            if(dogadjaji == null)
+
+            if (dogadjaji == null)
             {
                 return NotFound("No past events found for the given host.");
             }

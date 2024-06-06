@@ -119,6 +119,9 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         .get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getActiveReservations`)
         .then((resp) => {
           return resp.data;
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   });
@@ -156,6 +159,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         })
         .catch((err) => {
           console.log(err);
+          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+            alert(err.response.data[0].description);
+          }
+          else {
+            alert(err.response.data);
+          }
           return [];
         });
     },
@@ -167,7 +176,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         const resp = await axios.get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getAvatarAndTags`);
         setAvatarN(resp.data.avatar);
         setTags(resp.data.tags);
-      } catch (err) {
+      } catch (err : any) {
         console.log(err);
       }
     };
@@ -182,8 +191,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       );
       queryClient.invalidateQueries({ queryKey: ["active_reservations"] });
     } catch (err : any) {
+      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+        alert(err.response.data[0].description);
+      }
+      else {
+        alert(err.response.data);
+      }
       console.error(err);
-      alert(err.response.data);
     }
   };
 
@@ -199,6 +213,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       setEventSelectedForReview(null);
       alert("Review posted successfully!");
     } catch (err : any) {
+      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+        alert(err.response.data[0].description);
+      }
+      else {
+        alert(err.response.data);
+      }
       console.error(err);
       alert(err.response.data);
     }
@@ -325,11 +345,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (err.response.status == 401)
-                            alert(err.response.data)
-                          else
+                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
                             alert(err.response.data[0].description);
-                        });
+                          }
+                          else {
+                            alert(err.response.data);
+                          }});
                     }}
                 >Save changes</Button>
               </Group>
@@ -446,10 +467,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (err.response.status == 401)
-                            alert(err.response.data)
-                          else
+                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
                             alert(err.response.data[0].description);
+                          }
+                          else {
+                            alert(err.response.data);
+                          }
                         });
                     }}
                   >

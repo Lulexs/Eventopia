@@ -236,7 +236,12 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          alert(err.response.data[0].description);
+                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                            alert(err.response.data[0].description);
+                          }
+                          else {
+                            alert(err.response.data);
+                          }
                         });
                     }}
                   >
