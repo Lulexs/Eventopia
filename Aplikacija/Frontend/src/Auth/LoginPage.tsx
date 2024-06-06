@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { login } from "../store/features/auth";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 
 export function LoginPage() {
   const loginForm = useForm({

@@ -17,7 +17,7 @@ public class SpaceController : ControllerBase
 
     [Authorize(Policy = "RequireSpaceOwnerRole")]
     [HttpPost("addSpace")]
-    public async Task<IActionResult> AddSpace([FromBody] ProstorDto prostorDto)
+    public async Task<IActionResult> AddSpace([FromBody] SpaceDto prostorDto)
     {
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));

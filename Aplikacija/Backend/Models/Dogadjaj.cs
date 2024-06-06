@@ -28,6 +28,8 @@ public class Dogadjaj
     [ForeignKey("RezervacijaProstoraFK")]
     public RezervacijaProstora? RezervacijaProstora { get; set; }
 
+    public PlanProstora? PlanProstora { get; set; }
+
     public List<Rezervacija>? Rezervacije { get; set; }
 
     public Korisnik? Organizator { get; set; }

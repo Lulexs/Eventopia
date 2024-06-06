@@ -21,7 +21,7 @@ import {
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 import classes from "./UserProfile.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { CustomStatsCard } from "./CustomStatsCard";

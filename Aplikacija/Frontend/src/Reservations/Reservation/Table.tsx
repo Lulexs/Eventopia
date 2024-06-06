@@ -1,17 +1,35 @@
 import { TableInterface } from "./interfaces";
 import TableFreeImage from "../../assets/table_free.png";
 import TableNotFreeImage from "../../assets/table_not_free.png";
-import { Button, CloseButton, Dialog, Group, Text } from "@mantine/core";
+import { Button, CloseButton, Dialog, Group, Text, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import axios from "../../../axiosconfig.ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface TableProps {
   item: TableInterface;
 }
 
 export default function Table({ item }: TableProps) {
+  const [dialogInputFieldVal, setDialogInputFieldVal] = useState(""); 
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
+  const queryClient = useQueryClient();
+
+  const makeReservation = async (itemId: number, numberOfSeats: number) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_DB_SERVER}/Reservation/makeReservation/${itemId}/${numberOfSeats}`
+      );
+      alert("Reservation made successfully!");
+      queryClient.invalidateQueries({ queryKey: ["reservedSpace"] });
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  };
+
   return (
     <>
       <img
@@ -57,35 +75,62 @@ export default function Table({ item }: TableProps) {
         </Group>
 
         {item.reserved ? (
-          <Group align="center" mb="xl">
+          <Group align="center" mb="xs">
             <Text size="sm" fw={300} miw="45px" c="red">
-              TABLE IS ALREDY RESERVED
+              Table is already reserved!
             </Text>
           </Group>
         ) : (
           <>
             <Group align="center" mb="xs">
               <Text size="sm" fw={300} miw="45px">
-                Price per seat: {item.price}
+                Price per seat: ${item.price}
               </Text>
             </Group>
-            <Group align="center" mb="xl">
+            <Group align="center" mb="xs">
               <Text size="sm" fw={300} miw="45px">
                 Number of seats: {item.numberOfSeats}
               </Text>
             </Group>
-          </>
-        )}
-
+            <Group align="center" mb="xl">
+              <Text size="sm" fw={300} miw="45px">
+                Reserve seats:{" "}
+              </Text>
+              <TextInput
+                placeholder="Number of seats..."
+                style={{ flex: 1 }}
+                value={dialogInputFieldVal}
+                onChange={(event) => 
+                  setDialogInputFieldVal(
+                    event.currentTarget.value
+                      .split("")
+                      .filter((c) => c >= "0" && c <= "9")
+                      .join("")
+                  )
+                }
+              />
+        </Group>
         <Button
           w="100%"
           onClick={(e) => {
             e.stopPropagation();
+            if (parseInt(dialogInputFieldVal) < 0.75 * item.numberOfSeats) {
+              alert("You need to reserve at least 75% of the seats!");
+              return;
+            }
+            if (parseInt(dialogInputFieldVal) > item.numberOfSeats) {
+              alert(`Table only has ${item.numberOfSeats} seats!`);
+              return;
+            }
+            makeReservation(item.id, parseInt(dialogInputFieldVal));
             close();
           }}
         >
           Make a reservation
         </Button>
+          </>
+        )}
+
       </Dialog>
     </>
   );

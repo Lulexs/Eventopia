@@ -15,7 +15,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "../../../axiosconfig.ts";
 import { Event } from "../../EventListing/interfaces";
 import { useState, useEffect } from "react";
 import { StatsCard } from "../StatsCard";

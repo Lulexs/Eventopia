@@ -3,8 +3,11 @@ namespace Backend.DTOs;
 public class DraggableItemDto
 {
 
-    [Required]
     [JsonPropertyName("id")]
+    public int ID { get; set; }
+
+    [Required]
+    [JsonPropertyName("frontId")]
     public required string FrontID { get; set; }
 
     [Required]

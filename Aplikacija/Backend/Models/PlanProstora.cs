@@ -11,6 +11,8 @@ public class PlanProstora
 
     public Prostor? Prostor { get; set; }
     public SurfaceDimension? SurfaceDimension { get; set; }
+
+    [ForeignKey("DogadjajFK")]
     public Dogadjaj? Dogadjaj { get; set; }
 
 }

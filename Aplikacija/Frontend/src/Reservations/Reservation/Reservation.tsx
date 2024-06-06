@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "../../../axiosconfig.ts";
 import classes from "./Reservation.module.css";
 import {
   Button,
@@ -8,11 +8,10 @@ import {
   Title,
   Text,
   Image,
-  Anchor,
   Group,
 } from "@mantine/core";
 import { SpaceDataType, TableInterface } from "./interfaces";
-import PartiBgImage from "../../assets/partibg.png";
+import EventBgImage from "../../assets/event_listing_bg_op.png";
 import BarImage from "../../assets/bar.png";
 import StageImage from "../../assets/stage.png";
 import Katanac from "../../assets/lock.png";
@@ -40,15 +39,20 @@ export default function Reservation(props: ReservationProps) {
 
   const [showMap, setShowMap] = useState(false);
 
-  const { isLoading, isError, data } = useQuery<SpaceDataType>({
+  const { 
+    isLoading,
+    data, 
+    isError
+  } = useQuery<SpaceDataType>({
     queryKey: ["reservedSpace"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/spaces/e3cb`)
+        .get(`${import.meta.env.VITE_DB_SERVER}/Reservation/getSpacePlan/${props.id}`)
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
-        });
+        })
+        .catch(err => console.error(err));
     },
   });
 
@@ -57,7 +61,7 @@ export default function Reservation(props: ReservationProps) {
       <Flex
         className={classes.container}
         style={{
-          backgroundImage: `url(${PartiBgImage})`,
+          backgroundImage: `url(${EventBgImage})`,
           backgroundSize: "contain",
         }}
       >
@@ -92,17 +96,10 @@ export default function Reservation(props: ReservationProps) {
             >{`${props.date} ${props.time}`}</Text>
             <Image
               width="100%"
-              src={props.img}
+              src={`data:image/jpeg;base64,${props.img}`}
               style={{ borderRadius: "20px" }}
             />
-            <Anchor
-              onClick={(event) => {
-                event.stopPropagation();
-                navigate("/organizerinfo");
-              }}
-              mb="xl"
-            >
-              <Text
+            <Text
                 style={{
                   fontFamily: "Greycliff CF, var(--mantine-font-family)",
                   fontSize: "1.4rem",
@@ -110,8 +107,7 @@ export default function Reservation(props: ReservationProps) {
                 }}
               >
                 {`By ${props.organizerName}`}
-              </Text>
-            </Anchor>
+            </Text>
             <Group>
               <Text
                 style={{
@@ -149,7 +145,7 @@ export default function Reservation(props: ReservationProps) {
 
             <Flex w="100%" h="40vh" mah="400px" mih="200px">
               {showMap && !isLoading && !isError ? (
-                <MapComponent lat={data!.latitude} lng={data!.longitude} />
+                <MapComponent lat={data?.latitude ?? 0} lng={data?.longitude ?? 0} />
               ) : (
                 <Text
                   style={{
@@ -158,9 +154,7 @@ export default function Reservation(props: ReservationProps) {
                     color: "#453636",
                   }}
                 >
-                  Ovaj dogadjaj je za sve ljubitelje dogadjaja. Ovaj dogadjaj je
-                  za sve ljubitelje dogadjaja Ovaj dogadjaj je za sve ljubitelje
-                  dogadjaja Ovaj dogadjaj je za sve ljubitelje dogadjaja
+                  {data?.description}
                 </Text>
               )}
             </Flex>
@@ -206,23 +200,23 @@ export default function Reservation(props: ReservationProps) {
               {isUserLoggedIn.userType == "Visitor" && (
                 <div
                   style={{
-                    width: data?.surfaceDimension.width,
-                    height: data?.surfaceDimension.height,
+                    width: data?.surfaceDimension?.width,
+                    height: data?.surfaceDimension?.height,
                     position: "absolute",
                     top: 0,
                     left: 0,
                   }}
                 >
-                  {data?.items.map((item) => {
+                  {data?.items?.map((item) => {
                     {
                       if (item.type == "table") {
                         return (
-                          <Table key={item.id} item={item as TableInterface} />
+                          <Table key={item.frontId} item={item as TableInterface}/>
                         );
                       } else {
                         return (
                           <img
-                            key={item.id}
+                            key={item.frontId}
                             style={{
                               position: "absolute",
                               top: item.top,
@@ -244,7 +238,7 @@ export default function Reservation(props: ReservationProps) {
                       left: 0,
                     }}
                   >
-                    {data?.lines.map((line, index) => (
+                    {data?.lines?.map((line, index) => (
                       <line
                         key={index}
                         x1={line.x1}

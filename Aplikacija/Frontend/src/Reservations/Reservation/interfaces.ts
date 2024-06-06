@@ -1,6 +1,7 @@
 export interface ItemInterface {
   type: "table" | "corner" | "stage" | "bar" | "image";
-  id: string;
+  id: number;
+  frontId: string;
   top: number;
   left: number;
   height: number;
@@ -40,9 +41,9 @@ export interface Line {
 export interface SpaceDataType {
   id: number | string;
   items: ItemInterface[];
-  image: File | null;
   lines: Line[];
   surfaceDimension: { width: number; height: number };
+  description: string;
   city: string;
   country: string;
   address: string;

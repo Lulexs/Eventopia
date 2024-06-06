@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { HeaderMegaMenu } from "./HeaderMegaMenu/HeaderMegaMenu";
 import { HeroImageRight } from "./HeroIamgeRight/HeroImageRight";
 import { HeroJustMissed } from "./HeroJustMissed/HeroJustMissed";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 import EventListing from "../EventListing/EventListing";
 import { Footer } from "./Footer/Footer";
 

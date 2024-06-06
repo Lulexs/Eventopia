@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
 import { DateInput } from "@mantine/dates";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 import { useDispatch } from "react-redux";
 import { login } from "../store/features/auth";
 

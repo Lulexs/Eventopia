@@ -16,7 +16,7 @@ import { AuthState } from "../../store/features/auth";
 import classes from "./AdminPage.module.css";
 import EventBgImage from "../../assets/event_listing_bg_op.png";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "../../../axiosconfig.ts";
 import { useState, useEffect, useRef } from "react";
 import { Comment, EventBasic, UserWithBans } from "./interfaces";
 import { useDisclosure } from "@mantine/hooks";

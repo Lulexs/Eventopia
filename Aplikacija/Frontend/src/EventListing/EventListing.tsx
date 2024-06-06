@@ -13,7 +13,7 @@ import { DateInput } from "@mantine/dates";
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import EventCard from "./EventCard";
 import classes from "./EventListing.module.css";
-import axios from "axios";
+import axios from "../../axiosconfig.ts";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Event } from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";

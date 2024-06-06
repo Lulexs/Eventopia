@@ -22,7 +22,7 @@ import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axios from "../../../axiosconfig.ts";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces";
 import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
 
