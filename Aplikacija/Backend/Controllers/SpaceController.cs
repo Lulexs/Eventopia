@@ -133,7 +133,7 @@ public class SpaceController : ControllerBase
             Address = x.Adresa,
             Latitude = x.Latitude,
             Longitude = x.Longitude
-        }));
+        }).OrderBy(x => x.Id));
 
     }
 
@@ -275,7 +275,7 @@ public class SpaceController : ControllerBase
             }
         }
 
-        return Ok(rezervacije);
+        return Ok(rezervacije.OrderByDescending(x => x.ID));
     }
 
     [Authorize(Policy = "RequireSpaceOwnerRole")]

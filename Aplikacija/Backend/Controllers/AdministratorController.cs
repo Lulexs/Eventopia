@@ -142,6 +142,8 @@ public class AdministratorController : ControllerBase
     public async Task<ActionResult<List<DogadjajDto>>> GetAllEvents()
     {
         var dogadjaji = await Context.Dogadjaji
+                                     .OrderBy(x => x.Vreme)
+                                     .Where(x => x.Status == StatusDogadjaja.Active)
                                      .Select(x => new DogadjajDto
                                      {
                                          ID = x.ID,
@@ -173,6 +175,7 @@ public class AdministratorController : ControllerBase
     public async Task<ActionResult> GetAllComments()
     {
         var ocene = await Context.Ocene
+                               .OrderByDescending(x => x.VremeKomentara)
                                .Select(x => new
                                {
                                    x.ID,

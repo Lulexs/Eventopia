@@ -1,6 +1,3 @@
-using System;
-using System.Globalization;
-
 namespace Backend.Controllers
 {
 
@@ -12,7 +9,7 @@ namespace Backend.Controllers
 
         private readonly UserManager<Korisnik> _userManager;
         public Context Context { get; set; }
-        HostController(Context context, UserManager<Korisnik> userManager)
+        public HostController(Context context, UserManager<Korisnik> userManager)
         {
             Context = context;
             _userManager = userManager;

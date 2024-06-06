@@ -178,7 +178,7 @@ public class VisitorController : ControllerBase
             Date = x.Dogadjaj.Vreme,
             Image = x.Dogadjaj.Slika,
             Price = x.Sto!.Price * x.BrojMesta
-        });
+        }).OrderBy(x => x.Date);
 
         return Ok(activeReservations);
     }
@@ -248,7 +248,7 @@ public class VisitorController : ControllerBase
             Title = x.Dogadjaj!.Naziv,
             Date = x.Dogadjaj.Vreme,
             Image = x.Dogadjaj.Slika,
-        });
+        }).OrderByDescending(x => x.Date);
 
         return Ok(visitedEvents);
     }
