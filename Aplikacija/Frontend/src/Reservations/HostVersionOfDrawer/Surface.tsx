@@ -19,7 +19,7 @@ const styles: CSSProperties = {
 
 type SurfaceProps = {
   changeExportFunctionRef: Function;
-  spacePlan: SpaceDataType;
+  spacePlan: SpaceDataType | undefined;
 };
 
 export default function Surface(props: SurfaceProps) {
@@ -88,7 +88,7 @@ export default function Surface(props: SurfaceProps) {
   }
 
   useEffect(() => {
-    props.spacePlan.items.forEach((x) => {
+    props.spacePlan?.items.forEach((x) => {
       exportFunctionsMapRef.current.set(x.id, null);
       setItems((prevItems) => ({
         ...prevItems,
@@ -105,8 +105,8 @@ export default function Surface(props: SurfaceProps) {
         ...styles,
         textAlign: "center",
         zIndex: 1,
-        height: props.spacePlan.surfaceDimension.height,
-        width: props.spacePlan.surfaceDimension.width,
+        height: props.spacePlan?.surfaceDimension.height,
+        width: props.spacePlan?.surfaceDimension.width,
       }}
     >
       {Object.keys(items).map((key) => {
@@ -115,7 +115,7 @@ export default function Surface(props: SurfaceProps) {
           left: number;
           type: string;
         };
-        const item = props.spacePlan.items.find((x) => x.id == key)!;
+        const item = props.spacePlan?.items.find((x) => x.id == key)!;
         if (type == ItemTypes.TABLE) {
           return (
             <Table
@@ -156,7 +156,7 @@ export default function Surface(props: SurfaceProps) {
         }
       })}
       <svg style={{ width: "100%", height: "100%", zIndex: 2 }}>
-        {props.spacePlan.lines.map((line, index) => (
+        {props.spacePlan?.lines.map((line, index) => (
           <line
             key={index}
             x1={line.x1}

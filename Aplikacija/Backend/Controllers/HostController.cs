@@ -19,9 +19,17 @@ public class HostController : ControllerBase
     {
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
         if (korisnik == null)
         {
             return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
         string dateTimeString = $"{createEventDto.Datum} {createEventDto.Vreme}";
@@ -83,6 +91,113 @@ public class HostController : ControllerBase
 
 
         return Ok();
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getAvailableSpaces/{date}/{time}/{location}/{capacity}")]
+    public async Task<ActionResult> GetAvailableSpaces(string date, string time, string location, int capacity)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        string dateTimeString = $"{date} {time}";
+        DateTime dateTime = DateTime.Now;
+        if (!DateTime.TryParseExact(dateTimeString, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+        {
+            return BadRequest("Invalid date and time format.");
+        }
+
+        var spaces = await Context.Prostori.Include(x => x.Rezervacije)
+                                           .Include(x => x.PlanoviProstora!)
+                                           .ThenInclude(x => x.DraggableItems)
+                                           .Include(x => x.PlanoviProstora!)
+                                           .ThenInclude(x => x.Dogadjaj)
+                                           .Where(x => x.Rezervacije!.All(y => !(dateTime >= y.VremeOd && dateTime <= y.VremeDo))
+                                                    && (location != "null" ? x.Grad + ", " + x.Drzava == location : true)
+                                                    && (capacity != -1 ? x.PlanoviProstora!
+                                                                        .Where(y => y.Dogadjaj == null)
+                                                                        .FirstOrDefault()!
+                                                                        .Kapacitet >= capacity : true)
+                                           )
+                                           .Select(x => new SpaceBasicDto
+                                           {
+                                               ID = x.ID,
+                                               Grad = x.Grad,
+                                               Drzava = x.Drzava,
+                                               Adresa = x.Adresa,
+                                               Kapacitet = x.PlanoviProstora!.Where(y => y.Dogadjaj == null).FirstOrDefault()!.Kapacitet
+                                           })
+                                           .ToListAsync();
+
+        return Ok(spaces);
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getSpacePlan/{spaceId}")]
+    public async Task<ActionResult> GetSpacePlan(int spaceId)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        SpaceDto? spacePlan = await Context.PlanoviProstora.Include(x => x.Prostor)
+                                               .Include(x => x.DraggableItems)
+                                               .Include(x => x.Lines)
+                                               .Include(x => x.SurfaceDimension)
+                                               .Where(x => x.Prostor!.ID == spaceId && x.Dogadjaj == null)
+                                               .Select(x => new SpaceDto
+                                               {
+                                                   ID = x.ID,
+                                                   DraggableItems = x.DraggableItems!.Select(y => new DraggableItemDto
+                                                   {
+                                                       ID = y.ID,
+                                                       FrontID = y.FrontID,
+                                                       Tip = y.Tip.ToString().ToLower(),
+                                                       Top = y.Top,
+                                                       Left = y.Left,
+                                                       Height = y.Height,
+                                                       HeightFactor = y.HeightFactor,
+                                                       BrojMesta = y.BrojMesta,
+                                                       Reserved = y.Reserved,
+                                                       Price = y.Price
+                                                   }).ToList(),
+                                                   Lines = x.Lines!.Select(y => new LineDto
+                                                   {
+                                                       X1 = y.X1,
+                                                       Y1 = y.Y1,
+                                                       X2 = y.X2,
+                                                       Y2 = y.Y2
+                                                   }).ToList(),
+                                                   SurfaceDimension = new SurfaceDimensionDto
+                                                   {
+                                                       Width = x.SurfaceDimension!.Width,
+                                                       Height = x.SurfaceDimension!.Height
+                                                   }
+                                               })
+                                               .FirstOrDefaultAsync();
+
+        return Ok(spacePlan);
     }
 
     [Authorize(Policy = "RequireHostRole")]

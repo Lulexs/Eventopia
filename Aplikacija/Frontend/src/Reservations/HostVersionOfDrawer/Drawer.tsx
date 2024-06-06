@@ -7,7 +7,7 @@ import styles from "./Drawer.module.css";
 import { SpaceDataType } from "../Reservation/interfaces";
 
 export interface DrawerProps {
-  plan: SpaceDataType;
+  plan: SpaceDataType | undefined;
 }
 
 export default function Drawer(props: DrawerProps) {

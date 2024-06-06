@@ -3,4 +3,5 @@ export interface SpaceBasic {
   city: string;
   country: string;
   address: string;
+  capacity: number;
 }

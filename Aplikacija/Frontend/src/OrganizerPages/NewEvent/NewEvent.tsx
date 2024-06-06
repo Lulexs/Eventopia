@@ -21,12 +21,13 @@ import { AuthState } from "../../store/features/auth";
 import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
 import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
 import { SpaceBasic } from "../interfaces.ts";
-import { matches, useForm } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
+import { SpaceDataType } from "../../Reservations/Reservation/interfaces.ts";
 
 export interface NewEventProps {
   user: AuthState;
@@ -36,6 +37,11 @@ export interface NewEventProps {
 export default function NewEvent(props: NewEventProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<number | string>(-1);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [capacity, setCapacity] = useState<number>(-1);
+  const [alertCount, setAlertCount] = useState<number>(0);
+  const [selectedSpacePlan, setSelectedSpacePlan] = useState<SpaceDataType | undefined>();
+  const queryClient = useQueryClient();
 
   const {
     isLoading: areSpacesLoading,
@@ -44,19 +50,56 @@ export default function NewEvent(props: NewEventProps) {
   } = useQuery<SpaceBasic[]>({
     queryKey: ["new_event_spaces"],
     queryFn: async () => {
-      if (false) {
-        return await axios
-          .get(`${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces`)
-          .then((resp) => resp.data)
-          .catch((err) => {
-            console.error(err);
-            alert(err.resp.data);
-            return [];
-          });
+      const values = createEventForm.getValues();
+      if (!(values.date && values.time && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(values.time))) {
+        alertCount > 0 ? alert("Invalid date or time format!") : setAlertCount(alertCount + 1);
+        return [];
       }
-      return [];
+
+      const date = values.date.toISOString().split("T")[0];
+      let queryString = `${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces/${date}/${values.time}`;
+      selectedCity ? queryString += `/${selectedCity}` : queryString += "/null";
+      capacity > 0 ? queryString += `/${capacity}` : queryString += "/-1";
+
+      return await axios
+        .get(queryString)
+        .then((resp) => resp.data)
+        .catch((err) => {
+          console.error(err);
+          alert(err.resp.data);
+          return [];
+        });
     },
   });
+
+  const {
+    isLoading: areLocationsLoading,
+    data: locations,
+    isError: locationsError,
+  } = useQuery<string[]>({
+    queryKey: ["locations"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getLocations`)
+        .then((resp) => resp.data)
+        .catch((err) => console.error(err));
+    },
+  });
+
+  const getSpacePlan = async (spaceId: number) => {
+    try {
+      await axios
+      .get(`${import.meta.env.VITE_DB_SERVER}/Host/getSpacePlan/${spaceId}`)
+      .then((resp) => { console.log(resp.data); setSelectedSpacePlan(resp.data)})
+      .catch((err) => {
+        console.error(err);
+        alert(err.resp.data);
+      });
+    } catch (err : any) {
+      console.error(err);
+      alert(err.response.data);
+    }
+  };
 
   const createEventForm = useForm({
     mode: "controlled",
@@ -279,14 +322,22 @@ export default function NewEvent(props: NewEventProps) {
             mb={10}
           >
             <Group w="100%" justify="center" mb={10}>
-              <Select label="Location" />
+              <Select 
+                label="Location" 
+                data={areLocationsLoading || locationsError ? [] : locations}
+                value={selectedCity}
+                onChange={(value) => setSelectedCity(value ? value : "")}
+                clearable
+              />
               <NumberInput
                 label="Capacity"
                 inputMode="numeric"
+                value={capacity}
+                onChange={(value) => setCapacity(parseInt(value.toString()))}
                 inputContainer={(children) => (
                   <Group align="flex-start">
                     {children}
-                    <Button>Query</Button>
+                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["new_event_spaces"] })}>Query</Button>
                   </Group>
                 )}
               />
@@ -322,11 +373,12 @@ export default function NewEvent(props: NewEventProps) {
                       <Table.Td>{space.city}</Table.Td>
                       <Table.Td>{space.country}</Table.Td>
                       <Table.Td>{space.address}</Table.Td>
-                      <Table.Td>{50}</Table.Td>
+                      <Table.Td>{space.capacity}</Table.Td>
                       <Table.Td>
                         <Button
                           onClick={(event) => {
                             event.stopPropagation();
+                            getSpacePlan(space.id);
                             setSelectedSpaceId(space.id);
                           }}
                         >
@@ -341,7 +393,7 @@ export default function NewEvent(props: NewEventProps) {
           </Fieldset>
         </Flex>
         {selectedSpaceId != -1 && (
-          <Drawer plan={spaces?.find((x) => x.id == selectedSpaceId)!} />
+          <Drawer plan={selectedSpacePlan} />
         )}
       </Flex>
     </>
