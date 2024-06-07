@@ -34,6 +34,12 @@ namespace Backend.Utils
             // zadnji element u matrici skroz dole desno je distance
             return distance[source.Length, target.Length];
         }
+
+
+        //za beograd i nis dobro radi, evo primer:
+        //Beograd: 44.7866, 20.4489
+        //  Niš: 43.3209, 21.8958
+        //  Distance otp 200.0 km
         public static double HaversineDistance(double lat1, double lon1, double lat2, double lon2)
         {
             const double R = 6371e3; // Radijus Zemlje u metrima
@@ -85,15 +91,20 @@ namespace Backend.Utils
 
     }
 
-        internal static double CalculateScoreReservation(int rezervisanaMesta, int max)
+        internal static double CalculateScoreReservation(int rezervisanaMesta, int minZa10)
         {
-            if(rezervisanaMesta >= max)
+            if(rezervisanaMesta >= minZa10)
             {
                 return 10;
             }
+            else if(rezervisanaMesta == 0)
+            {
+                return 0;
+            }
             else
             {
-                return 10 - (rezervisanaMesta / max) * 10;
+                double score = (double)rezervisanaMesta / (double)minZa10 * 10;// lerping za pronalazenje vr izmedju 2 tacke na liniji lerp(a, b, t) = a + t * (b - a)
+                return score;
             }
         }
     }
