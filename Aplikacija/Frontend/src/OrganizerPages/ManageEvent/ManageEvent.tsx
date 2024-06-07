@@ -33,7 +33,7 @@ export interface ManageEventProps {
 }
 
 export default function ManageEvent(props: ManageEventProps) {
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(props.eventDetails?.tags ?? []);
 
   const queryClient = useQueryClient();
 

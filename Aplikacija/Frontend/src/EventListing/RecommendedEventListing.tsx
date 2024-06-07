@@ -49,7 +49,7 @@ export default function RecommendedEventListing() {
         }}
         mb={60}
       >
-        Recommendedation
+        Recommendation
       </Title>
 
       <Flex

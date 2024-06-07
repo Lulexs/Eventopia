@@ -37,7 +37,7 @@ export default function HomePage() {
         CarouselProps={data}
       />
       <EventListing />
-      {loggedUser.userType != "Unregistered" && <RecommendedEventListing />}
+      {loggedUser.userType == "Visitor" && <RecommendedEventListing />}
       <Footer />
     </>
   );
