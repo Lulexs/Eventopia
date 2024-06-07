@@ -34,60 +34,7 @@ import { PathConstants } from "../../Routes/pathConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/features/auth";
 import { RootState } from "../../store/store";
-
-const data = [
-  {
-    icon: IconSearch,
-    title: "Explore latest events",
-    description: "Explore, filter and find events for your next journey",
-    onClick: (_userType: string, navigate: Function) => {
-      navigate("/");
-      document
-        .querySelector(".main-ev-listing-div")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    },
-  },
-  {
-    icon: IconTicket,
-    title: "Reserve seat",
-    description: "Get your seat reservation for your favourite event now",
-    onClick: (_userType: string, navigate: Function) => {
-      navigate("/");
-      document
-        .querySelector(".main-ev-listing-div")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    },
-  },
-  {
-    icon: IconCalendar,
-    title: "Host an event",
-    description: "Host next memorable event and let everyone see!",
-    onClick: (userType: string, navigate: Function) => {
-      if (userType == "Host") navigate("/organizerpage");
-      else alert("You aren't logged in as a host");
-    },
-  },
-  {
-    icon: IconChartPie3,
-    title: "Statistics",
-    description: "Check list of visited events or check event statistics",
-    onClick: (userType: string, navigate: Function) => {
-      if (userType == "Host") navigate("/organizerpage");
-      else if (userType == "Visitor") navigate("/visitorprofile");
-      else if (userType == "Space owner") navigate("/spaceownerpage");
-      else navigate("/login");
-    },
-  },
-  {
-    icon: IconMapPinShare,
-    title: "Rent space for next exciting event",
-    description: "Advertise your space and let organizers host their events!",
-    onClick: (userType: string, navigate: Function) => {
-      if (userType == "Host") navigate("/organizerpage");
-      else alert("You aren't logged in as a host");
-    },
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function HeaderMegaMenu() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
@@ -97,6 +44,61 @@ export function HeaderMegaMenu() {
   const navigate = useNavigate();
   const loggedUser = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
+  const data = [
+    {
+      icon: IconSearch,
+      title: t("ExploreLatestEvents"),
+      description: t("ExploreLatestEventsD"),
+      onClick: (_userType: string, navigate: Function) => {
+        navigate("/");
+        document
+          .querySelector(".main-ev-listing-div")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    },
+    {
+      icon: IconTicket,
+      title: t("ReserveSeat"),
+      description: t("ReserveSeatD"),
+      onClick: (_userType: string, navigate: Function) => {
+        navigate("/");
+        document
+          .querySelector(".main-ev-listing-div")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    },
+    {
+      icon: IconCalendar,
+      title: t("HostAnEvent"),
+      description: t("HostAnEventD"),
+      onClick: (userType: string, navigate: Function) => {
+        if (userType == "Host") navigate("/organizerpage");
+        else alert("You aren't logged in as a host");
+      },
+    },
+    {
+      icon: IconChartPie3,
+      title: t("Statistics"),
+      description: t("StatisticsD"),
+      onClick: (userType: string, navigate: Function) => {
+        if (userType == "Host") navigate("/organizerpage");
+        else if (userType == "Visitor") navigate("/visitorprofile");
+        else if (userType == "Space owner") navigate("/spaceownerpage");
+        else navigate("/login");
+      },
+    },
+    {
+      icon: IconMapPinShare,
+      title: t("RentASpace"),
+      description: t("RentASpaceD"),
+      onClick: (userType: string, navigate: Function) => {
+        if (userType == "Host") navigate("/organizerpage");
+        else alert("You aren't logged in as a host");
+      },
+    },
+  ];
 
   const links = data.map((item) => (
     <UnstyledButton
@@ -137,7 +139,7 @@ export function HeaderMegaMenu() {
 
           <Group h="100%" gap={0} visibleFrom="sm">
             <Link to={PathConstants.HOME} className={classes.link}>
-              Home
+              {t("Home")}
             </Link>
             <HoverCard
               width={600}
@@ -150,7 +152,7 @@ export function HeaderMegaMenu() {
                 <a href="#" className={classes.link}>
                   <Center inline>
                     <Box component="span" mr={5}>
-                      Features
+                      {t("Features")}
                     </Box>
                     <IconChevronDown
                       style={{ width: rem(16), height: rem(16) }}
@@ -162,7 +164,7 @@ export function HeaderMegaMenu() {
 
               <HoverCard.Dropdown style={{ overflow: "hidden" }}>
                 <Group justify="space-between" px="md">
-                  <Text fw={500}>Features</Text>
+                  <Text fw={500}>{t("Features")}</Text>
                 </Group>
 
                 <Divider my="sm" />
@@ -175,7 +177,7 @@ export function HeaderMegaMenu() {
                   <Group justify="space-between">
                     <div>
                       <Text size="xs" c="dimmed">
-                        Explore, Conenct, Experience
+                        {t("Welcome1")}
                       </Text>
                     </div>
                     <Button
@@ -193,7 +195,7 @@ export function HeaderMegaMenu() {
                             });
                       }}
                     >
-                      Start exploring
+                      {t("StartExploring")}
                     </Button>
                   </Group>
                 </div>
@@ -208,7 +210,7 @@ export function HeaderMegaMenu() {
                   ?.scrollIntoView({ behavior: "smooth", block: "end" });
               }}
             >
-              Trending
+              {t("Trending")}
             </a>
             <a
               className={classes.link}
@@ -219,7 +221,7 @@ export function HeaderMegaMenu() {
                   ?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             >
-              Explore events
+              {t("ExploreEvents")}
             </a>
           </Group>
 
@@ -233,7 +235,7 @@ export function HeaderMegaMenu() {
                     navigate("/login");
                   }}
                 >
-                  Log in
+                  {t("Login")}
                 </Button>
                 <Button
                   onClick={(event) => {
@@ -241,7 +243,7 @@ export function HeaderMegaMenu() {
                     navigate("/register");
                   }}
                 >
-                  Sign up
+                  {t("Signup")}
                 </Button>
               </>
             )}
@@ -271,7 +273,7 @@ export function HeaderMegaMenu() {
                     navigate("/");
                   }}
                 >
-                  Log out
+                  {t("Logout")}
                 </Button>
               </>
             )}
@@ -298,7 +300,7 @@ export function HeaderMegaMenu() {
           <Divider my="sm" />
 
           <a href="#" className={classes.link} style={{ color: "black" }}>
-            Home
+            {t("Home")}
           </a>
           <UnstyledButton
             className={classes.link}
@@ -308,7 +310,7 @@ export function HeaderMegaMenu() {
           >
             <Center inline>
               <Box component="span" mr={5}>
-                Features
+                {t("Features")}
               </Box>
               <IconChevronDown
                 style={{ width: rem(16), height: rem(16) }}
@@ -318,10 +320,10 @@ export function HeaderMegaMenu() {
           </UnstyledButton>
           <Collapse in={linksOpened}>{links}</Collapse>
           <a href="#" className={classes.link} style={{ color: "black" }}>
-            Trending
+            {t("Trending")}
           </a>
           <a href="#" className={classes.link} style={{ color: "black" }}>
-            Explore events
+            {t("ExploreEvents")}
           </a>
 
           <Divider my="sm" />
@@ -336,7 +338,7 @@ export function HeaderMegaMenu() {
                     navigate("/login");
                   }}
                 >
-                  Log in
+                  {t("Login")}
                 </Button>
                 <Button
                   onClick={(event) => {
@@ -344,7 +346,7 @@ export function HeaderMegaMenu() {
                     navigate("/register");
                   }}
                 >
-                  Sign up
+                  {t("Signup")}
                 </Button>
               </>
             )}
@@ -373,7 +375,7 @@ export function HeaderMegaMenu() {
                     navigate("/");
                   }}
                 >
-                  Log out
+                  {t("Logout")}
                 </Button>
               </>
             )}

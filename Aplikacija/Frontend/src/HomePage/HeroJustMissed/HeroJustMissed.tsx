@@ -6,9 +6,12 @@ import { HeroJustMissedProps } from "../interfaces";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store/store";
+import { useTranslation } from "react-i18next";
 
 export function HeroJustMissed(props: HeroJustMissedProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const loggedUser = useSelector((state: RootState) => state.auth);
   return (
     <Container className={`${classes.wrapper} trending-container`} size={1400}>
@@ -25,14 +28,14 @@ export function HeroJustMissed(props: HeroJustMissedProps) {
             variant="gradient"
             gradient={{ from: "pink", to: "yellow" }}
           >
-            Check out some of the trending highlights
+            {t("Highlights1")}
           </Text>
           <Text
             inherit
             variant="gradient"
             gradient={{ from: "pink", to: "yellow" }}
           >
-            from past week
+            {t("Highlights2")}
           </Text>
         </Title>
 
@@ -65,7 +68,7 @@ export function HeroJustMissed(props: HeroJustMissedProps) {
                 });
             }}
           >
-            Start exploring
+            {t("StartExploring")}
           </Button>
           <Button
             variant="gradient"
@@ -82,7 +85,7 @@ export function HeroJustMissed(props: HeroJustMissedProps) {
                 });
             }}
           >
-            Start exploring
+            {t("StartExploring")}
           </Button>
         </div>
       </div>

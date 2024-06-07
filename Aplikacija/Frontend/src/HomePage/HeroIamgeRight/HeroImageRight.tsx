@@ -24,7 +24,7 @@ export function HeroImageRight() {
               >
                 {t("Welcome1")}
               </Text>{" "}
-              Your Gateway to Event Discovery
+              {t("Welcome2")}
             </Title>
 
             <Text
@@ -32,11 +32,7 @@ export function HeroImageRight() {
               mt={30}
               style={{ color: "white" }}
             >
-              Welcome to the ultimate hub for event enthusiasts! Step into a
-              world where every moment holds the promise of excitement and
-              discovery. Our dynamic event management platform not only empowers
-              organizers but also invites you to embark on a journey of
-              exploration like never before.
+              {t("Welcome3")}
             </Text>
 
             <Button
@@ -54,7 +50,7 @@ export function HeroImageRight() {
                     ?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
             >
-              Start exploring
+              {t("StartExploring")}
             </Button>
           </div>
         </div>

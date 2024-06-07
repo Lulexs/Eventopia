@@ -30,7 +30,6 @@ export function LanguagePicker() {
   ));
 
   const changeLanguage = (lng: string) => {
-    console.log(lng);
     i18n.changeLanguage(lng);
     localStorage.setItem("i18nextLng", lng);
   };

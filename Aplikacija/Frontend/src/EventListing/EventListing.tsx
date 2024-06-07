@@ -17,6 +17,7 @@ import axios from "../../axiosconfig.ts";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Event } from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
+import { useTranslation } from "react-i18next";
 
 export default function EventListing() {
   const [selectedCity, setSelectedCity] = useState("");
@@ -24,6 +25,7 @@ export default function EventListing() {
   const [dateTime, setDateTime] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(0);
+  const { t } = useTranslation();
 
   const {
     isLoading: areLocationsLoading,
@@ -118,12 +120,12 @@ export default function EventListing() {
         }}
         mb={60}
       >
-        Explore, Connect, Experience
+        {t("Welcome1")}
       </Title>
       <Group align="flex-end" justify="center" mb={50}>
         <TextInput
-          label="Search by name"
-          placeholder="Enter event name..."
+          label={t("SearchByName")}
+          placeholder={t("SearchByNameP")}
           maw={229}
           styles={{
             label: {
@@ -139,8 +141,8 @@ export default function EventListing() {
           data={areLocationsLoading || locationsError ? [] : locations}
           value={selectedCity}
           onChange={setSelectedCity}
-          placeholder="Select location..."
-          label="Filter by location"
+          placeholder={t("SelectLocationP")}
+          label={t("SelectLocation")}
           styles={{
             label: {
               fontFamily: "Greycliff CF, var(--mantine-font-family)",
@@ -155,8 +157,8 @@ export default function EventListing() {
         <DateInput
           value={dateTime}
           onChange={setDateTime}
-          label="Filter by date"
-          placeholder="Pick a date..."
+          label={t("SelectDate")}
+          placeholder={t("SelectDateP")}
           maw={229}
           styles={{
             label: {
@@ -170,9 +172,9 @@ export default function EventListing() {
         />
 
         <MultiSelect
-          label="Filter by event tags"
+          label={t("SelectTags")}
           data={areTagsLoading || tagsError ? [] : tags}
-          placeholder="Select tags..."
+          placeholder={t("SelectTagsP")}
           value={selectedTags}
           onChange={setSelectedTags}
           checkIconPosition="left"
@@ -198,7 +200,7 @@ export default function EventListing() {
             await refetch();
           }}
         >
-          Search
+          {t("Search")}
         </Button>
       </Group>
       <Flex
