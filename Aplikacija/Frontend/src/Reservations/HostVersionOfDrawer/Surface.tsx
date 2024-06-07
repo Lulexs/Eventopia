@@ -116,7 +116,8 @@ export default function Surface(props: SurfaceProps) {
             left: number;
             type: string;
           };
-          const item = props.spacePlan?.items.find((x) => x.id == key)!;
+          const item = props.spacePlan?.items.find((x) => x != undefined && x.id == key)!;
+          if (item == undefined) return <></>;
           if (type == ItemTypes.TABLE) {
             return (
               <Table

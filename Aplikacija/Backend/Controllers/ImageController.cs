@@ -12,9 +12,17 @@ public class ImageController : ControllerBase
     }
 
     [Authorize(Policy = "RequireHostRole")]
-    [HttpPost("uploadImage")]
-    public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+    [HttpPost("uploadImage/{dogadjajId}")]
+    public async Task<IActionResult> UploadImage([FromRoute] int dogadjajId, [FromForm] IFormFile file)
     {
+
+        var dogadjaj = await Context.Dogadjaji.FindAsync(dogadjajId);
+
+        if (dogadjaj == null)
+        {
+            return NotFound("Event not found.");
+        }
+
         if (file == null)
         {
             return BadRequest("No file was uploaded.");
@@ -35,8 +43,11 @@ public class ImageController : ControllerBase
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray();
             var base64String = Convert.ToBase64String(fileBytes);
-            return Ok(base64String);
+            dogadjaj.Slika = base64String;
+            await Context.SaveChangesAsync();
         }
+
+        return Ok();
     }
 
 }

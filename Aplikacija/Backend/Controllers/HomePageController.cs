@@ -15,6 +15,7 @@ public class HomePageController : ControllerBase
     public HomePageController(Context context, UserManager<Korisnik> userManager)
     {
         Context = context;
+        _userManager = userManager;
     }
 
     [AllowAnonymous]
@@ -165,94 +166,120 @@ public class HomePageController : ControllerBase
         return Ok(tags);
     }
 
-
-
-
-
     [AllowAnonymous]
     [HttpGet("GetRecommendedEvents")]
-    public async Task<IActionResult> GetRecommendedEvents(FullEventDto trenutniDogadjaj)
+    public async Task<IActionResult> GetRecommendedEvents()
     {
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
-        List<Dogadjaj> dogadjaji = await Context.Dogadjaji
+
+        //svi dogadjaji koji su u buducnosti
+        List<Dogadjaj> dogadjaji = await Context.Dogadjaji 
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
                                     .Where(x => x.Vreme > DateTime.Now && x.Status == StatusDogadjaja.Active)
                                     .ToListAsync();
 
-        var trenutni = await Context.Dogadjaji
+        //posetio i rezervisao*
+        var kojeJeKorisnikPosetio = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
-                                    .FirstOrDefaultAsync(x => x.ID == trenutniDogadjaj.ID);
+                                    .Include(x => x.Rezervacije)
+                                    .Where(x => x.Rezervacije!.Any(y => y.Korisnik.Id == korisnik.Id))
+                                    .ToListAsync();
 
-        if (trenutni == null)
-            return BadRequest("Event does not exist.");
 
         List<FullEventDto> povratniDogadjaji = new List<FullEventDto>();
-
         List<FullEventForRecomm> zaRejtovanje = new List<FullEventForRecomm>();
 
-        double trenutniLat = trenutni.RezervacijaProstora!.Prostor!.Latitude;
-        double trenutniLongt = trenutni.RezervacijaProstora.Prostor.Longitude;
-
-        foreach (var dogadjaj in dogadjaji)
+        //za svaki dogadjaj kako se skalira rejt:
+        //1: pogadjanje u tagovima korisnika - max 10
+        //2: izvlacenje ocene na osnovu broja rezervacija - max 10
+        //3: pogadjanje u tagovima dogadjaja sa dogadjajima koje je posetio - max 10 za sve 
+        //4: pogadjanje u lokaciji sa dogadjajima koje je posetio - max 10 za sve koje je posetio
+        foreach(var dogadjaj in dogadjaji)
         {
-            if (dogadjaj.ID == trenutni.ID)
-                continue;
-
+             
             double rejt = 0;
 
-
-            //pogadjanja u tagovima
-            if (trenutni.Tagovi != null && dogadjaj.Tagovi != null)
+            //max je 10
+            //pogadjanja u tagovima korisnika
+            if(korisnik.Tagovi != null && dogadjaj.Tagovi != null)
             {
-                foreach (var tag in trenutni.Tagovi)
+                foreach(var tag in korisnik.Tagovi)
                 {
-                    foreach (var tag2 in dogadjaj.Tagovi)
+                    foreach(var tag2 in dogadjaj.Tagovi)
                     {
-                        if (HomePageUtils.LevenshteinDistance(tag.TagName, tag2.TagName) < 3)
-                            rejt += 1;
+                        if(HomePageUtils.LevenshteinDistance(tag.UserTag.TagName, tag2.TagName) < 3)
+                        {
+                            rejt+=1;
+                        }
                     }
                 }
             }
 
-            //mora vidim da l da ogranicim rejt za pogadjanje u tagovima
             rejt = rejt > 10 ? 10 : rejt;
-
-            //max je 10 za udaljenost
-            //pogadjanje u lokaciji
-            double dogadjajLat = dogadjaj.RezervacijaProstora!.Prostor!.Latitude;
-            double dogadjajLongt = dogadjaj.RezervacijaProstora.Prostor.Longitude;
-            double distance = HomePageUtils.HaversineDistance(trenutniLat, trenutniLongt, dogadjajLat, dogadjajLongt) / 1000; // da bude u km
-            rejt += HomePageUtils.CalculateScoreDistance(distance, 300); // znaci kad dalje od 300km, rejt je 0
-
-
-            //max je 10 za vreme
-            //pogadjanje u vremenu
-            double vreme = Math.Abs((trenutni.Vreme - dogadjaj.Vreme).TotalHours);
-            rejt += HomePageUtils.CalculateScoreTime(vreme, 72); // znaci kad je vise od 74h razlike, rejt opada linearno
-
 
             //max je 10 za rezervacije
             //izvlacenje ocene na osnovu broja rezervacija
             int rezervisanaMesta = dogadjaj.Rezervacije!.Sum(rezervacija => rezervacija.BrojMesta);
-            rejt += HomePageUtils.CalculateScoreReservation(rezervisanaMesta, 100); // znaci kad je vise od 100 mesta rezervisano, rejt opada linearno
+            rejt += HomePageUtils.CalculateScoreReservation(rezervisanaMesta, 100); // znaci kad je manje 100 mesta rezervisano, rejt opada linearno
+
+            if (kojeJeKorisnikPosetio != null && kojeJeKorisnikPosetio.Count > 0)
+            {
+                
+                foreach(var posetio in kojeJeKorisnikPosetio)
+                {
+                    if (posetio.ID == dogadjaj.ID)
+                        continue;
+
+                    double tempRejt = 0;
+                    //max je 
+                    //pogadjanje u tagovima
+                    if (posetio.Tagovi != null && dogadjaj.Tagovi != null)
+                    {
+                        foreach (var tag in posetio.Tagovi)
+                        {
+                            foreach (var tag2 in dogadjaj.Tagovi)
+                            {
+                                if (HomePageUtils.LevenshteinDistance(tag.TagName, tag2.TagName) < 3)
+                                    tempRejt += 1;
+                            }
+                        }
+                    }
+
+                    //mora vidim da l da ogranicim rejt za pogadjanje u tagovima
+                    tempRejt = tempRejt > 10 ? 10 : tempRejt;
+
+                    //max je 10 za udaljenost
+                    //pogadjanje u lokaciji
+                    double dogadjajLat = dogadjaj.RezervacijaProstora!.Prostor!.Latitude;
+                    double dogadjajLongt = dogadjaj.RezervacijaProstora.Prostor.Longitude;
+                    double distance = HomePageUtils.HaversineDistance(posetio.RezervacijaProstora!.Prostor!.Latitude, posetio.RezervacijaProstora.Prostor.Longitude, dogadjajLat, dogadjajLongt) / 1000; // da bude u km
+                    tempRejt += HomePageUtils.CalculateScoreDistance(distance, 300); // znaci kad dalje od 300km, rejt je 0
+
+                    rejt += tempRejt / kojeJeKorisnikPosetio.Count;
+                }     
+            }
+
 
             zaRejtovanje.Add(new FullEventForRecomm
-            {
-                ID = dogadjaj.ID,
-                Naziv = dogadjaj.Naziv,
-                Slika = dogadjaj.Slika,
-                Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
-                Vreme = dogadjaj.Vreme.ToString("HH:mm"),
-                Lokacija = $"{dogadjaj.RezervacijaProstora!.Prostor!.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}",
-                OrganizatorID = dogadjaj.Organizator!.Id.ToString(),
-                Organizator = $"{dogadjaj.Organizator!.Ime} {dogadjaj.Organizator!.Prezime}",
-                Rating = rejt
-            });
+                    {
+                        ID = dogadjaj.ID,
+                        Naziv = dogadjaj.Naziv,
+                        Slika = dogadjaj.Slika,
+                        Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
+                        Vreme = dogadjaj.Vreme.ToString("HH:mm"),
+                        Lokacija = $"{dogadjaj.RezervacijaProstora!.Prostor!.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}",
+                        OrganizatorID = dogadjaj.Organizator!.Id.ToString(),
+                        Organizator = $"{dogadjaj.Organizator!.Ime} {dogadjaj.Organizator!.Prezime}",
+                        Rating = rejt
+                    });
+        
+         
+            
 
         }
 
@@ -274,9 +301,13 @@ public class HomePageController : ControllerBase
         }
 
 
-        return Ok(povratniDogadjaji);
+        return Ok(povratniDogadjaji.Take(8));
 
     }
+
+
+
+   
 
 
 
