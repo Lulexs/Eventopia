@@ -310,6 +310,9 @@ public class HostController : ControllerBase
         dogadjaj.Tagovi!.Clear();
         await Context.SaveChangesAsync();
 
+        dogadjaj.RezervacijaProstora = null;
+        await Context.SaveChangesAsync();
+
         await Context.RezervacijeProstora.Where(x => x.Dogadjaj == dogadjaj).ExecuteDeleteAsync();
 
         Context.Dogadjaji.Remove(dogadjaj);
@@ -504,7 +507,7 @@ public class HostController : ControllerBase
                                                {
                                                    EventName = x.Naziv,
                                                    Description = x.Opis,
-                                                   Tags = x.Tagovi!.Select(y => y.TagName).ToList(),
+                                                   Tags = x.Tagovi != null ? x.Tagovi!.Select(y => y.TagName).ToList() : new List<string>(),
                                                    Date = x.Vreme.ToString("yyyy-MM-dd"),
                                                    Time = x.Vreme.ToString("HH:mm"),
                                                    Video = x.VideoLink,
