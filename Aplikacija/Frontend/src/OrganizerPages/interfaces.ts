@@ -35,3 +35,28 @@ export interface Review {
   comment: string;
   time: string;
 }
+
+export interface EventDto {
+  eventName: string;
+  description: string;
+  tags: string[];
+  date: string;
+  time: string;
+  video: string;
+  capacity: number;
+  location: string;
+  address: string;
+  reservedTables: number;
+  maxTables: number;
+  totalEarnings: number;
+}
+
+export interface ChangeEventDto {
+  id: number;
+  eventName: string;
+  description: string;
+  tags: string[];
+  date: string;
+  time: string;
+  video: string;
+}

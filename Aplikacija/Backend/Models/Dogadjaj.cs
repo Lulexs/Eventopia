@@ -8,21 +8,19 @@ public class Dogadjaj
     [MaxLength(80)]
     public required string Naziv { get; set; }
 
-    // Proveriti pri dodavanju da li je vreme u buducnosti
     public DateTime Vreme { get; set; }
 
-    [MaxLength(250)]
+    [MaxLength(500)]
     public required string Opis { get; set; }
 
     public StatusDogadjaja Status { get; set; }
 
-    // Slika se pamti kao Base64 string. Pogledati ImageController
     public required string Slika { get; set; }
 
-    // Video se pamti kao link ka YouTube videu (embed link)
     public string? VideoLink { get; set; }
 
     public List<Tag>? Tagovi { get; set; }
+
     public List<Ocena>? Ocene { get; set; }
 
     [ForeignKey("RezervacijaProstoraFK")]

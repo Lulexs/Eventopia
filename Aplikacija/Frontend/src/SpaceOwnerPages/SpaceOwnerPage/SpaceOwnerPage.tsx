@@ -403,7 +403,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                     Capacity: {space.capacity}
                   </Text>
                 </Box>
-                <Button onClick={() => removeSpace(space.id)}>
+                <Button onClick={() => removeSpace(space.id)} bg={"red"}>
                   {t("RemoveSpace")}
                 </Button>
               </Flex>
@@ -478,6 +478,13 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                   <Group>
                     <Button disabled={true} fullWidth>
                       {t("Finished")}
+                    </Button>
+                  </Group>
+                )}
+                {reservation.status == "Rejected" && (
+                  <Group>
+                    <Button disabled={true} fullWidth>
+                      {t("Rejected")}
                     </Button>
                   </Group>
                 )}

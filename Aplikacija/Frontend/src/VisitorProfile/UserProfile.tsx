@@ -532,6 +532,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   ? 0
                   : statistics?.nextRankPoints || 0
               }
+              dash={true}
             />
             <StatsCard
               title={t("MoneySpent")}
@@ -589,7 +590,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   {t("Cancel")}
                 </Button>
                 <Text w="10%" ta="center">
-                  {reservation.price}$
+                  ${reservation.price}
                 </Text>
               </Flex>
             ))}

@@ -313,26 +313,26 @@ export default function NewEvent(props: NewEventProps) {
                       imageData.append('file', values.image);
 
                       await axios
-                        .post(
-                          `${
-                            import.meta.env.VITE_DB_SERVER
-                          }/Host/createEvent`,
-                          {
-                            ...eventObj
-                          }
-                        )
-                        .then((resp) => {
-                          eventId = resp.data;
-                        })
-                        .catch((err) => {
-                          console.error(err);
-                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                            alert(err.response.data[0].description);
-                          }
-                          else {
-                            alert(err.response.data);
-                          }
-                        });
+                      .post(
+                        `${
+                          import.meta.env.VITE_DB_SERVER
+                        }/Host/createEvent`,
+                        {
+                          ...eventObj
+                        }
+                      )
+                      .then((resp) => {
+                        eventId = resp.data;
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                          alert(err.response.data[0].description);
+                        }
+                        else {
+                          alert(err.response.data);
+                        }
+                      });
 
                       await axios
                       .post(`${import.meta.env.VITE_DB_SERVER}/Image/uploadImage/${eventId}`, 

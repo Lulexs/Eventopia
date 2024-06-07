@@ -110,7 +110,7 @@ public class VisitorController : ControllerBase
                                                     && x.Dogadjaj!.Vreme < DateTime.Now)
                                                     .ToListAsync();
 
-        int visitedEventsCount = rezervacije.Count;
+        int visitedEventsCount = rezervacije.Select(x => x.Dogadjaj!.ID).Distinct().Count();
 
         var rank = await Context.VisitorRanks
             .Where(x => x.Points <= visitedEventsCount)
