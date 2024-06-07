@@ -70,5 +70,15 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
             .WithOne(rezervacijaProstora => rezervacijaProstora.Dogadjaj)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Entity<Dogadjaj>()
+            .HasMany(dogadjaj => dogadjaj.Ocene)
+            .WithOne(ocena => ocena.Dogadjaj)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Dogadjaj>()
+            .HasMany(dogadjaj => dogadjaj.Rezervacije)
+            .WithOne(tag => tag.Dogadjaj)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

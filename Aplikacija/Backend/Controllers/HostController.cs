@@ -278,29 +278,24 @@ public class HostController : ControllerBase
     }
 
     [Authorize(Policy = "RequireHostRole")]
-    [HttpPost("manageEvent")]
-    public async Task<ActionResult> ManageEvent([FromBody] CreateEventDto createEventDto)
+    [HttpDelete("cancelEvent/{id}")]
+    public async Task<IActionResult> CancelEvent([FromRoute] int id)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
         if (korisnik == null)
         {
             return NotFound("User not found.");
         }
 
-        return Ok();
-    }
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
 
-    [Authorize(Policy = "RequireHostRole")]
-    [HttpDelete("deleteEvent/{id}")]
-    public async Task<ActionResult<List<EventForListDto>>> DeleteEvent([FromRoute] int id)
-    {
-        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
-        if (korisnik == null)
+        if (banned != null)
         {
-            return NotFound("User not found.");
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).FirstOrDefaultAsync(x => x.ID == id);
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).Include(x => x.Tagovi).FirstOrDefaultAsync(x => x.ID == id);
 
         if (dogadjaj == null)
         {
@@ -312,6 +307,11 @@ public class HostController : ControllerBase
             return Unauthorized("You are not the host of this event.");
         }
 
+        dogadjaj.Tagovi!.Clear();
+        await Context.SaveChangesAsync();
+
+        await Context.RezervacijeProstora.Where(x => x.Dogadjaj == dogadjaj).ExecuteDeleteAsync();
+
         Context.Dogadjaji.Remove(dogadjaj);
         await Context.SaveChangesAsync();
         return Ok();
@@ -322,9 +322,17 @@ public class HostController : ControllerBase
     public async Task<ActionResult<List<EventForListDto>>> GetIncomingEvents()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
         if (korisnik == null)
         {
             return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
         var dogadjaji = await Context.Dogadjaji
@@ -348,9 +356,17 @@ public class HostController : ControllerBase
     public async Task<ActionResult> GetPastEvents()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
         if (korisnik == null)
         {
             return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
         var dogadjaji = await Context.Dogadjaji
@@ -374,9 +390,17 @@ public class HostController : ControllerBase
     public async Task<ActionResult> GetStatistics()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
         if (korisnik == null)
         {
             return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
         var dogadjaji = await Context.Dogadjaji
@@ -418,6 +442,13 @@ public class HostController : ControllerBase
             return NotFound("User not found.");
         }
 
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
         var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).FirstOrDefaultAsync(x => x.ID == id);
 
         if (dogadjaj == null)
@@ -443,6 +474,130 @@ public class HostController : ControllerBase
                                                 .ToListAsync();
 
         return Ok(ocene);
+    }
+
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getEventDetails/{id}")]
+    public async Task<ActionResult> GetEventDetails(int id)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.PlanProstora)
+                                               .ThenInclude(x => x!.Prostor)
+                                               .Include(x => x.Tagovi)
+                                               .Include(x => x.Rezervacije)
+                                               .Where(x => x.ID == id)
+                                               .Select(x => new
+                                               {
+                                                   EventName = x.Naziv,
+                                                   Description = x.Opis,
+                                                   Tags = x.Tagovi!.Select(y => y.TagName).ToList(),
+                                                   Date = x.Vreme.ToString("yyyy-MM-dd"),
+                                                   Time = x.Vreme.ToString("HH:mm"),
+                                                   Video = x.VideoLink,
+                                                   Capacity = x.PlanProstora!.Kapacitet,
+                                                   Location = x.PlanProstora!.Prostor!.Grad + ", " + x.PlanProstora!.Prostor!.Drzava,
+                                                   Address = x.PlanProstora!.Prostor!.Adresa,
+                                                   ReservedTables = x.Rezervacije != null ? x.Rezervacije!.Count() : 0,
+                                                   MaxTables = x.PlanProstora!.DraggableItems!.Where(y => y.Tip == TipItema.Table).Count(),
+                                                   TotalEarnings = x.Rezervacije != null ? x.Rezervacije!.Sum(y => y.Sto!.Price * y.Sto!.BrojMesta) : 0,
+                                               })
+                                               .FirstOrDefaultAsync();
+
+        return Ok(dogadjaj);
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpPut("changeEventDetails")]
+    public async Task<ActionResult> ChangeEventDetails([FromBody] ChangeEventDto changeEventDto)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Tagovi)
+                                                .Include(x => x.Organizator)
+                                                .Where(x => x.ID == changeEventDto.ID)
+                                                .FirstOrDefaultAsync();
+
+        if (dogadjaj == null)
+        {
+            return NotFound("Event not found.");
+        }
+
+        if (dogadjaj.Organizator != korisnik)
+        {
+            return Unauthorized("You are not the host of this event.");
+        }
+
+        string dateTimeString = $"{changeEventDto.Datum} {changeEventDto.Vreme}";
+        DateTime dateTime;
+        if (!DateTime.TryParseExact(dateTimeString, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+        {
+            return BadRequest("Invalid date and time format.");
+        }
+
+        if (dateTime < DateTime.Now)
+        {
+            return BadRequest("Event date and time must be in the future.");
+        }
+
+        dogadjaj.Naziv = changeEventDto.Naziv;
+        dogadjaj.Opis = changeEventDto.Opis;
+        dogadjaj.Vreme = dateTime;
+        dogadjaj.VideoLink = changeEventDto.Video;
+
+        List<Tag> tags = new List<Tag>();
+
+        dogadjaj.Tagovi!.Clear();
+        await Context.SaveChangesAsync();
+
+        foreach (var tag in changeEventDto.Tagovi!)
+        {
+            var existingTag = await Context.Tagovi.Include(x => x.Dogadjaji).FirstOrDefaultAsync(x => x.TagName == tag);
+            if (existingTag != null)
+            {
+                tags.Add(existingTag);
+                existingTag.Dogadjaji!.Add(dogadjaj);
+            }
+            else
+            {
+                Tag newTag = new Tag
+                {
+                    TagName = tag,
+                    Dogadjaji = new List<Dogadjaj> { dogadjaj }
+                };
+                await Context.Tagovi.AddAsync(newTag);
+                tags.Add(newTag);
+            }
+        }
+
+        await Context.SaveChangesAsync();
+
+        return Ok();
     }
 
 }

@@ -273,8 +273,6 @@ public class SpaceController : ControllerBase
             foreach (var rezervacija in prostor.Rezervacije!)
             {
                 string statusRezervacije = rezervacija.Status.ToString();
-                if (statusRezervacije == "Rejected")
-                    continue;
                 string status = rezervacija.Dogadjaj!.Vreme < DateTime.Now ? "Finished" : statusRezervacije;
                 rezervacije.Add(new ProstorRezervacijeDto
                 {

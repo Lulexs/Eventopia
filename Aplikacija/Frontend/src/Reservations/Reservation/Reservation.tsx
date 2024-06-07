@@ -61,7 +61,6 @@ export default function Reservation(props: ReservationProps) {
     },
   });
 
-  
   const { 
     isLoading : areEventDetailsLoading,
     data : eventDetails, 
@@ -178,6 +177,7 @@ export default function Reservation(props: ReservationProps) {
                     fontFamily: "Greycliff CF, var(--mantine-font-family)",
                     fontSize: "1.1rem",
                     color: "#453636",
+                    textAlign: "justify",
                   }}
                 >
                   {eventDetails?.description}

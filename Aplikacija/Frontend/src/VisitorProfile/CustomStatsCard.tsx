@@ -6,6 +6,7 @@ export interface StatsCardProps {
   level: string;
   current: number;
   nextStage: number;
+  dash: boolean;
 }
 
 export function CustomStatsCard(props: StatsCardProps) {
@@ -21,7 +22,7 @@ export function CustomStatsCard(props: StatsCardProps) {
     >
       <Text fz="xs" tt="uppercase" fw={700} c="dimmed" ta="center">
         {props.title}
-        {" - "}
+        {props.dash ? " - " : ""}
         {props.level}
       </Text>
       <Text fz="lg" fw={500} ta="center">

@@ -65,7 +65,7 @@ export default function EventReviews(props: EventReviewsProps) {
         <Title c="#5a5959">{props.eventName} - {props.eventDate}</Title>
       </Group>
 
-      <Flex flex={1} mt={20} wrap="wrap" rowGap="20">
+      <Flex mt={20} wrap="wrap" rowGap="20">
       {(areReviewsLoading || reviewsError) ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
