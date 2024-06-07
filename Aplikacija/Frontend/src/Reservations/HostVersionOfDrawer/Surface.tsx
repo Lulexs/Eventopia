@@ -11,8 +11,8 @@ import { SpaceDataType, TableInterface } from "../Reservation/interfaces";
 const styles: CSSProperties = {
   width: "90%",
   height: "70%",
-  border: "1px solid black",
-  borderRadius: "20px",
+  // border: "1px solid black",
+  // borderRadius: "20px",
   backgroundColor: "white",
   position: "relative",
 };
@@ -95,11 +95,11 @@ export default function Surface(props: SurfaceProps) {
         [x.id]: { top: x.top, left: x.left, type: x.type },
       }));
     });
-  }, []);
+  }, [props.spacePlan]);
 
   return (
     <div
-      className="main-surface-container"
+      // className="main-surface-container"
       ref={drop}
       style={{
         ...styles,
@@ -109,53 +109,60 @@ export default function Surface(props: SurfaceProps) {
         width: props.spacePlan?.surfaceDimension.width,
       }}
     >
-      {Object.keys(items).map((key) => {
-        const { left, top, type } = items[key] as {
-          top: number;
-          left: number;
-          type: string;
-        };
-        const item = props.spacePlan?.items.find((x) => x.id == key)!;
-        if (type == ItemTypes.TABLE) {
-          return (
-            <Table
-              key={key}
-              id={item.id}
-              left={left}
-              height={item.height}
-              numberOfSeats={(item as TableInterface).numberOfSeats}
-              top={top}
-              onRemove={() => {
-                unspawnItem(item.id);
-              }}
-              exportFunctions={exportFunctionsMapRef.current}
-            />
-          );
-        } else if (type == ItemTypes.STAGE) {
-          return (
-            <Stage
-              key={key}
-              id={item.id}
-              left={item.left}
-              top={item.top}
-              height={item.height}
-              exportFunctions={exportFunctionsMapRef.current}
-            />
-          );
-        } else if (type == ItemTypes.BAR) {
-          return (
-            <Bar
-              key={key}
-              id={item.id}
-              left={item.left}
-              top={item.top}
-              height={item.height}
-              exportFunctions={exportFunctionsMapRef.current}
-            />
-          );
-        }
-      })}
-      <svg style={{ width: "100%", height: "100%", zIndex: 2 }}>
+      {items != null &&
+        Object.keys(items).map((key) => {
+          const { left, top, type } = items[key] as {
+            top: number;
+            left: number;
+            type: string;
+          };
+          const item = props.spacePlan?.items.find((x) => x.id == key)!;
+          if (type == ItemTypes.TABLE) {
+            return (
+              <Table
+                key={key}
+                id={item.id}
+                left={left}
+                height={item.height}
+                numberOfSeats={(item as TableInterface).numberOfSeats}
+                top={top}
+                onRemove={() => {
+                  unspawnItem(item.id);
+                }}
+                exportFunctions={exportFunctionsMapRef.current}
+              />
+            );
+          } else if (type == ItemTypes.STAGE) {
+            return (
+              <Stage
+                key={key}
+                id={item.id}
+                left={item.left}
+                top={item.top}
+                height={item.height}
+                exportFunctions={exportFunctionsMapRef.current}
+              />
+            );
+          } else if (type == ItemTypes.BAR) {
+            return (
+              <Bar
+                key={key}
+                id={item.id}
+                left={item.left}
+                top={item.top}
+                height={item.height}
+                exportFunctions={exportFunctionsMapRef.current}
+              />
+            );
+          }
+        })}
+      <svg
+        style={{
+          height: props.spacePlan?.surfaceDimension.height,
+          width: props.spacePlan?.surfaceDimension.width,
+          zIndex: 2,
+        }}
+      >
         {props.spacePlan?.lines.map((line, index) => (
           <line
             key={index}

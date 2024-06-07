@@ -20,7 +20,7 @@ import EventBgImage from "../../assets/event_listing_bg_op.png";
 import { AuthState } from "../../store/features/auth";
 import View from "../EventViewPages";
 import { DateInput } from "@mantine/dates";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
 import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
@@ -40,8 +40,12 @@ export default function NewEvent(props: NewEventProps) {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [capacity, setCapacity] = useState<number>(-1);
   const [alertCount, setAlertCount] = useState<number>(0);
-  const [selectedSpacePlan, setSelectedSpacePlan] = useState<SpaceDataType | undefined>();
+  const [selectedSpacePlan, setSelectedSpacePlan] = useState<
+    SpaceDataType | undefined
+  >();
   const queryClient = useQueryClient();
+
+  const getObjectFromDrawerRef = useRef<Function | null>(null);
 
   const {
     isLoading: areSpacesLoading,
@@ -51,15 +55,27 @@ export default function NewEvent(props: NewEventProps) {
     queryKey: ["new_event_spaces"],
     queryFn: async () => {
       const values = createEventForm.getValues();
-      if (!(values.date && values.time && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(values.time))) {
-        alertCount > 0 ? alert("Invalid date or time format!") : setAlertCount(alertCount + 1);
+      if (
+        !(
+          values.date &&
+          values.time &&
+          /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(values.time)
+        )
+      ) {
+        alertCount > 0
+          ? alert("Invalid date or time format!")
+          : setAlertCount(alertCount + 1);
         return [];
       }
 
       const date = values.date.toISOString().split("T")[0];
-      let queryString = `${import.meta.env.VITE_DB_SERVER}/Host/getAvailableSpaces/${date}/${values.time}`;
-      selectedCity ? queryString += `/${selectedCity}` : queryString += "/null";
-      capacity > 0 ? queryString += `/${capacity}` : queryString += "/-1";
+      let queryString = `${
+        import.meta.env.VITE_DB_SERVER
+      }/Host/getAvailableSpaces/${date}/${values.time}`;
+      selectedCity
+        ? (queryString += `/${selectedCity}`)
+        : (queryString += "/null");
+      capacity > 0 ? (queryString += `/${capacity}`) : (queryString += "/-1");
 
       return await axios
         .get(queryString)
@@ -89,13 +105,15 @@ export default function NewEvent(props: NewEventProps) {
   const getSpacePlan = async (spaceId: number) => {
     try {
       await axios
-      .get(`${import.meta.env.VITE_DB_SERVER}/Host/getSpacePlan/${spaceId}`)
-      .then((resp) => { console.log(resp.data); setSelectedSpacePlan(resp.data)})
-      .catch((err) => {
-        console.error(err);
-        alert(err.resp.data);
-      });
-    } catch (err : any) {
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getSpacePlan/${spaceId}`)
+        .then((resp) => {
+          setSelectedSpacePlan(resp.data);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.resp.data);
+        });
+    } catch (err: any) {
       console.error(err);
       alert(err.response.data);
     }
@@ -123,7 +141,10 @@ export default function NewEvent(props: NewEventProps) {
   });
 
   return (
-    <>
+    <Flex
+      direction="column"
+      h={selectedSpaceId != "-1" ? "fit-content" : "100vh"}
+    >
       <Flex
         className={classes.mainContentFlex}
         styles={{
@@ -149,7 +170,6 @@ export default function NewEvent(props: NewEventProps) {
           w="100%"
           h="100%"
           mt="20"
-          gap="15px"
           align="center"
           justify="center"
           className={classes.subTitleContainer}
@@ -254,7 +274,6 @@ export default function NewEvent(props: NewEventProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = createEventForm.getValues();
-                      console.log(values);
                       // await axios
                       //   .put(
                       //     `${
@@ -322,8 +341,8 @@ export default function NewEvent(props: NewEventProps) {
             mb={10}
           >
             <Group w="100%" justify="center" mb={10}>
-              <Select 
-                label="Location" 
+              <Select
+                label="Location"
                 data={areLocationsLoading || locationsError ? [] : locations}
                 value={selectedCity}
                 onChange={(value) => setSelectedCity(value ? value : "")}
@@ -337,7 +356,15 @@ export default function NewEvent(props: NewEventProps) {
                 inputContainer={(children) => (
                   <Group align="flex-start">
                     {children}
-                    <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["new_event_spaces"] })}>Query</Button>
+                    <Button
+                      onClick={() =>
+                        queryClient.invalidateQueries({
+                          queryKey: ["new_event_spaces"],
+                        })
+                      }
+                    >
+                      Query
+                    </Button>
                   </Group>
                 )}
               />
@@ -393,9 +420,12 @@ export default function NewEvent(props: NewEventProps) {
           </Fieldset>
         </Flex>
         {selectedSpaceId != -1 && (
-          <Drawer plan={selectedSpacePlan} />
+          <Drawer
+            exportPlanFunctionRef={getObjectFromDrawerRef}
+            plan={selectedSpacePlan}
+          />
         )}
       </Flex>
-    </>
+    </Flex>
   );
 }
