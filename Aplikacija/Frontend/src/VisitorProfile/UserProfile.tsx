@@ -28,31 +28,38 @@ import { CustomStatsCard } from "./CustomStatsCard";
 import { login } from "../store/features/auth";
 import { DateInput } from "@mantine/dates";
 import { useDispatch } from "react-redux";
-import { useForm, matches } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import { PasswordStrength } from "../Auth/Utils/PasswordStrength";
 import { StatsCard } from "../SpaceOwnerPages/StatsCard";
-import { ActiveReservations, VisitedEvents, VisitorProfileProps, VisitorStatistics } from "./interfaces";
+import {
+  ActiveReservations,
+  VisitedEvents,
+  VisitorProfileProps,
+  VisitorStatistics,
+} from "./interfaces";
 import { formatOnlyDate } from "../AdminPages/AdminPage/AdminPage";
+import { useTranslation } from "react-i18next";
 
 export function formatTimeOnly(date: Date) {
-
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${hours}:${minutes}`;
 }
 
-
 export default function VisitorProfile(props: VisitorProfileProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const [avatarN, setAvatarN] = useState<string | null>(null);
-  const [eventSelectedForReview, setEventSelectedForReview] = useState<number | null>(null);
+  const [eventSelectedForReview, setEventSelectedForReview] = useState<
+    number | null
+  >(null);
   const [review, setReview] = useState<string>("");
   const [rating, setRating] = useState<number>(-1);
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const [reviewDialogOpened, { toggle: toggleReview, close: closeReview }] =
     useDisclosure(false);
@@ -94,17 +101,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
     },
 
     validate: {
-      firstName: (value) =>
-        value.length > 0 ? null : "Empty first name field",
-      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
-      phoneNumber: (value) =>
-        value.length > 0 ? null : "Empty phone number field",
+      firstName: (value) => (value.length > 0 ? null : t("EmptyFirstName")),
+      lastName: (value) => (value.length > 0 ? null : t("EmptyLstName")),
+      phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber")),
       currentPassword: (value) =>
-        value.length >= 0 ? null : "Empty current password field",
+        value.length >= 0 ? null : t("EmptyPassword"),
       newPassword: (value) =>
-        value.length == 0 || matches(/(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/)
-          ? null
-          : "Empty new password field",
+        /(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/.test(value) ? null : t("EmptyPassword"),
     },
   });
 
@@ -159,10 +162,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         })
         .catch((err) => {
           console.log(err);
-          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+          if (
+            Array.isArray(err.response.data) &&
+            err.response.data.length > 0
+          ) {
             alert(err.response.data[0].description);
-          }
-          else {
+          } else {
             alert(err.response.data);
           }
           return [];
@@ -173,28 +178,31 @@ export default function VisitorProfile(props: VisitorProfileProps) {
   useEffect(() => {
     const fetchAvatarAndTags = async () => {
       try {
-        const resp = await axios.get(`${import.meta.env.VITE_DB_SERVER}/Visitor/getAvatarAndTags`);
+        const resp = await axios.get(
+          `${import.meta.env.VITE_DB_SERVER}/Visitor/getAvatarAndTags`
+        );
         setAvatarN(resp.data.avatar);
         setTags(resp.data.tags);
-      } catch (err : any) {
+      } catch (err: any) {
         console.log(err);
       }
     };
-  
+
     fetchAvatarAndTags();
   }, []);
 
   const cancelReservation = async (reservationId: number) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_DB_SERVER}/Visitor/cancelReservation/${reservationId}`
+        `${
+          import.meta.env.VITE_DB_SERVER
+        }/Visitor/cancelReservation/${reservationId}`
       );
       queryClient.invalidateQueries({ queryKey: ["active_reservations"] });
-    } catch (err : any) {
+    } catch (err: any) {
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
-      }
-      else {
+      } else {
         alert(err.response.data);
       }
       console.error(err);
@@ -203,26 +211,28 @@ export default function VisitorProfile(props: VisitorProfileProps) {
 
   const postReview = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_DB_SERVER}/Visitor/postComment`, {
-        eventId: eventSelectedForReview,
-        rating: rating,
-        comment: review,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_DB_SERVER}/Visitor/postComment`,
+        {
+          eventId: eventSelectedForReview,
+          rating: rating,
+          comment: review,
+        }
+      );
       setRating(-1);
       setReview("");
       setEventSelectedForReview(null);
       alert("Review posted successfully!");
-    } catch (err : any) {
+    } catch (err: any) {
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
-      }
-      else {
+      } else {
         alert(err.response.data);
       }
       console.error(err);
       alert(err.response.data);
     }
-  }
+  };
 
   return (
     <Flex
@@ -276,7 +286,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               {" "}
               <Group mb="md" align="center">
                 <Text size="sm" fw={300} flex={1}>
-                  Pick your avatar
+                  {t("PickAvatar")}
                 </Text>
                 <CloseButton
                   onClick={(event) => {
@@ -315,8 +325,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
             >
               <TagsInput
                 miw="100%"
-                label="Press Enter to submit a tag"
-                placeholder="Enter tag"
+                label={t("EnterToTag")}
+                placeholder={t("EnterToTagP")}
                 value={tags}
                 onChange={setTags}
                 styles={{
@@ -327,32 +337,37 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 }}
               />
               <Group w="100%" justify="center">
-                <Button onClick = {
-                    async (event) => {
-                      event.stopPropagation();
-                      await axios
-                        .put(
-                          `${
-                            import.meta.env.VITE_DB_SERVER
-                          }/Visitor/updateUserAvatarAndTags`,
-                          {
-                            avatar: avatarN,
-                            tags: tags
-                          }
-                        )
-                        .then(() => {
-                          alert("Successfully changed user info!");
-                        })
-                        .catch((err) => {
-                          console.error(err);
-                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                            alert(err.response.data[0].description);
-                          }
-                          else {
-                            alert(err.response.data);
-                          }});
-                    }}
-                >Save changes</Button>
+                <Button
+                  onClick={async (event) => {
+                    event.stopPropagation();
+                    await axios
+                      .put(
+                        `${
+                          import.meta.env.VITE_DB_SERVER
+                        }/Visitor/updateUserAvatarAndTags`,
+                        {
+                          avatar: avatarN,
+                          tags: tags,
+                        }
+                      )
+                      .then(() => {
+                        alert("Successfully changed user info!");
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        if (
+                          Array.isArray(err.response.data) &&
+                          err.response.data.length > 0
+                        ) {
+                          alert(err.response.data[0].description);
+                        } else {
+                          alert(err.response.data);
+                        }
+                      });
+                  }}
+                >
+                  {t("SaveChanges")}
+                </Button>
               </Group>
             </Flex>
           </Fieldset>
@@ -362,7 +377,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
             })}
           >
             <Fieldset
-              legend="Personal information"
+              legend={t("PersonalInfo")}
               w="98%"
               fz="xl"
               styles={{
@@ -376,23 +391,23 @@ export default function VisitorProfile(props: VisitorProfileProps) {
             >
               <Stack w="50%">
                 <TextInput
-                  label="User ID"
+                  label={t("UID")}
                   disabled
                   value={props.user.userId}
                 ></TextInput>
                 <TextInput
-                  label="First name"
+                  label={t("FirstName")}
                   key={updateUserForm.key("firstName")}
                   {...updateUserForm.getInputProps("firstName")}
                 />
                 <DateInput
-                  label="Birthday"
+                  label={t("Birthday")}
                   key={updateUserForm.key("birthday")}
                   {...updateUserForm.getInputProps("birthday")}
                 />
                 <PasswordStrength
-                  label="New password"
-                  placeholder="New password"
+                  label={t("NewPass")}
+                  placeholder={t("NewPassP")}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),
@@ -402,18 +417,18 @@ export default function VisitorProfile(props: VisitorProfileProps) {
               <Stack w="50%">
                 <TextInput label="Email" disabled value={props.user.email} />{" "}
                 <TextInput
-                  label="Last name"
+                  label={t("LastName")}
                   key={updateUserForm.key("lastName")}
                   {...updateUserForm.getInputProps("lastName")}
                 />
                 <TextInput
-                  label="Phone number"
+                  label={t("PhoneNumber")}
                   key={updateUserForm.key("phoneNumber")}
                   {...updateUserForm.getInputProps("phoneNumber")}
                 />
                 <PasswordInput
-                  label="Current password"
-                  placeholder="Enter current password"
+                  label={t("CurrentPass")}
+                  placeholder={t("CurrPassP")}
                   key={updateUserForm.key("currentPassword")}
                   {...updateUserForm.getInputProps("currentPassword")}
                 />
@@ -427,7 +442,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   }}
                 >
                   <InputLabel className="mantine-TextInput-label">
-                    Save changes
+                    {t("SaveChanges")}
                   </InputLabel>
                   <Button
                     type="submit"
@@ -440,7 +455,9 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                             import.meta.env.VITE_DB_SERVER
                           }/Account/updateUser`,
                           {
-                            ...values, avatar: avatarN, birthday: values.birthday.toISOString()
+                            ...values,
+                            avatar: avatarN,
+                            birthday: values.birthday.toISOString(),
                           }
                         )
                         .then((resp) => {
@@ -467,16 +484,18 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
                             alert(err.response.data[0].description);
-                          }
-                          else {
+                          } else {
                             alert(err.response.data);
                           }
                         });
                     }}
                   >
-                    Save changes
+                    {t("SaveChanges")}
                   </Button>
                 </div>
               </Stack>
@@ -484,7 +503,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
           </form>
 
           <Fieldset
-            legend="Statistics"
+            legend={t("Statistics")}
             w="98%"
             fz="sm"
             styles={{
@@ -496,24 +515,36 @@ export default function VisitorProfile(props: VisitorProfileProps) {
             }}
           >
             <CustomStatsCard
-              title="Visited events"
-              level={isStatisticsLoading || statisticsError
-                ? "" : statistics?.rankName || ""}
-              current={isStatisticsLoading || statisticsError
-                ? 0 : statistics?.visitedEventsCount || 0}
-              nextStage={isStatisticsLoading || statisticsError
-                ? 0 : statistics?.nextRankPoints || 0}
+              title={t("VisitedEvents")}
+              level={
+                isStatisticsLoading || statisticsError
+                  ? ""
+                  : statistics?.rankName || ""
+              }
+              current={
+                isStatisticsLoading || statisticsError
+                  ? 0
+                  : statistics?.visitedEventsCount || 0
+              }
+              nextStage={
+                isStatisticsLoading || statisticsError
+                  ? 0
+                  : statistics?.nextRankPoints || 0
+              }
             />
             <StatsCard
-              title="Money spent"
-              current={isStatisticsLoading || statisticsError
-                ? 0 : statistics?.moneySpent || 0}
+              title={t("MoneySpent")}
+              current={
+                isStatisticsLoading || statisticsError
+                  ? 0
+                  : statistics?.moneySpent || 0
+              }
             />
           </Fieldset>
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Active reservations</Title>
+        <Title>{t("ActiveReservations")}</Title>
         <Stack className={classes.contentStack} align="center">
           {(areReservationsLoading || reservationsError) && (
             <div className={classes.controls}>
@@ -550,7 +581,12 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     {formatTimeOnly(new Date(reservation.date))}
                   </Text>
                 </Box>
-                <Button w="fit-content" onClick={() => cancelReservation(reservation.reservationId)}>Cancel</Button>
+                <Button
+                  w="fit-content"
+                  onClick={() => cancelReservation(reservation.reservationId)}
+                >
+                  {t("Cancel")}
+                </Button>
                 <Text w="10%" ta="center">
                   {reservation.price}$
                 </Text>
@@ -559,7 +595,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Visited events</Title>
+        <Title>{t("VisitedEvents")}</Title>
         <Stack className={classes.contentStack} align="center">
           {areVisitedEventsLoading || visitedEventsError ? (
             <div className={classes.controls}>
@@ -600,11 +636,11 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     toggleReview();
                   }}
                 >
-                  Leave review
+                  {t("Leave review")}
                 </Button>
               </Flex>
-              ))
-            )}
+            ))
+          )}
         </Stack>
       </Flex>
       <Dialog
@@ -622,7 +658,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         {" "}
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Leave a review
+            {t("LeaveReview")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -633,7 +669,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         </Group>
         <Group align="center" mb="xl">
           <Text size="sm" fw={300} miw="45px">
-            Rating:{" "}
+            {t("Rating")}:{" "}
           </Text>
           <Slider
             flex={1}
@@ -660,28 +696,31 @@ export default function VisitorProfile(props: VisitorProfileProps) {
         </Group>
         <Textarea
           mb={10}
-          label="Review:"
-          placeholder="Event was enjoyable..."
+          label={t("Review")}
+          placeholder={t("ReviewP")}
           maxRows={8}
           minRows={3}
           autosize
           value={review}
           onChange={(event) => setReview(event.currentTarget.value)}
         />
-        <Button w="100%" onClick={() => {
-          if (rating == -1) {
-            alert("Please choose rating for review!");
-            return;
-          }
-          if (review.length == 0) {
-            alert("Please write a review!");
-            return;
-          }
+        <Button
+          w="100%"
+          onClick={() => {
+            if (rating == -1) {
+              alert(t("PleaseChooseRating"));
+              return;
+            }
+            if (review.length == 0) {
+              alert(t("PleaseWriteReview"));
+              return;
+            }
 
-          closeReview();
-          postReview();
-        }}>
-          Post review
+            closeReview();
+            postReview();
+          }}
+        >
+          {t("Post review")}
         </Button>
       </Dialog>
     </Flex>

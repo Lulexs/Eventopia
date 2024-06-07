@@ -7,6 +7,7 @@ import {
   Center,
 } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 function PasswordRequirement({
   meets,
@@ -30,10 +31,10 @@ function PasswordRequirement({
 }
 
 const requirements = [
-  { re: /[0-9]/, label: "Includes number" },
-  { re: /[a-z]/, label: "Includes lowercase letter" },
-  { re: /[A-Z]/, label: "Includes uppercase letter" },
-  { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: "Includes special symbol" },
+  { re: /[0-9]/, label: "IncludesNumber" },
+  { re: /[a-z]/, label: "IncludesLowercase" },
+  { re: /[A-Z]/, label: "IncludesUppercase" },
+  { re: /[$&+,:;=?@#|'<>.^*()%!-]/, label: "IncludesSpecial" },
 ];
 
 function getStrength(password: string) {
@@ -56,11 +57,12 @@ export interface PasswordStrengthProps {
 
 export function PasswordStrength(props: PasswordStrengthProps) {
   const strength = getStrength(props.useFormProps.value);
+  const { t } = useTranslation();
 
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement
       key={index}
-      label={requirement.label}
+      label={t(requirement.label)}
       meets={requirement.re.test(props.useFormProps.value)}
     />
   ));
@@ -96,7 +98,7 @@ export function PasswordStrength(props: PasswordStrengthProps) {
       </Group>
 
       <PasswordRequirement
-        label="Has at least 6 characters"
+        label={t("AtLeast6")}
         meets={props.useFormProps.value.length > 5}
       />
       {checks}

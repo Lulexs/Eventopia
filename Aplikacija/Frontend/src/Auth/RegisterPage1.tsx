@@ -20,12 +20,25 @@ import { DateInput } from "@mantine/dates";
 import axios from "../../axiosconfig.ts";
 import { useDispatch } from "react-redux";
 import { login } from "../store/features/auth";
+import { useTranslation } from "react-i18next";
 
 export function RegisterPage1() {
   const navigate = useNavigate();
   const [userType, setUserType] = useState<string | null>("Visitor");
   const [selectedAvatar, setSelectedAvatar] = useState<number>(0);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
+  const messages = {
+    InvalidEmail: t("InvalidEmail"),
+    EmptyPassword: t("EmptyPassword"),
+    EmptyFirstName: t("EmptyFirstName"),
+    EmptyLastName: t("EmptyLastName"),
+    EmptyPhoneNumber: t("EmptyPhoneNumber"),
+    EmptyAddress: t("EmptyAddress"),
+    EmptyCity: t("EmptyCity"),
+    PasswordMissmatch: t("PasswordMissmatch"),
+  };
 
   const registerForm = useForm({
     mode: "controlled",
@@ -45,17 +58,20 @@ export function RegisterPage1() {
     },
 
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-      password: (value) => (value.length > 0 ? null : "Empty password field"),
+      email: (value) =>
+        /^\S+@\S+$/.test(value) ? null : messages["InvalidEmail"],
+      password: (value) =>
+        value.length > 0 ? null : messages["EmptyPassword"],
       firstName: (value) =>
-        value.length > 0 ? null : "Empty first name field",
-      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
+        value.length > 0 ? null : messages["EmptyFirstName"],
+      lastName: (value) =>
+        value.length > 0 ? null : messages["EmptyLastName"],
       phoneNumber: (value) =>
-        value.length > 0 ? null : "Required field missing",
+        value.length > 0 ? null : messages["EmptyPhoneNumber"],
       address: (value) =>
         userType == "Visitor" || (userType != "Visitor" && value.length > 0)
           ? null
-          : "Empty address field",
+          : messages["EmptyAddress"],
       userType: (value) =>
         value == "Visitor" || value == "Host" || value == "Space owner"
           ? null
@@ -63,9 +79,9 @@ export function RegisterPage1() {
       city: (value) =>
         userType == "Visitor" || (userType != "Visitor" && value.length > 0)
           ? null
-          : "Empty city field",
+          : messages["EmptyCity"],
       confirmPassword: (value, values) =>
-        value !== values.password ? "Passwords did not match" : null,
+        value !== values.password ? messages["PasswordMissmatch"] : null,
     },
   });
 
@@ -79,10 +95,10 @@ export function RegisterPage1() {
       radius="md"
     >
       <Title ta="center" className={classes.title}>
-        Sign up
+        {t("Signup")}
       </Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
-        Have an account yet?{" "}
+        {t("HaveAnAccount")}{" "}
         <Anchor
           size="sm"
           component="button"
@@ -91,7 +107,7 @@ export function RegisterPage1() {
             navigate("/login");
           }}
         >
-          Log in
+          {t("Login")}
         </Anchor>
       </Text>
 
@@ -103,45 +119,45 @@ export function RegisterPage1() {
         >
           <TextInput
             mb={10}
-            label="First name"
-            placeholder="John"
+            label={t("FirstName")}
+            placeholder={t("FirstNameP")}
             required
             key={registerForm.key("firstName")}
             {...registerForm.getInputProps("firstName")}
           />
           <TextInput
             mb={10}
-            label="Last name"
-            placeholder="Doe"
+            label={t("LastName")}
+            placeholder={t("LastNameP")}
             required
             key={registerForm.key("lastName")}
             {...registerForm.getInputProps("lastName")}
           />
           <TextInput
             mb={10}
-            label="Email"
-            placeholder="example@gmail.com"
+            label={t("Email")}
+            placeholder={t("EmailP")}
             required
             key={registerForm.key("email")}
             {...registerForm.getInputProps("email")}
           />
           <PasswordStrength
-            label="Password"
-            placeholder="Your password"
+            label={t("Password")}
+            placeholder={t("PasswordP")}
             key={registerForm.key("password")}
             useFormProps={{ ...registerForm.getInputProps("password") }}
           />
           <PasswordInput
             required
-            placeholder="Selected password"
-            label="Repeat password"
+            placeholder={t("PasswordR")}
+            label={t("PasswordRP")}
             key={registerForm.key("confirmPassword")}
             {...registerForm.getInputProps("confirmPassword")}
             mt={10}
           />
           <TextInput
             mb={10}
-            label="Phone number"
+            label={t("PhoneNumber")}
             placeholder="012456789"
             required
             key={registerForm.key("phoneNumber")}
@@ -149,7 +165,7 @@ export function RegisterPage1() {
           />
           <DateInput
             required
-            label="Birthday"
+            label={t("Birthday")}
             key={registerForm.key("birthday")}
             {...registerForm.getInputProps("birthday")}
           />
@@ -157,7 +173,7 @@ export function RegisterPage1() {
           <Select
             required
             mt={10}
-            label="User type"
+            label={t("UserType")}
             data={["Visitor", "Host", "Space owner"]}
             key={registerForm.key("userType")}
             {...registerForm.getInputProps("userType")}
@@ -210,16 +226,16 @@ export function RegisterPage1() {
               <TextInput
                 mt={10}
                 mb={10}
-                label="Address"
-                placeholder="123 Main Street"
+                label={t("Address")}
+                placeholder={t("AddressP")}
                 required
                 key={registerForm.key("address")}
                 {...registerForm.getInputProps("address")}
               />
               <TextInput
                 mb={10}
-                label="City"
-                placeholder="New York"
+                label={t("City")}
+                placeholder={t("CityP")}
                 required
                 key={registerForm.key("city")}
                 {...registerForm.getInputProps("city")}
@@ -241,7 +257,7 @@ export function RegisterPage1() {
                 .post(`${import.meta.env.VITE_DB_SERVER}/Account/register`, {
                   ...values,
                   userType: userType,
-                  birthday: values.birthday.toISOString()
+                  birthday: values.birthday.toISOString(),
                 })
                 .then((resp) => {
                   const obj = JSON.parse(atob(resp.data.token.split(".")[1]));
@@ -265,16 +281,18 @@ export function RegisterPage1() {
                 })
                 .catch((err) => {
                   console.error(err);
-                  if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                  if (
+                    Array.isArray(err.response.data) &&
+                    err.response.data.length > 0
+                  ) {
                     alert(err.response.data[0].description);
-                  }
-                  else {
+                  } else {
                     alert(err.response.data);
                   }
                 });
             }}
           >
-            Sign up
+            {t("Signup")}
           </Button>
         </form>
       </Paper>
