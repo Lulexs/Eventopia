@@ -245,10 +245,10 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       }}
     >
       <Flex className={classes.contentContainerFlex}>
-        <Title mb={10}>User info</Title>
+        <Title mb={10}>{t("UserInfo")}</Title>
         <Stack className={classes.contentStack}>
           <Fieldset
-            legend="Avatar & Tags"
+            legend={t("AvatarNTags")}
             w="98%"
             fz="xl"
             mb={10}

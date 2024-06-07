@@ -12,8 +12,10 @@ import image from "../assets/pagenotfound.svg";
 import EventBgImage from "../assets/event_listing_bg_op.png";
 import { HeaderMegaMenu } from "../HomePage/HeaderMegaMenu/HeaderMegaMenu";
 import { Footer } from "../HomePage/Footer/Footer";
+import { useTranslation } from "react-i18next";
 
 export function Page404() {
+  const { t } = useTranslation();
   return (
     <Flex
       h="100vh"
@@ -33,11 +35,9 @@ export function Page404() {
         <SimpleGrid spacing={{ base: 40, sm: 80 }} cols={{ base: 1, sm: 2 }}>
           <Image src={image} className={classes.mobileImage} />
           <div>
-            <Title className={classes.title}>Something is not right...</Title>
+            <Title className={classes.title}>{t("Page404")}</Title>
             <Text c="dimmed" size="lg">
-              Page you are trying to open does not exist. You may have mistyped
-              the address, or the page has been moved to another URL. If you
-              think this is an error contact support.
+              {t("Page404Expl")}
             </Text>
             <Button
               variant="outline"
@@ -45,7 +45,7 @@ export function Page404() {
               mt="xl"
               className={classes.control}
             >
-              Get back to home page
+              {t("Page404GoBack")}
             </Button>
           </div>
         </SimpleGrid>

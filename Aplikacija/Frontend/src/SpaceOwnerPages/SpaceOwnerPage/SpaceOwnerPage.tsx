@@ -189,7 +189,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       }}
     >
       <Flex className={classes.contentContainerFlex}>
-        <Title mb={10}>User info</Title>
+        <Title mb={10}>{t("UserInfo")}</Title>
         <Stack className={classes.contentStack}>
           <form
             onSubmit={updateUserForm.onSubmit((_, event) => {

@@ -22,6 +22,7 @@ import { Comment, EventBasic, UserWithBans } from "./interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
 import { useTranslation } from "react-i18next";
+import { PersistPartial } from "redux-persist/lib/persistReducer";
 
 export function formatOnlyDate(date: Date | null) {
   const day = String(date?.getDate()).padStart(2, "0");
@@ -32,7 +33,7 @@ export function formatOnlyDate(date: Date | null) {
 }
 
 export interface AdminPageProps {
-  user: AuthState;
+  user: AuthState & PersistPartial;
 }
 
 export default function AdminPage() {

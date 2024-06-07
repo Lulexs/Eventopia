@@ -4,55 +4,48 @@ import classes from "./Faq.module.css";
 import { HeaderMegaMenu } from "../HomePage/HeaderMegaMenu/HeaderMegaMenu";
 import { Footer } from "../HomePage/Footer/Footer";
 import EventBgImage from "../assets/event_listing_bg_op.png";
+import { useTranslation } from "react-i18next";
 
 const faqs = [
   {
-    value: "ticket-reservation",
-    question: "How can I reserve ticket for an event?",
-    answer:
-      "To reserve ticket, you have to be signed in. After that select event that interests you and click reserve ticket. You will be redirected to an interactive ticket reservation system. Pick a seat that most suits you and enjoy!",
+    value: "Q1Val",
+    question: "Q1Q",
+    answer: "Q1A",
   },
   {
-    value: "event-schedule",
-    question: "What is the schedule for upcoming events?",
-    answer:
-      "You can find the schedule for upcoming events by visiting our website's event calendar. It's regularly updated with information on dates, times, and locations for all our scheduled events.",
+    value: "Q2Val",
+    question: "Q2Q",
+    answer: "Q2A",
   },
   {
-    value: "payment-refunds",
-    question:
-      "How can I make a payment for my ticket, and what is the refund policy?",
-    answer:
-      "At the moment we are not supporting online payement. After seat is reserved you will be paying at site.",
+    value: "Q3Val",
+    question: "Q3Q",
+    answer: "Q3A",
   },
   {
-    value: "accessibility-accommodations",
-    question:
-      "Do you provide accommodations for attendees with accessibility needs?",
-    answer: "For such questions contact event organizer.",
+    value: "Q4Val",
+    question: "Q4Q",
+    answer: "Q4A",
   },
   {
-    value: "group-discounts",
-    question:
-      "Are there any discounts available for group bookings or special offers for frequent attendees?",
-    answer:
-      "We offer group discounts for bulk bookings, as well as special promotions for loyal attendees. Keep an eye on our website and social media channels for announcements about these offers.",
+    value: "Q5Val",
+    question: "Q5Q",
+    answer: "Q5A",
   },
   {
-    value: "event-cancellations",
-    question: "What happens if an event is canceled or postponed?",
-    answer:
-      "In the rare event of a cancellation or postponement, we will notify all registered attendees via email and provide information on next steps, including options for rescheduling. We endeavor to communicate any changes as promptly and transparently as possible.",
+    value: "Q6Val",
+    question: "Q6Q",
+    answer: "Q6A",
   },
   {
-    value: "venue-information",
-    question: "Where can I find information about the venue?",
-    answer:
-      "You can find detailed information about the venue, including address, parking details, and facilities available, on the event page or our website. If you have any specific questions about the venue, feel free to reach out to our support team.",
+    value: "Q7Val",
+    question: "Q7Q",
+    answer: "Q7A",
   },
 ];
 
 export function Faq() {
+  const { t } = useTranslation();
   return (
     <Flex
       h="100vh"
@@ -72,7 +65,7 @@ export function Faq() {
             </Grid.Col>
             <Grid.Col span={{ base: 12, md: 6 }}>
               <Title order={2} ta="left" className={classes.title}>
-                Frequently Asked Questions
+                {t("Faqs")}
               </Title>
 
               <Accordion
@@ -83,11 +76,11 @@ export function Faq() {
                 {faqs.map((faq, idx) => (
                   <Accordion.Item
                     className={classes.item}
-                    value={faq.value}
+                    value={t(faq.value)}
                     key={idx}
                   >
-                    <Accordion.Control>{faq.question}</Accordion.Control>
-                    <Accordion.Panel>{faq.answer}</Accordion.Panel>
+                    <Accordion.Control>{t(faq.question)}</Accordion.Control>
+                    <Accordion.Panel>{t(faq.answer)}</Accordion.Panel>
                   </Accordion.Item>
                 ))}
               </Accordion>
