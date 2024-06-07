@@ -38,6 +38,11 @@ public class HostController : ControllerBase
             return BadRequest("Invalid date and time format.");
         }
 
+        if (dateTime < DateTime.Now)
+        {
+            return BadRequest("Event date and time must be in the future.");
+        }
+
         var prostor = await Context.Prostori.Include(x => x.PlanoviProstora)
                                             .FirstOrDefaultAsync(x => x.ID == createEventDto.ProstorId);
 
@@ -161,7 +166,7 @@ public class HostController : ControllerBase
         }
 
         await Context.SaveChangesAsync();
-        return Ok();
+        return Ok(dogadjaj.ID);
 
     }
 
@@ -295,10 +300,16 @@ public class HostController : ControllerBase
             return NotFound("User not found.");
         }
 
-        var dogadjaj = await Context.Dogadjaji.FirstOrDefaultAsync(x => x.Organizator == korisnik && x.ID == id);
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).FirstOrDefaultAsync(x => x.ID == id);
+
         if (dogadjaj == null)
         {
             return NotFound("Event not found.");
+        }
+
+        if (dogadjaj.Organizator != korisnik)
+        {
+            return Unauthorized("You are not the host of this event.");
         }
 
         Context.Dogadjaji.Remove(dogadjaj);

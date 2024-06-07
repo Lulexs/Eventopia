@@ -28,6 +28,7 @@ import { NewEventDto, SpaceBasic } from "../interfaces.ts";
 import { useForm } from "@mantine/form";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces.ts";
+import { useNavigate } from "react-router-dom";
 
 export interface NewEventProps {
   user: AuthState;
@@ -44,6 +45,7 @@ export default function NewEvent(props: NewEventProps) {
     SpaceDataType | undefined
   >();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const getObjectFromDrawerRef = useRef<Function | null>(null);
 
@@ -309,8 +311,6 @@ export default function NewEvent(props: NewEventProps) {
                                             
                       let eventId = -1;
 
-                      console.log(eventObj);
-
                       const imageData = new FormData();
                       imageData.append('file', values.image);
 
@@ -324,7 +324,6 @@ export default function NewEvent(props: NewEventProps) {
                           }
                         )
                         .then((resp) => {
-                          alert("Successfully scheduled event!");
                           eventId = resp.data;
                         })
                         .catch((err) => {
@@ -338,12 +337,15 @@ export default function NewEvent(props: NewEventProps) {
                         });
 
                       await axios
-                      .post(`${import.meta.env.VITE_DB_SERVER}
-                        /Image/uploadImage/${eventId}`, 
+                      .post(`${import.meta.env.VITE_DB_SERVER}/Image/uploadImage/${eventId}`, 
                         imageData, {
                           headers: {
                             'Content-Type': 'multipart/form-data',
                           },
+                      })
+                      .then(() => {
+                        alert("Successfully scheduled event!");
+                        navigate("/organizerpage")
                       })
                       .catch((err) => {
                         console.error(err);
@@ -353,7 +355,9 @@ export default function NewEvent(props: NewEventProps) {
                         else {
                           alert(err.response.data);
                         }
+
                       });
+
                     }}
                   >
                     Schedule event

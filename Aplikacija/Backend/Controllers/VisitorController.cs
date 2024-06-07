@@ -216,6 +216,8 @@ public class VisitorController : ControllerBase
             return BadRequest("Cannot cancel reservation for event that is less than 24 hours from now.");
         }
 
+        rezervacija.Sto!.Reserved = false;
+
         Context.Rezervacije.Remove(rezervacija);
 
         await Context.SaveChangesAsync();

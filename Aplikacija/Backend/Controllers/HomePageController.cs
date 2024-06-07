@@ -1,17 +1,12 @@
 namespace Backend.Controllers;
 
-
-
-
-
-
-[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class HomePageController : ControllerBase
 {
     public Context Context { get; set; }
     private readonly UserManager<Korisnik> _userManager;
+
     public HomePageController(Context context, UserManager<Korisnik> userManager)
     {
         Context = context;
@@ -23,7 +18,7 @@ public class HomePageController : ControllerBase
     public async Task<IActionResult> GetHighlights()
     {
         var highlights = await Context.Dogadjaji.Include(x => x.Rezervacije)
-                                                .Where(x => x.VideoLink != null)
+                                                .Where(x => x.VideoLink != null && x.Status == StatusDogadjaja.Passed)
                                                 .OrderByDescending(x => x.Rezervacije!.Count)
                                                 .Select(x => new
                                                 {
@@ -174,7 +169,7 @@ public class HomePageController : ControllerBase
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         //svi dogadjaji koji su u buducnosti
-        List<Dogadjaj> dogadjaji = await Context.Dogadjaji 
+        List<Dogadjaj> dogadjaji = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
@@ -199,22 +194,22 @@ public class HomePageController : ControllerBase
         //2: izvlacenje ocene na osnovu broja rezervacija - max 10
         //3: pogadjanje u tagovima dogadjaja sa dogadjajima koje je posetio - max 10 za sve 
         //4: pogadjanje u lokaciji sa dogadjajima koje je posetio - max 10 za sve koje je posetio
-        foreach(var dogadjaj in dogadjaji)
+        foreach (var dogadjaj in dogadjaji)
         {
-             
+
             double rejt = 0;
 
             //max je 10
             //pogadjanja u tagovima korisnika
-            if(korisnik.Tagovi != null && dogadjaj.Tagovi != null)
+            if (korisnik.Tagovi != null && dogadjaj.Tagovi != null)
             {
-                foreach(var tag in korisnik.Tagovi)
+                foreach (var tag in korisnik.Tagovi)
                 {
-                    foreach(var tag2 in dogadjaj.Tagovi)
+                    foreach (var tag2 in dogadjaj.Tagovi)
                     {
-                        if(HomePageUtils.LevenshteinDistance(tag.UserTag.TagName, tag2.TagName) < 3)
+                        if (HomePageUtils.LevenshteinDistance(tag.UserTag.TagName, tag2.TagName) < 3)
                         {
-                            rejt+=1;
+                            rejt += 1;
                         }
                     }
                 }
@@ -229,8 +224,8 @@ public class HomePageController : ControllerBase
 
             if (kojeJeKorisnikPosetio != null && kojeJeKorisnikPosetio.Count > 0)
             {
-                
-                foreach(var posetio in kojeJeKorisnikPosetio)
+
+                foreach (var posetio in kojeJeKorisnikPosetio)
                 {
                     if (posetio.ID == dogadjaj.ID)
                         continue;
@@ -261,25 +256,25 @@ public class HomePageController : ControllerBase
                     tempRejt += HomePageUtils.CalculateScoreDistance(distance, 300); // znaci kad dalje od 300km, rejt je 0
 
                     rejt += tempRejt / kojeJeKorisnikPosetio.Count;
-                }     
+                }
             }
 
 
             zaRejtovanje.Add(new FullEventForRecomm
-                    {
-                        ID = dogadjaj.ID,
-                        Naziv = dogadjaj.Naziv,
-                        Slika = dogadjaj.Slika,
-                        Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
-                        Vreme = dogadjaj.Vreme.ToString("HH:mm"),
-                        Lokacija = $"{dogadjaj.RezervacijaProstora!.Prostor!.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}",
-                        OrganizatorID = dogadjaj.Organizator!.Id.ToString(),
-                        Organizator = $"{dogadjaj.Organizator!.Ime} {dogadjaj.Organizator!.Prezime}",
-                        Rating = rejt
-                    });
-        
-         
-            
+            {
+                ID = dogadjaj.ID,
+                Naziv = dogadjaj.Naziv,
+                Slika = dogadjaj.Slika,
+                Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
+                Vreme = dogadjaj.Vreme.ToString("HH:mm"),
+                Lokacija = $"{dogadjaj.RezervacijaProstora!.Prostor!.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}",
+                OrganizatorID = dogadjaj.Organizator!.Id.ToString(),
+                Organizator = $"{dogadjaj.Organizator!.Ime} {dogadjaj.Organizator!.Prezime}",
+                Rating = rejt
+            });
+
+
+
 
         }
 
@@ -307,7 +302,7 @@ public class HomePageController : ControllerBase
 
 
 
-   
+
 
 
 

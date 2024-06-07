@@ -114,10 +114,17 @@ export default function Table({ item }: TableProps) {
           w="100%"
           onClick={(e) => {
             e.stopPropagation();
+
+            if (!dialogInputFieldVal) {
+              alert("Please enter number of seats!");
+              return;
+            }
+
             if (parseInt(dialogInputFieldVal) < 0.75 * item.numberOfSeats) {
               alert("You need to reserve at least 75% of the seats!");
               return;
             }
+
             if (parseInt(dialogInputFieldVal) > item.numberOfSeats) {
               alert(`Table only has ${item.numberOfSeats} seats!`);
               return;
