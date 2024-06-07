@@ -18,6 +18,8 @@ export default function OrganizerPageContainer() {
 
   const [view, setView] = useState<View>(View.Basic);
   const [eventId, setEventId] = useState<number>(-1);
+  const [eventName, setEventName] = useState<string>("");
+  const [eventDate, setEventDate] = useState<string>("");
 
   useEffect(() => {
     if (loggedUser.userType != "Host") navigate("/");
@@ -29,6 +31,8 @@ export default function OrganizerPageContainer() {
       {view == View.Basic && (
         <OrganizerPage
           setEventId={setEventId}
+          setEventName={setEventName}
+          setEventDate={setEventDate}
           showEvent={setView}
           user={loggedUser}
         />
@@ -40,7 +44,7 @@ export default function OrganizerPageContainer() {
         <ManageEvent eventId={eventId} showEvent={setView} user={loggedUser} />
       )}
       {view == View.PastEventDetails && (
-        <EventReviews eventId={eventId} showEvent={setView} />
+        <EventReviews eventId={eventId} eventName={eventName} eventDate={eventDate} showEvent={setView} />
       )}
       <Footer />
     </Flex>

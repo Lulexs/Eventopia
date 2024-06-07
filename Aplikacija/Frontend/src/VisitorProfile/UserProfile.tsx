@@ -223,6 +223,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       setReview("");
       setEventSelectedForReview(null);
       alert("Review posted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["visited_events"] });
     } catch (err: any) {
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
@@ -628,6 +629,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     {formatOnlyDate(new Date(ev.date))}
                   </Text>
                 </Box>
+
+                {ev.canLeaveReview ? (
                 <Button
                   w="fit-content"
                   onClick={(e) => {
@@ -638,6 +641,17 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 >
                   {t("Leave review")}
                 </Button>
+                ) : (
+                <Button
+                  w="fit-content"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  disabled
+                >
+                  {t("Leave review")}
+                </Button>
+                )}
               </Flex>
             ))
           )}

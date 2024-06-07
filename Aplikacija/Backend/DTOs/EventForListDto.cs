@@ -2,13 +2,15 @@ namespace Backend.DTOs;
 
 public class EventForListDto
 {
+    [JsonPropertyName("id")]
+    public int ID { get; set; }
 
-    [JsonPropertyName("title")]
+    [JsonPropertyName("name")]
     public required string Naziv { get; set; }
 
-    [JsonPropertyName("img")]
+    [JsonPropertyName("image")]
     public required string Slika { get; set; }
 
     [JsonPropertyName("date")]
-    public required string Datum { get; set; }
+    public required DateTime Datum { get; set; }
 }

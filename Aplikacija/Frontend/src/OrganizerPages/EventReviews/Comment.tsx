@@ -1,26 +1,28 @@
 import { Text, Avatar, Group } from "@mantine/core";
+import { Review } from "../interfaces";
 
-export function Comment() {
+export interface CommentProps {
+  review: Review;
+}
+
+export function Comment(props: CommentProps) {
   return (
-    <div>
+      <div style={{width: "100%"}}>
       <Group>
         <Avatar
-          src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png"
-          alt="Jacob Warnhalter"
+          src={props.review.avatar}
+          alt="User avatar"
           radius="xl"
         />
         <div>
-          <Text size="sm">Jacob Warnhalter - 5/10</Text>
+          <Text size="sm">{props.review.name} - {props.review.rating}/10</Text>
           <Text size="xs" c="dimmed">
-            10 minutes ago
+            {props.review.time}
           </Text>
         </div>
       </Group>
       <Text pl={54} pt="sm" size="sm">
-        This Pokémon likes to lick its palms that are sweetened by being soaked
-        in honey. Teddiursa concocts its own honey by blending fruits and pollen
-        collected by Beedrill. Blastoise has water spouts that protrude from its
-        shell. The water spouts are very accurate.
+        {props.review.comment}
       </Text>
     </div>
   );

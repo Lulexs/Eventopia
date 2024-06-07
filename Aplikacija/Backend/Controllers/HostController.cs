@@ -292,7 +292,7 @@ public class HostController : ControllerBase
 
     [Authorize(Policy = "RequireHostRole")]
     [HttpDelete("deleteEvent/{id}")]
-    public async Task<ActionResult> DeleteEvent([FromRoute] int id)
+    public async Task<ActionResult<List<EventForListDto>>> DeleteEvent([FromRoute] int id)
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
         if (korisnik == null)
@@ -319,7 +319,7 @@ public class HostController : ControllerBase
 
     [Authorize(Policy = "RequireHostRole")]
     [HttpGet("getIncomingEvents")]
-    public async Task<ActionResult> GetIncomingEvents()
+    public async Task<ActionResult<List<EventForListDto>>> GetIncomingEvents()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
         if (korisnik == null)
@@ -327,26 +327,20 @@ public class HostController : ControllerBase
             return NotFound("User not found.");
         }
 
-        var dogadjaji = await Context.Dogadjaji.Where(x => x.Organizator == korisnik && x.Vreme > DateTime.Now).ToListAsync();
+        var dogadjaji = await Context.Dogadjaji
+                                    .Where(x => x.Organizator == korisnik
+                                            && x.Vreme > DateTime.Now
+                                            && x.Status == StatusDogadjaja.Active)
+                                    .Select(x => new EventForListDto
+                                    {
+                                        ID = x.ID,
+                                        Naziv = x.Naziv,
+                                        Slika = x.Slika,
+                                        Datum = x.Vreme
+                                    })
+                                    .ToListAsync();
 
-        if (dogadjaji == null)
-        {
-            return NotFound("No incoming events found for the given host.");
-        }
-
-        List<EventForListDto> events = new List<EventForListDto>();
-        foreach (var dogadjaj in dogadjaji)
-        {
-            events.Add(new EventForListDto
-            {
-                Naziv = dogadjaj.Naziv,
-                Slika = dogadjaj.Slika,
-                Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
-            });
-        }
-
-
-        return Ok(events);
+        return Ok(dogadjaji);
     }
 
     [Authorize(Policy = "RequireHostRole")]
@@ -359,35 +353,25 @@ public class HostController : ControllerBase
             return NotFound("User not found.");
         }
 
-        var dogadjaji = await Context.Dogadjaji.Where(x => x.Organizator == korisnik && x.Vreme < DateTime.Now).ToListAsync();
-        if (dogadjaji == null)
-        {
-            return NotFound("No past events found for the given host.");
-        }
+        var dogadjaji = await Context.Dogadjaji
+                                    .Where(x => x.Organizator == korisnik
+                                            && x.Vreme < DateTime.Now
+                                            && x.Status == StatusDogadjaja.Passed)
+                                    .Select(x => new EventForListDto
+                                    {
+                                        ID = x.ID,
+                                        Naziv = x.Naziv,
+                                        Slika = x.Slika,
+                                        Datum = x.Vreme
+                                    })
+                                    .ToListAsync();
 
-        if (dogadjaji == null)
-        {
-            return NotFound("No past events found for the given host.");
-        }
-        List<EventForListDto> events = new List<EventForListDto>();
-
-        foreach (var dogadjaj in dogadjaji)
-        {
-            events.Add(new EventForListDto
-            {
-                Naziv = dogadjaj.Naziv,
-                Slika = dogadjaj.Slika,
-                Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
-            });
-        }
-
-        //kako zelim DTO da bude
-        return Ok(events);
+        return Ok(dogadjaji);
     }
 
     [Authorize(Policy = "RequireHostRole")]
-    [HttpGet("getReviewsForEvent/{id}")]
-    public async Task<ActionResult> GetReviewsForEvent([FromRoute] int id)
+    [HttpGet("getStatistics")]
+    public async Task<ActionResult> GetStatistics()
     {
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
         if (korisnik == null)
@@ -395,29 +379,70 @@ public class HostController : ControllerBase
             return NotFound("User not found.");
         }
 
-        var dogadjaj = await Context.Dogadjaji.FirstOrDefaultAsync(x => x.Organizator == korisnik && x.ID == id);
+        var dogadjaji = await Context.Dogadjaji
+                                    .Include(x => x.Ocene)
+                                    .Include(x => x.Rezervacije!)
+                                    .ThenInclude(x => x.Sto)
+                                    .Where(x => x.Organizator == korisnik
+                                            && x.Vreme < DateTime.Now
+                                            && x.Status == StatusDogadjaja.Passed)
+                                    .ToListAsync();
+
+        int hostedEvents = dogadjaji.Count;
+
+        int totalReservations = dogadjaji.Count == 0 ? 0 : dogadjaji.Sum(x => (x.Rezervacije != null && x.Rezervacije.Count != 0) ? x.Rezervacije.Count : 0);
+
+        int estimatedEarnings = dogadjaji.Count == 0 ? 0 : dogadjaji.Sum(x => (x.Rezervacije != null && x.Rezervacije.Count != 0) ? x.Rezervacije?.Sum(y => y.Sto?.Price * y.Sto?.BrojMesta) : 0) ?? 0;
+
+        double? averageRating = dogadjaji.Count == 0 ? 0 : dogadjaji.Average(x => (x.Ocene != null && x.Ocene.Count != 0) ? x.Ocene?.Average(y => y.Vrednost) : 0);
+
+        var statistics = new
+        {
+            HostedEvents = hostedEvents,
+            AverageRating = averageRating,
+            Reservations = totalReservations,
+            EstimatedEarnings = estimatedEarnings
+        };
+
+        return Ok(statistics);
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getReviewsForEvent/{id}")]
+    public async Task<ActionResult> GetReviewsForEvent(int id)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).FirstOrDefaultAsync(x => x.ID == id);
+
         if (dogadjaj == null)
         {
             return NotFound("Event not found.");
         }
 
-        List<Ocena> ocene = await Context.Ocene.Where(x => x.Dogadjaj == dogadjaj).ToListAsync();
-        List<ReviewDto> reviews = new List<ReviewDto>();
-
-        //json namesti za ReviewDto
-        foreach (var oc in ocene)
+        if (dogadjaj.Organizator != korisnik)
         {
-            reviews.Add(new ReviewDto
-            {
-                Vrednost = oc.Vrednost,
-                Komentar = oc.Komentar,
-                Korisnik = $"{oc.Korisnik!.Ime} {oc.Korisnik.Prezime}",
-                VremeKomentara = oc.VremeKomentara,
-
-            });
+            return Unauthorized("You are not the host of this event.");
         }
 
-        return Ok(reviews);
+        var ocene = await Context.Ocene.Include(x => x.Korisnik)
+                                                .Where(x => x.Dogadjaj == dogadjaj)
+                                                .Select(x => new
+                                                {
+                                                    Avatar = x.Korisnik!.SlikaProfila,
+                                                    Name = x.Korisnik.Ime + " " + x.Korisnik.Prezime,
+                                                    Rating = x.Vrednost,
+                                                    Comment = x.Komentar,
+                                                    Time = DateUtils.TimeAgo(x.VremeKomentara)
+                                                })
+                                                .ToListAsync();
+
+        return Ok(ocene);
     }
 
 }

@@ -20,3 +20,18 @@ export interface NewEventDto {
   lines: Line[];
   surfaceDimension: { width: number; height: number };
 }
+
+export interface HostStatistics {
+  hostedEvents: number;
+  averageRating: number;
+  reservations: number;
+  estimatedEarnings: number;
+}
+
+export interface Review {
+  avatar: string;
+  name: string;
+  rating: number;
+  comment: string;
+  time: string;
+}

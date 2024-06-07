@@ -16,7 +16,6 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
-import { Event } from "../../EventListing/interfaces";
 import { useState, useEffect } from "react";
 import { StatsCard } from "../StatsCard";
 import { View } from "../EventViewPages";
@@ -25,11 +24,17 @@ import { DateInput } from "@mantine/dates";
 import { useForm, matches } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { PasswordStrength } from "../../Auth/Utils/PasswordStrength";
+import { EventBasic } from "../../AdminPages/AdminPage/interfaces.ts";
+import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
+import { formatTimeOnly } from "../../VisitorProfile/UserProfile.tsx";
+import { HostStatistics } from "../interfaces.ts";
 
 export interface OrganizerPageProps {
   user: AuthState;
   showEvent: React.Dispatch<React.SetStateAction<View>>;
   setEventId: React.Dispatch<React.SetStateAction<number>>;
+  setEventName: React.Dispatch<React.SetStateAction<string>>;
+  setEventDate: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function OrganizerPage(props: OrganizerPageProps) {
@@ -89,13 +94,79 @@ export default function OrganizerPage(props: OrganizerPageProps) {
     isLoading: areEventsLoading,
     data: events,
     isError: eventsError,
-  } = useQuery<Event[]>({
-    queryKey: ["visited_events"],
+  } = useQuery<EventBasic[]>({
+    queryKey: ["incoming_events"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_JSON_SERVER}/hotevents`)
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getIncomingEvents`)
         .then((resp) => {
           return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          if (
+            Array.isArray(err.response.data) &&
+            err.response.data.length > 0
+          ) {
+            alert(err.response.data[0].description);
+          } else {
+            alert(err.response.data);
+          }
+          return [];
+        });
+    },
+  });
+
+  const {
+    isLoading: arePastEventsLoading,
+    data: pastEvents,
+    isError: pastEventsError,
+  } = useQuery<EventBasic[]>({
+    queryKey: ["past_events"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getPastEvents`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          if (
+            Array.isArray(err.response.data) &&
+            err.response.data.length > 0
+          ) {
+            alert(err.response.data[0].description);
+          } else {
+            alert(err.response.data);
+          }
+          return [];
+        });
+    },
+  });
+
+  const {
+    isLoading: isStatisticsLoading,
+    data: statistics,
+    isError: statisticsError,
+  } = useQuery<HostStatistics>({
+    queryKey: ["host_statistics"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getStatistics`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          if (
+            Array.isArray(err.response.data) &&
+            err.response.data.length > 0
+          ) {
+            alert(err.response.data[0].description);
+          } else {
+            alert(err.response.data);
+          }
+          return null;
         });
     },
   });
@@ -201,7 +272,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
-                      console.log(values);
+
                       await axios
                         .put(
                           `${
@@ -263,10 +334,10 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               },
             }}
           >
-            <StatsCard title="Hosted events" current={15} />
-            <StatsCard title="Average rating" current={4.53} />
-            <StatsCard title="Reservations" current={100} />
-            <StatsCard title="Estimated earnings" current={1500} />
+            <StatsCard title="Hosted events" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.hostedEvents : 0 } />
+            <StatsCard title="Average rating" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.averageRating : 0} />
+            <StatsCard title="Reservations" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.reservations : 0} />
+            <StatsCard title="Estimated earnings" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.estimatedEarnings : 0} />
           </Fieldset>
         </Stack>
       </Flex>
@@ -309,17 +380,17 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 className={classes.reservationAndVisitedDiv}
               >
                 <Image
-                  src={new URL("../" + ev.img, import.meta.url).href}
-                  alt={`Couldn't load ${ev.title} image`}
+                  src={`data:image/jpeg;base64,${ev.image}`}
+                  alt={`Couldn't load ${ev.name} image`}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}
                 />
                 <Box className={classes.reservationAndVisitedDivBox}>
                   <Text className={classes.reservationAndVisitedDivText}>
-                    {ev.title}
+                    {ev.name}
                     <br />
-                    {ev.date}
+                    {formatOnlyDate(new Date(ev.date))} {formatTimeOnly(new Date(ev.date))}
                   </Text>
                 </Box>
                 <Button
@@ -345,7 +416,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
       <Flex className={classes.contentContainerFlex}>
         <Title>Past events</Title>
         <Stack className={classes.contentStack} align="center">
-          {(areEventsLoading || eventsError) && (
+          {(arePastEventsLoading || pastEventsError) && (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -355,9 +426,9 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               </div>
             </div>
           )}
-          {!areEventsLoading &&
-            !eventsError &&
-            events?.map((ev, idx) => (
+          {!arePastEventsLoading &&
+            !pastEventsError &&
+            pastEvents?.map((ev, idx) => (
               <Flex
                 key={idx}
                 p="sm"
@@ -366,23 +437,26 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               >
                 <Image
                   className={classes.reservationAndVisitedDivImage}
-                  src={new URL("../" + ev.img, import.meta.url).href}
-                  alt={`Couldn't load ${ev.title} image`}
+                  src={`data:image/jpeg;base64,${ev.image}`}
+                  alt={`Couldn't load ${ev.name} image`}
                   fit="cover"
                   w={imageWidth}
                 />
                 <Box className={classes.reservationAndVisitedDivBox}>
                   <Text className={classes.reservationAndVisitedDivText}>
-                    {ev.title}
+                    {ev.name}
                     <br />
-                    {ev.date}
+                    {formatOnlyDate(new Date(ev.date))} {formatTimeOnly(new Date(ev.date))}
                   </Text>
                 </Box>
                 <Button
                   w="fit-content"
                   onClick={(event) => {
                     event.stopPropagation();
+                    console.log(ev.id);
                     props.setEventId(ev.id);
+                    props.setEventName(ev.name);
+                    props.setEventDate(formatOnlyDate(new Date(ev.date)));
                     props.showEvent(View.PastEventDetails);
                   }}
                 >

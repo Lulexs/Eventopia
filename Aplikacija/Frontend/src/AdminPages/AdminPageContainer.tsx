@@ -19,7 +19,7 @@ export default function AdminPageContainer() {
   return (
     <Flex className={classes.mainMain}>
       <HeaderMegaMenu />
-      <AdminPage user={loggedUser} />
+      <AdminPage/>
       <Footer />
     </Flex>
   );

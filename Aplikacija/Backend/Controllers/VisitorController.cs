@@ -238,18 +238,23 @@ public class VisitorController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var rezervacije = await Context.Rezervacije.Include(x => x.Korisnik)
-                                                    .Include(x => x.Dogadjaj)
-                                                    .Where(x => x.Korisnik == korisnik
-                                                    && x.Dogadjaj!.Vreme < DateTime.Now)
+        var dogadjaji = await Context.Dogadjaji.Include(x => x.Rezervacije!)
+                                                    .ThenInclude(x => x.Korisnik)
+                                                    .Include(x => x.Ocene!)
+                                                    .ThenInclude(x => x.Korisnik)
+                                                    .Where(x => x.Rezervacije!.Any(y => y.Korisnik == korisnik)
+                                                    && x.Vreme < DateTime.Now
+                                                    && x.Status == StatusDogadjaja.Passed)
+                                                    .Distinct()
                                                     .ToListAsync();
 
-        var visitedEvents = rezervacije.Select(x => new
+        var visitedEvents = dogadjaji.Select(x => new
         {
-            EventId = x.Dogadjaj!.ID,
-            Title = x.Dogadjaj!.Naziv,
-            Date = x.Dogadjaj.Vreme,
-            Image = x.Dogadjaj.Slika,
+            EventId = x.ID,
+            Title = x.Naziv,
+            Date = x.Vreme,
+            Image = x.Slika,
+            CanLeaveReview = !x.Ocene!.Any(y => y.Korisnik == korisnik)
         }).OrderByDescending(x => x.Date);
 
         return Ok(visitedEvents);

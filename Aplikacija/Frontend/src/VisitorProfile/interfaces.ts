@@ -25,4 +25,5 @@ export interface VisitedEvents {
   title: string;
   date: Date;
   image: string;
+  canLeaveReview: boolean;
 }

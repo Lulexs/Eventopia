@@ -28,7 +28,6 @@ import { NewEventDto, SpaceBasic } from "../interfaces.ts";
 import { useForm } from "@mantine/form";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces.ts";
-import { useNavigate } from "react-router-dom";
 
 export interface NewEventProps {
   user: AuthState;
@@ -45,7 +44,6 @@ export default function NewEvent(props: NewEventProps) {
     SpaceDataType | undefined
   >();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const getObjectFromDrawerRef = useRef<Function | null>(null);
 
