@@ -22,9 +22,10 @@ import View from "../SpaceViewPages";
 import { DateInput } from "@mantine/dates";
 import { Space, SpaceOwnerStatistics, SpaceReservation } from "./interfaces.ts";
 import { PasswordStrength } from "../../Auth/Utils/PasswordStrength.tsx";
-import { matches, useForm } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/features/auth";
+import { useTranslation } from "react-i18next";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -45,6 +46,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const updateUserForm = useForm({
     mode: "controlled",
@@ -60,21 +62,17 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
     },
 
     validate: {
-      firstName: (value) =>
-        value.length > 0 ? null : "Empty first name field",
-      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
+      firstName: (value) => (value.length > 0 ? null : t("EmptyFirstName")),
+      lastName: (value) => (value.length > 0 ? null : t("EmptyLastName")),
       city: (value) =>
-        value != null && value.length > 0 ? null : "Empty city field",
+        value != null && value.length > 0 ? null : t("EmptyCity"),
       address: (value) =>
-        value != null && value.length > 0 ? null : "Empty address field",
-      phoneNumber: (value) =>
-        value.length > 0 ? null : "Empty phone number field",
+        value != null && value.length > 0 ? null : t("EmptyAddress"),
+      phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber")),
       currentPassword: (value) =>
-        value.length >= 0 ? null : "Empty current password field",
+        value.length >= 0 ? null : t("EmptyPassword"),
       newPassword: (value) =>
-        value.length == 0 || matches(/(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/)
-          ? null
-          : "Empty new password field",
+        /(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/.test(value) ? null : t("EmptyPassword"),
     },
   });
 
@@ -130,10 +128,12 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         })
         .catch((err) => {
           console.log(err);
-          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+          if (
+            Array.isArray(err.response.data) &&
+            err.response.data.length > 0
+          ) {
             alert(err.response.data[0].description);
-          }
-          else {
+          } else {
             alert(err.response.data);
           }
           return [];
@@ -156,8 +156,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       console.error(err);
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
-      }
-      else {
+      } else {
         alert(err.response.data);
       }
     }
@@ -173,8 +172,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       console.error(err);
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
         alert(err.response.data[0].description);
-      }
-      else {
+      } else {
         alert(err.response.data);
       }
     }
@@ -199,7 +197,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
             })}
           >
             <Fieldset
-              legend="Personal information"
+              legend={t("PersonalInfo")}
               w="98%"
               fz="xl"
               styles={{
@@ -213,28 +211,28 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
             >
               <Stack w="50%">
                 <TextInput
-                  label="User ID"
+                  label={t("UID")}
                   disabled
                   value={props.user.userId}
                 ></TextInput>
                 <TextInput
-                  label="First name"
+                  label={t("FirstName")}
                   key={updateUserForm.key("firstName")}
                   {...updateUserForm.getInputProps("firstName")}
                 />
                 <TextInput
-                  label="City"
+                  label={t("City")}
                   key={updateUserForm.key("city")}
                   {...updateUserForm.getInputProps("city")}
                 />
                 <DateInput
-                  label="Birthday"
+                  label={t("Birthday")}
                   key={updateUserForm.key("birthday")}
                   {...updateUserForm.getInputProps("birthday")}
                 />
                 <PasswordStrength
-                  label="New password"
-                  placeholder="New password"
+                  label={t("NewPass")}
+                  placeholder={t("NewPassP")}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),
@@ -244,23 +242,23 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
               <Stack w="50%">
                 <TextInput label="Email" disabled value={props.user.email} />{" "}
                 <TextInput
-                  label="Last name"
+                  label={t("LastName")}
                   key={updateUserForm.key("lastName")}
                   {...updateUserForm.getInputProps("lastName")}
                 />
                 <TextInput
-                  label="Address"
+                  label={t("Address")}
                   key={updateUserForm.key("address")}
                   {...updateUserForm.getInputProps("address")}
                 />
                 <TextInput
-                  label="Phone number"
+                  label={t("PhoneNumber")}
                   key={updateUserForm.key("phoneNumber")}
                   {...updateUserForm.getInputProps("phoneNumber")}
                 />
                 <PasswordInput
-                  label="Current password"
-                  placeholder="Enter current password"
+                  label={t("CurrPass")}
+                  placeholder={t("CurrPassP")}
                   key={updateUserForm.key("currentPassword")}
                   {...updateUserForm.getInputProps("currentPassword")}
                 />
@@ -274,7 +272,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                   }}
                 >
                   <InputLabel className="mantine-TextInput-label">
-                    Save changes
+                    {t("SaveChanges")}
                   </InputLabel>
                   <Button
                     type="submit"
@@ -315,23 +313,25 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
                             alert(err.response.data[0].description);
-                          }
-                          else {
+                          } else {
                             alert(err.response.data);
                           }
                         });
                     }}
                   >
-                    Save changes
+                    {t("SaveChanges")}
                   </Button>
                 </div>
               </Stack>
             </Fieldset>
           </form>
           <Fieldset
-            legend="Statistics"
+            legend={t("Statistics")}
             w="98%"
             fz="sm"
             styles={{
@@ -343,7 +343,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
             }}
           >
             <StatsCard
-              title="Rentable spaces"
+              title={t("RentableSpaces")}
               current={
                 isStatisticsLoading || statisticsError
                   ? 0
@@ -351,7 +351,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
               }
             />
             <StatsCard
-              title="Total rents"
+              title={t("TotalRents")}
               current={
                 isStatisticsLoading || statisticsError
                   ? 0
@@ -363,20 +363,18 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>
-          My spaces{" "}
+          {t("MySpaces")}{" "}
           <Button
             onClick={(e) => {
               e.stopPropagation();
               if (isMobile) {
-                alert(
-                  "Cannot schedule event from mobile device. We are working on it"
-                );
+                alert(t("ForbidMobile"));
                 return;
               }
               props.showSpace(View.NewSpace);
             }}
           >
-            New space
+            {t("NewSpace")}
           </Button>
         </Title>
         <Stack className={classes.contentStack} align="center">
@@ -406,7 +404,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                   </Text>
                 </Box>
                 <Button onClick={() => removeSpace(space.id)}>
-                  Remove space
+                  {t("RemoveSpace")}
                 </Button>
               </Flex>
             ))
@@ -414,7 +412,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Reservation statuses</Title>
+        <Title>{t("ReservationStatuses")}</Title>
         <Stack className={classes.contentStack} align="center">
           {areReservationsLoading || reservationsError ? (
             <div className={classes.controls}>
@@ -456,7 +454,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                         respondToReservation(reservation.id, "accept")
                       }
                     >
-                      Accept
+                      {t("Accept")}
                     </Button>
                     <Button
                       bg="red"
@@ -465,21 +463,21 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                         respondToReservation(reservation.id, "reject")
                       }
                     >
-                      Reject
+                      {t("Reject")}
                     </Button>
                   </Group>
                 )}
                 {reservation.status == "Confirmed" && (
                   <Group>
                     <Button disabled={true} fullWidth>
-                      Upcoming
+                      {t("Upcoming")}
                     </Button>
                   </Group>
                 )}
                 {reservation.status == "Finished" && (
                   <Group>
                     <Button disabled={true} fullWidth>
-                      Finished
+                      {t("Finished")}
                     </Button>
                   </Group>
                 )}

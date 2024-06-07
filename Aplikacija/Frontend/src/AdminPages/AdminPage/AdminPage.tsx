@@ -21,10 +21,11 @@ import { useState, useEffect, useRef } from "react";
 import { Comment, EventBasic, UserWithBans } from "./interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput } from "@mantine/dates";
+import { useTranslation } from "react-i18next";
 
 export function formatOnlyDate(date: Date | null) {
-  const day = String(date?.getDate()).padStart(2, '0');
-  const month = String(date?.getMonth()! + 1).padStart(2, '0');
+  const day = String(date?.getDate()).padStart(2, "0");
+  const month = String(date?.getMonth()! + 1).padStart(2, "0");
   const year = date?.getFullYear();
 
   return `${day}.${month}.${year}.`;
@@ -42,6 +43,7 @@ export default function AdminPage() {
   const [banReason, setBanReason] = useState<string>("");
   const dialogTopLeft = useRef([20, 20]);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   useEffect(() => {
     function handleResize() {
@@ -122,7 +124,7 @@ export default function AdminPage() {
         `${import.meta.env.VITE_DB_SERVER}/Administrator/deleteEvent/${eventId}`
       );
       queryClient.invalidateQueries({ queryKey: ["all_events"] });
-    } catch (err : any) {
+    } catch (err: any) {
       console.error(err);
       alert(err.response.data);
     }
@@ -136,7 +138,7 @@ export default function AdminPage() {
         }/Administrator/deleteComment/${commentId}`
       );
       queryClient.invalidateQueries({ queryKey: ["all_comments"] });
-    } catch (err : any) {
+    } catch (err: any) {
       console.error(err);
       alert(err.response.data);
     }
@@ -144,32 +146,37 @@ export default function AdminPage() {
 
   const banUser = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_DB_SERVER}/Administrator/banUser`, {
-        userId: userId,
-        timeTo: banUntil?.toISOString(),
-        reason: banReason,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_DB_SERVER}/Administrator/banUser`,
+        {
+          userId: userId,
+          timeTo: banUntil?.toISOString(),
+          reason: banReason,
+        }
+      );
       setUserId("");
       setBanReason("");
       setBanUntil(null);
       queryClient.invalidateQueries({ queryKey: ["user_list"] });
-      alert("User is successfully banned!");
-    } catch (err : any) {
+      alert(t("SuccessfulBan"));
+    } catch (err: any) {
       console.error(err);
       alert(err.response.data);
     }
-  }
+  };
 
-  const unbanUser = async (banId : number) => {
+  const unbanUser = async (banId: number) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_DB_SERVER}/Administrator/unbanUser/${banId}`);
+      await axios.delete(
+        `${import.meta.env.VITE_DB_SERVER}/Administrator/unbanUser/${banId}`
+      );
       queryClient.invalidateQueries({ queryKey: ["user_list"] });
-      alert("User is successfully unbanned!");
-    } catch (err : any) {
+      alert(t("SuccessfulUnban"));
+    } catch (err: any) {
       console.error(err);
       alert(err.response.data);
     }
-  }
+  };
 
   return (
     <Flex
@@ -182,9 +189,9 @@ export default function AdminPage() {
       }}
     >
       <Flex className={classes.contentContainerFlex}>
-        <Title mb={10}>All users</Title>
+        <Title mb={10}>{t("AllUsers")}</Title>
         <Stack className={classes.contentStack} align="center">
-        {areUsersLoading || usersError ? (
+          {areUsersLoading || usersError ? (
             <div className={classes.controls}>
               <div className={classes.ldsRing}>
                 <div></div>
@@ -194,46 +201,54 @@ export default function AdminPage() {
               </div>
             </div>
           ) : (
-          users?.map((user, idx) => (
-            <Flex
-              key={idx}
-              p="sm"
-              columnGap="md"
-              className={classes.reservationAndVisitedDiv}
-              style={{ justifyContent: "center" }}
-            >
-              <Avatar src={user.role == "Visitor" ? user.avatar : null} w="70px" h="70px" />
-              <Box className={classes.usersDivBox}>
-                <Text className={classes.reservationAndVisitedDivText}>
-                  {user.firstName} {user.lastName}
-                  <br />
-                  {user.role}
-                  <br />
-                  {user.reason != null ? (`${formatOnlyDate(new Date(user.timeFrom))} - ${(formatOnlyDate(new Date(user.timeTo)))}`) : ""}
-                </Text>
-              </Box>
-              <Button
-                w="30%"
-                bg={user.reason == null ?  "red" : "green"}
-                onClick={() => {
-                  setUserId(user.userId);
-                  if (user.reason == null) {
-                    toggle();
-                  }
-                  else {
-                    close();
-                    unbanUser(user.banId);
-                  }
-                }}
+            users?.map((user, idx) => (
+              <Flex
+                key={idx}
+                p="sm"
+                columnGap="md"
+                className={classes.reservationAndVisitedDiv}
+                style={{ justifyContent: "center" }}
               >
-                {user.reason == null ? "Ban" : "Unban"}
-              </Button>
-            </Flex>
-          )))}
+                <Avatar
+                  src={user.role == "Visitor" ? user.avatar : null}
+                  w="70px"
+                  h="70px"
+                />
+                <Box className={classes.usersDivBox}>
+                  <Text className={classes.reservationAndVisitedDivText}>
+                    {user.firstName} {user.lastName}
+                    <br />
+                    {user.role}
+                    <br />
+                    {user.reason != null
+                      ? `${formatOnlyDate(
+                          new Date(user.timeFrom)
+                        )} - ${formatOnlyDate(new Date(user.timeTo))}`
+                      : ""}
+                  </Text>
+                </Box>
+                <Button
+                  w="30%"
+                  bg={user.reason == null ? "red" : "green"}
+                  onClick={() => {
+                    setUserId(user.userId);
+                    if (user.reason == null) {
+                      toggle();
+                    } else {
+                      close();
+                      unbanUser(user.banId);
+                    }
+                  }}
+                >
+                  {user.reason == null ? t("Ban") : t("Unban")}
+                </Button>
+              </Flex>
+            ))
+          )}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Active events</Title>
+        <Title>{t("ActiveEvents")}</Title>
         <Stack className={classes.contentStack} align="center">
           {(areEventsLoading || eventsError) && (
             <div className={classes.controls}>
@@ -269,14 +284,14 @@ export default function AdminPage() {
                   </Text>
                 </Box>
                 <Button w="fit-content" onClick={() => deleteEvent(ev.id)}>
-                  Remove
+                  {t("Remove")}
                 </Button>
               </Flex>
             ))}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Recent comments</Title>
+        <Title>{t("RecentComments")}</Title>
         <Stack className={classes.contentStack} align="center">
           {(areCommentsLoading || commentsError) && (
             <div className={classes.controls}>
@@ -305,7 +320,7 @@ export default function AdminPage() {
                   bg="red"
                   onClick={() => deleteComment(comm.id)}
                 >
-                  Remove
+                  {t("Remove")}
                 </Button>
               </Flex>
             ))}
@@ -326,7 +341,7 @@ export default function AdminPage() {
         {" "}
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Ban user
+            {t("BanUser")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -337,19 +352,19 @@ export default function AdminPage() {
         </Group>
         <Group align="center" mb={10}>
           <Text size="sm" fw={300} miw="45px">
-            Until:{" "}
+            {t("Until")}:{" "}
           </Text>
           <DateInput
             placeholder={`${formatOnlyDate(new Date(Date.now()))}`}
             flex={1}
             value={banUntil}
-            onChange={(date) => setBanUntil(date) }
+            onChange={(date) => setBanUntil(date)}
           />
         </Group>
         <Textarea
           mb={10}
-          label="Reason:"
-          placeholder="User was rude to others..."
+          label={t("Reason")}
+          placeholder={t("ReasonP")}
           maxRows={8}
           minRows={3}
           autosize
@@ -360,19 +375,19 @@ export default function AdminPage() {
           w="100%"
           onClick={() => {
             if (!banReason) {
-              alert("Please enter a reason for the ban!");
+              alert(t("PleaseEnterReason"));
               return;
             }
-      
+
             if (!banUntil || (banUntil && banUntil < new Date(Date.now()))) {
-              alert("Please enter a valid date for the ban!");
+              alert(t("PleaseEnterValidDate"));
               return;
             }
             banUser();
             close();
           }}
         >
-          Ban user
+          {t("BanUser")}
         </Button>
       </Dialog>
     </Flex>
