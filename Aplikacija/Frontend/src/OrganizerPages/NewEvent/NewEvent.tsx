@@ -345,7 +345,7 @@ export default function NewEvent(props: NewEventProps) {
                       })
                       .then(() => {
                         alert("Successfully scheduled event!");
-                        navigate("/organizerpage")
+                        props.showEvent(View.Basic);
                       })
                       .catch((err) => {
                         console.error(err);
