@@ -27,7 +27,7 @@ import { PasswordStrength } from "../../Auth/Utils/PasswordStrength";
 import { EventBasic } from "../../AdminPages/AdminPage/interfaces.ts";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { formatTimeOnly } from "../../VisitorProfile/UserProfile.tsx";
-import { HostStatistics } from "../interfaces.ts";
+import { EventDto, HostStatistics } from "../interfaces.ts";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -35,6 +35,7 @@ export interface OrganizerPageProps {
   setEventId: React.Dispatch<React.SetStateAction<number>>;
   setEventName: React.Dispatch<React.SetStateAction<string>>;
   setEventDate: React.Dispatch<React.SetStateAction<string>>;
+  setEventDetails: React.Dispatch<React.SetStateAction<EventDto | undefined>>;
 }
 
 export default function OrganizerPage(props: OrganizerPageProps) {
@@ -171,6 +172,19 @@ export default function OrganizerPage(props: OrganizerPageProps) {
     },
   });
 
+  const getEventDetails = async (eventId: number) => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventDetails/${eventId}`)
+        .then((resp) => {
+          return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.resp.data);
+          return null;
+        });
+  };
+
   return (
     <Flex
       className={classes.mainContentFlex}
@@ -271,6 +285,10 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     type="submit"
                     onClick={async (event) => {
                       event.stopPropagation();
+                      if (updateUserForm.validate().hasErrors) {
+                        return;
+                      }
+
                       const values = updateUserForm.getValues();
 
                       await axios
@@ -395,7 +413,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 </Box>
                 <Button
                   w="fit-content"
-                  onClick={(event) => {
+                  onClick={async (event) => {
                     event.stopPropagation();
                     if (isMobile) {
                       alert(
@@ -404,6 +422,8 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                       return;
                     }
                     props.setEventId(ev.id);
+                    const eventDetails = await getEventDetails(ev.id);
+                    props.setEventDetails(eventDetails);
                     props.showEvent(View.ManageEvent);
                   }}
                 >

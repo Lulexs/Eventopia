@@ -20,7 +20,7 @@ import { DateInput } from "@mantine/dates";
 import { StatsCard } from "../StatsCard";
 import { useState } from "react";
 import { ChangeEventDto, EventDto } from "../interfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig";
 import { useForm } from "@mantine/form";
 import { CustomStatsCard } from "../../VisitorProfile/CustomStatsCard";
@@ -29,43 +29,13 @@ export interface ManageEventProps {
   user: AuthState;
   showEvent: React.Dispatch<React.SetStateAction<View>>;
   eventId: number;
+  eventDetails?: EventDto;
 }
 
 export default function ManageEvent(props: ManageEventProps) {
   const [tags, setTags] = useState<string[]>([]);
-  const [location, setLocation] = useState<string>(""); 
-  const [address, setAddress] = useState<string>(""); 
-  const [capacity, setCapacity] = useState<number>(0);
-  const [reservedTables, setReservedTables] = useState<number>(0);
-  const [maxTables, setMaxTables] = useState<number>(0);
-  const [totalEarnings, setTotalEarnings] = useState<number>(0);
 
   const queryClient = useQueryClient();
-
-  const {
-    data: event,
-  } = useQuery<EventDto>({
-    queryKey: ["event_preview"],
-    queryFn: async () => {
-      return await axios
-        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventDetails/${props.eventId}`)
-        .then((resp) => {
-          setTags(resp.data.tags);
-          setLocation(resp.data.location);
-          setAddress(resp.data.address);
-          setCapacity(resp.data.capacity);
-          setReservedTables(resp.data.reservedTables);
-          setMaxTables(resp.data.maxTables);
-          setTotalEarnings(resp.data.totalEarnings);
-          return resp.data;
-        })
-        .catch((err) => {
-          console.error(err);
-          alert(err.resp.data);
-          return null;
-        });
-    },
-  });
 
   const cancelEvent = async (eventId: number) => {
     try {
@@ -74,9 +44,12 @@ export default function ManageEvent(props: ManageEventProps) {
           `${
             import.meta.env.VITE_DB_SERVER
           }/Host/cancelEvent/${eventId}`
+        ).then(() => { 
+          queryClient.invalidateQueries({ queryKey: ["incoming_events"] });
+          props.showEvent(View.Basic);
+          alert("Event has been successfully canceled!");
+        }
         );
-        queryClient.invalidateQueries({ queryKey: ["incoming_events"] });
-        queryClient.invalidateQueries({ queryKey: ["past_events"] });
       }
     } catch (err: any) {
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
@@ -91,13 +64,13 @@ export default function ManageEvent(props: ManageEventProps) {
   const changeEventForm = useForm({
     mode: "controlled",
     initialValues: {
-      eventName: event?.eventName,
-      description: event?.description,
-      date: new Date(event?.date ?? Date.now()),
-      tags: event?.tags,
-      time: event?.time,
+      eventName: props.eventDetails?.eventName,
+      description: props.eventDetails?.description,
+      date: new Date(props.eventDetails?.date ?? Date.now()),
+      tags: props.eventDetails?.tags,
+      time: props.eventDetails?.time,
       image: null,
-      video: event?.video,
+      video: props.eventDetails?.video,
     },
 
     validate: {
@@ -126,6 +99,7 @@ export default function ManageEvent(props: ManageEventProps) {
             onClick={(event) => {
               event.stopPropagation();
               props.showEvent(View.Basic);
+              queryClient.invalidateQueries({ queryKey: ["event_preview"] });
             }}
           >
             Go back
@@ -133,9 +107,8 @@ export default function ManageEvent(props: ManageEventProps) {
           <Title c="#5a5959">Manage event</Title>
           <Button
               bg={"red"}
-              onClick={() => {
-                cancelEvent(props.eventId);
-                props.showEvent(View.Basic);
+              onClick={async () => {
+                await cancelEvent(props.eventId);
               }}
           >
             Cancel event
@@ -345,13 +318,13 @@ export default function ManageEvent(props: ManageEventProps) {
               mb={10}
             >
               <Stack w="100%" justify="center">
-                <TextInput label="Location" value={location} disabled={true} />
-                <TextInput label="Address" value={address} disabled={true} />
+                <TextInput label="Location" value={props.eventDetails?.location} disabled={true} />
+                <TextInput label="Address" value={props.eventDetails?.address} disabled={true} />
                 <NumberInput
                   disabled={true}
                   label="Capacity"
                   inputMode="numeric"
-                  value={capacity}
+                  value={props.eventDetails?.capacity}
                 />
               </Stack>
             </Fieldset>
@@ -374,10 +347,10 @@ export default function ManageEvent(props: ManageEventProps) {
                 title="Reserved tables" 
                 dash={false}
                 level=""
-                current={reservedTables ?? 0}
-                nextStage={maxTables ?? 0}
+                current={props.eventDetails?.reservedTables ?? 0}
+                nextStage={props.eventDetails?.maxTables ?? 0}
               />
-              <StatsCard title="Total earnings" current={totalEarnings ?? 0} />
+              <StatsCard title="Total earnings" current={props.eventDetails?.totalEarnings ?? 0} />
             </Fieldset>
           </Flex>
         </Flex>

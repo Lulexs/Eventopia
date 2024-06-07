@@ -295,7 +295,7 @@ public class HostController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).Include(x => x.Tagovi).FirstOrDefaultAsync(x => x.ID == id);
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.Organizator).Include(x => x.RezervacijaProstora).Include(x => x.Tagovi).FirstOrDefaultAsync(x => x.ID == id);
 
         if (dogadjaj == null)
         {
@@ -310,12 +310,10 @@ public class HostController : ControllerBase
         dogadjaj.Tagovi!.Clear();
         await Context.SaveChangesAsync();
 
-        dogadjaj.RezervacijaProstora = null;
-        await Context.SaveChangesAsync();
-
-        await Context.RezervacijeProstora.Where(x => x.Dogadjaj == dogadjaj).ExecuteDeleteAsync();
+        var rezervacijaProstora = dogadjaj.RezervacijaProstora;
 
         Context.Dogadjaji.Remove(dogadjaj);
+        Context.RezervacijeProstora.Remove(dogadjaj.RezervacijaProstora!);
         await Context.SaveChangesAsync();
         return Ok();
     }
