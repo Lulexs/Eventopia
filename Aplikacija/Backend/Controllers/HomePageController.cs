@@ -311,7 +311,7 @@ public class HomePageController : ControllerBase
 
         }
 
-        zaRejtovanje = zaRejtovanje.OrderByDescending(x => x.Rating).ToList();
+        zaRejtovanje = zaRejtovanje.OrderByDescending(x => x.Rating).Take(10).ToList();
 
         foreach (var dogadjaj in zaRejtovanje)
         {
@@ -329,8 +329,8 @@ public class HomePageController : ControllerBase
         }
 
 
-        //return Ok(povratniDogadjaji); // ovo se vraca inace
-        return Ok(new { output = output, zaRejtovanje });//ovo je za test
+        return Ok(povratniDogadjaji); // ovo se vraca inace
+        //return Ok(new { output = output, zaRejtovanje });//ovo je za test
     }
 
 

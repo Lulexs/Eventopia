@@ -5,8 +5,13 @@ import { HeroJustMissed } from "./HeroJustMissed/HeroJustMissed";
 import axios from "../../axiosconfig.ts";
 import EventListing from "../EventListing/EventListing";
 import { Footer } from "./Footer/Footer";
+import RecommendedEventListing from "../EventListing/RecommendedEventListing.tsx";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store.ts";
 
 export default function HomePage() {
+  const loggedUser = useSelector((state: RootState) => state.auth);
+
   const { isLoading, data, isError } = useQuery({
     queryKey: ["highlights"],
     queryFn: async () => {
@@ -32,6 +37,7 @@ export default function HomePage() {
         CarouselProps={data}
       />
       <EventListing />
+      {loggedUser.userType != "Unregistered" && <RecommendedEventListing />}
       <Footer />
     </>
   );
