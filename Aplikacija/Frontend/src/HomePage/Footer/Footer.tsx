@@ -10,7 +10,6 @@ export function Footer() {
   const { t } = useTranslation();
 
   const links = [
-    { link: "/contact", label: "FooterContact" },
     { link: "/privacy", label: "FooterPrivacy" },
     { link: "/faq", label: "FooterFaq" },
     { link: "/", label: "FooterCopyright" },
