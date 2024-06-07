@@ -15,9 +15,8 @@ public class HostController : ControllerBase
 
     [Authorize(Policy = "RequireHostRole")]
     [HttpPost("createEvent")]
-    public async Task<ActionResult> CreateEvent([FromBody] CreateEventDto createEventDto)
+    public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto createEventDto)
     {
-
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         if (korisnik == null)
@@ -34,63 +33,136 @@ public class HostController : ControllerBase
 
         string dateTimeString = $"{createEventDto.Datum} {createEventDto.Vreme}";
         DateTime dateTime;
-        if (DateTime.TryParseExact(dateTimeString, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-        {
-
-            List<Tag> tags = new List<Tag>();
-            foreach (var tag in createEventDto.Tags)
-            {
-                Tag existingTag = await Context.Tagovi.FirstOrDefaultAsync(x => x.TagName == tag);
-                if (existingTag != null)
-                {
-                    tags.Add(existingTag);
-                }
-                else
-                {
-                    Tag newTag = new Tag
-                    {
-                        TagName = tag,
-                        Dogadjaji = new List<Dogadjaj>()
-                    };
-                    tags.Add(newTag);
-                }
-            }
-            var dogadjaj = new Dogadjaj
-            {
-                Naziv = createEventDto.Naziv,
-                Opis = createEventDto.Opis,
-                Slika = createEventDto.Slika,
-                Vreme = dateTime,
-                Organizator = korisnik,
-                VideoLink = createEventDto.Video,
-                Status = StatusDogadjaja.Active, // nisam siguran sta bi trebalo da se prenese
-                Tagovi = tags,
-                //ne znam za rezervacijaProstora i Rezervacija treba
-            };
-
-            foreach (var tag in dogadjaj.Tagovi)
-            {
-                Tag existingTag = await Context.Tagovi.FirstOrDefaultAsync(x => x.TagName == tag.TagName);
-                if (existingTag != null)
-                {
-                    existingTag.Dogadjaji.Add(dogadjaj);
-                }
-                else
-                {
-                    Context.Tagovi.Update(tag);
-                }
-
-            }
-
-            await Context.Dogadjaji.AddAsync(dogadjaj);
-        }
-        else
+        if (!DateTime.TryParseExact(dateTimeString, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
         {
             return BadRequest("Invalid date and time format.");
         }
 
+        var prostor = await Context.Prostori.Include(x => x.PlanoviProstora)
+                                            .FirstOrDefaultAsync(x => x.ID == createEventDto.ProstorId);
 
+        if (prostor == null)
+        {
+            return NotFound("Space not found.");
+        }
+
+        List<DraggableItem> draggableItems = new List<DraggableItem>();
+
+        int capacity = 0;
+
+        PlanProstora planProstora = new PlanProstora
+        {
+            Prostor = prostor
+        };
+
+        foreach (DraggableItemDto draggableItemDto in createEventDto.Items!)
+        {
+
+            if (draggableItemDto.Tip.ToEnum<TipItema>() == TipItema.Table && draggableItemDto.BrojMesta == 0)
+                draggableItemDto.BrojMesta = 4;
+
+
+            if (draggableItemDto.Tip.ToEnum<TipItema>() == TipItema.Table)
+                capacity += draggableItemDto.BrojMesta ?? 0;
+
+            DraggableItem draggableItem = new DraggableItem
+            {
+                FrontID = draggableItemDto.FrontID,
+                Tip = draggableItemDto.Tip.ToEnum<TipItema>(),
+                Top = draggableItemDto.Top,
+                Left = draggableItemDto.Left,
+                Height = draggableItemDto.Height,
+                HeightFactor = draggableItemDto.HeightFactor,
+                BrojMesta = draggableItemDto.BrojMesta,
+                Reserved = draggableItemDto.Reserved,
+                Price = draggableItemDto.Price,
+                PlanProstora = planProstora
+            };
+
+            draggableItems.Add(draggableItem);
+        }
+
+        planProstora.DraggableItems = draggableItems;
+        planProstora.Kapacitet = capacity;
+
+        List<Line> lines = new List<Line>();
+
+        foreach (LineDto lineDto in createEventDto.Lines!)
+        {
+            Line line = new Line
+            {
+                X1 = lineDto.X1,
+                Y1 = lineDto.Y1,
+                X2 = lineDto.X2,
+                Y2 = lineDto.Y2,
+                PlanProstora = planProstora
+            };
+            lines.Add(line);
+        }
+
+        planProstora.Lines = lines;
+
+        SurfaceDimension surfaceDimension = new SurfaceDimension
+        {
+            Width = createEventDto.SurfaceDimension!.Width,
+            Height = createEventDto.SurfaceDimension!.Height,
+            PlanProstora = planProstora
+        };
+
+        await Context.SurfaceDimensions.AddAsync(surfaceDimension);
+        await Context.PlanoviProstora.AddAsync(planProstora);
+
+        var rezervacijaProstora = new RezervacijaProstora
+        {
+            VremeOd = dateTime.AddHours(-12),
+            VremeDo = dateTime.AddHours(12),
+            Status = StatusRezervacije.WaitingConfirmation,
+            Prostor = prostor
+        };
+
+        await Context.RezervacijeProstora.AddAsync(rezervacijaProstora);
+
+        var dogadjaj = new Dogadjaj
+        {
+            Naziv = createEventDto.Naziv,
+            Opis = createEventDto.Opis,
+            Vreme = dateTime,
+            Organizator = korisnik,
+            VideoLink = createEventDto.Video,
+            Status = StatusDogadjaja.WaitingForSpaceApproval,
+            Slika = "",
+            PlanProstora = planProstora,
+        };
+
+        await Context.Dogadjaji.AddAsync(dogadjaj);
+
+        dogadjaj.RezervacijaProstora = rezervacijaProstora;
+        rezervacijaProstora.Dogadjaj = dogadjaj;
+
+        List<Tag> tags = new List<Tag>();
+        foreach (var tag in createEventDto.Tags!)
+        {
+            var existingTag = await Context.Tagovi.Include(x => x.Dogadjaji).FirstOrDefaultAsync(x => x.TagName == tag);
+            if (existingTag != null)
+            {
+                tags.Add(existingTag);
+                existingTag.Dogadjaji!.Add(dogadjaj);
+            }
+            else
+            {
+                Tag newTag = new Tag
+                {
+                    TagName = tag,
+                    Dogadjaji = new List<Dogadjaj> { dogadjaj }
+                };
+                await Context.Tagovi.AddAsync(newTag);
+                tags.Add(newTag);
+            }
+        }
+
+        await Context.SaveChangesAsync();
         return Ok();
+
     }
 
     [Authorize(Policy = "RequireHostRole")]
@@ -328,7 +400,7 @@ public class HostController : ControllerBase
             {
                 Vrednost = oc.Vrednost,
                 Komentar = oc.Komentar,
-                Korisnik = $"{oc.Korisnik.Ime} {oc.Korisnik.Prezime}",
+                Korisnik = $"{oc.Korisnik!.Ime} {oc.Korisnik.Prezime}",
                 VremeKomentara = oc.VremeKomentara,
 
             });

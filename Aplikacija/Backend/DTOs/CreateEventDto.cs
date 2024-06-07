@@ -3,7 +3,7 @@ namespace Backend.DTOs
     public class CreateEventDto
     {
         [Required]
-        [JsonPropertyName("title")]
+        [JsonPropertyName("eventName")]
         public required string Naziv { get; set; }
 
         [Required]
@@ -19,19 +19,27 @@ namespace Backend.DTOs
         public required string Vreme { get; set; }
 
         [Required]
-        [JsonPropertyName("location")]
-        public required string Location { get; set; }
-
         [JsonPropertyName("tags")]
         public List<string>? Tags { get; set; }
-
-        [Required]
-        [JsonPropertyName("img")]
-        public required string Slika { get; set; }
 
         [JsonPropertyName("video")]
         public string? Video { get; set; }
 
-        // mora da se vidi za prostor kako se prenosi
+        [Required]
+        [JsonPropertyName("spaceId")]
+        public int ProstorId { get; set; }
+
+        [Required]
+        [JsonPropertyName("items")]
+        public List<DraggableItemDto>? Items { get; set; }
+
+        [Required]
+        [JsonPropertyName("lines")]
+        public List<LineDto>? Lines { get; set; }
+
+        [Required]
+        [JsonPropertyName("surfaceDimension")]
+        public SurfaceDimensionDto? SurfaceDimension { get; set; }
+
     }
 }

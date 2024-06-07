@@ -60,5 +60,15 @@ public class Context : IdentityDbContext<Korisnik, AppRole, Guid,
             .WithOne(surfaceDimension => surfaceDimension.PlanProstora)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Entity<Dogadjaj>()
+            .HasOne(dogadjaj => dogadjaj.PlanProstora)
+            .WithOne(planProstora => planProstora.Dogadjaj)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Dogadjaj>()
+            .HasOne(dogadjaj => dogadjaj.RezervacijaProstora)
+            .WithOne(rezervacijaProstora => rezervacijaProstora.Dogadjaj)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }

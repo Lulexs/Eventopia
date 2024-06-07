@@ -200,7 +200,7 @@ public class SpaceController : ControllerBase
     public async Task<IActionResult> RespondToSpaceReservation([FromRoute] int id, [FromRoute] string response)
     {
 
-        var rezervacija = await Context.RezervacijeProstora.FirstOrDefaultAsync(x => x.ID == id);
+        var rezervacija = await Context.RezervacijeProstora.Include(x => x.Dogadjaj).FirstOrDefaultAsync(x => x.ID == id);
 
         if (rezervacija == null)
         {
@@ -231,6 +231,7 @@ public class SpaceController : ControllerBase
         if (response == "accept")
         {
             rezervacija.Status = StatusRezervacije.Confirmed;
+            rezervacija.Dogadjaj!.Status = StatusDogadjaja.Active;
         }
         else if (response == "reject")
         {

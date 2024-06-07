@@ -62,7 +62,7 @@ export const Table: FC<TableInterface> = ({
       reserved: false,
       price: Number.isNaN(parseInt(dialogInputFieldVal))
         ? 15
-        : parseInt(dialogInputFieldVal),
+        : parseInt(dialogInputFieldVal1),
       top: top,
       left: left,
       height: height,

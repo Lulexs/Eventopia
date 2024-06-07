@@ -24,7 +24,7 @@ import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig.ts";
 import Drawer from "../../Reservations/HostVersionOfDrawer/Drawer";
-import { SpaceBasic } from "../interfaces.ts";
+import { NewEventDto, SpaceBasic } from "../interfaces.ts";
 import { useForm } from "@mantine/form";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces.ts";
@@ -113,6 +113,7 @@ export default function NewEvent(props: NewEventProps) {
           console.error(err);
           alert(err.resp.data);
         });
+      setSelectedSpaceId(spaceId);
     } catch (err: any) {
       console.error(err);
       alert(err.response.data);
@@ -252,7 +253,7 @@ export default function NewEvent(props: NewEventProps) {
                   {...createEventForm.getInputProps("image")}
                 />
                 <TextInput
-                  placeholder="Optional video"
+                  placeholder="YouTube embed link"
                   label="Promo video"
                   key={createEventForm.key("video")}
                   {...createEventForm.getInputProps("video")}
@@ -274,47 +275,85 @@ export default function NewEvent(props: NewEventProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = createEventForm.getValues();
-                      // await axios
-                      //   .put(
-                      //     `${
-                      //       import.meta.env.VITE_DB_SERVER
-                      //     }/Account/updateUser`,
-                      //     {
-                      //       ...values,
-                      //       birthday: values.birthday.toISOString()
-                      //     }
-                      //   )
-                      //   .then((resp) => {
-                      //     alert("Successfully changed user info!");
-                      //     const obj = JSON.parse(
-                      //       atob(resp.data.token.split(".")[1])
-                      //     );
-                      //     dispatch(
-                      //       login({
-                      //         userId: obj["nameid"],
-                      //         token: resp.data.token,
-                      //         email: obj["email"],
-                      //         userType: obj["role"],
+                      const newSpacePlan = getObjectFromDrawerRef?.current && typeof getObjectFromDrawerRef.current === 'function'
+                      ? getObjectFromDrawerRef.current()
+                      : null;
+                      
+                      if (tags.length === 0) {
+                        alert("Please enter at least one tag!");
+                        return;
+                      }
 
-                      //         firstName: resp.data.firstName,
-                      //         lastName: resp.data.lastName,
-                      //         birthday: resp.data.dateOfBirth,
-                      //         phoneNumber: resp.data.phoneNumber,
-                      //         avatar: resp.data.avatar,
-                      //         address: resp.data.address,
-                      //         city: resp.data.city,
-                      //       })
-                      //     );
-                      //   })
-                      //   .catch((err) => {
-                      //     console.error(err);
-                      //     if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                      //       alert(err.response.data[0].description);
-                      //     }
-                      //     else {
-                      //       alert(err.response.data);
-                      //     }
-                      //   });
+                      if (values.image === null) {
+                        alert("Please upload an image!");
+                        return;
+                      }
+
+                      if (selectedSpaceId === -1 || newSpacePlan === null) {
+                        alert("Please select a space!");
+                        return;
+                      }
+
+                      const eventObj : NewEventDto = {
+                        eventName: values.eventName,
+                        description: values.description,
+                        tags: tags,
+                        date: values.date.toISOString().split("T")[0],
+                        time: values.time,
+                        video: values.video,
+                        spaceId: selectedSpaceId as number,
+                        items: newSpacePlan.items,
+                        lines: newSpacePlan.lines,
+                        surfaceDimension: newSpacePlan.surfaceDimension
+                      };
+                                            
+                      let eventId = -1;
+
+                      console.log(eventObj);
+
+                      const imageData = new FormData();
+                      imageData.append('file', values.image);
+
+                      await axios
+                        .post(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Host/createEvent`,
+                          {
+                            ...eventObj
+                          }
+                        )
+                        .then((resp) => {
+                          alert("Successfully scheduled event!");
+                          eventId = resp.data;
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                            alert(err.response.data[0].description);
+                          }
+                          else {
+                            alert(err.response.data);
+                          }
+                        });
+
+                      await axios
+                      .post(`${import.meta.env.VITE_DB_SERVER}
+                        /Image/uploadImage/${eventId}`, 
+                        imageData, {
+                          headers: {
+                            'Content-Type': 'multipart/form-data',
+                          },
+                      })
+                      .catch((err) => {
+                        console.error(err);
+                        if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                          alert(err.response.data[0].description);
+                        }
+                        else {
+                          alert(err.response.data);
+                        }
+                      });
                     }}
                   >
                     Schedule event
@@ -406,7 +445,6 @@ export default function NewEvent(props: NewEventProps) {
                           onClick={(event) => {
                             event.stopPropagation();
                             getSpacePlan(space.id);
-                            setSelectedSpaceId(space.id);
                           }}
                         >
                           Select

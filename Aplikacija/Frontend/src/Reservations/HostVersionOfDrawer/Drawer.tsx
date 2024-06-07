@@ -32,5 +32,5 @@ export default function Drawer(props: DrawerProps) {
         />
       </div>
     </DndProvider>
-  );
+    );
 }
