@@ -7,6 +7,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useRef, useState } from "react";
 import axios from "../../../axiosconfig.ts";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 export interface TableProps {
   item: TableInterface;
@@ -17,7 +18,7 @@ export default function Table({ item }: TableProps) {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   const makeReservation = async (itemId: number, numberOfSeats: number) => {
     try {
       await axios.post(
@@ -66,7 +67,7 @@ export default function Table({ item }: TableProps) {
       >
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Information about this table
+            {t("Information about this table")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -81,19 +82,19 @@ export default function Table({ item }: TableProps) {
             {item.reservationId != -1 ? (
             <Box>
             <Text size="sm" fw={300} miw="45px" c="green">
-              You have reserved this table.
+              {t("You have reserved this table.")}
             </Text>
             <Text size="sm" fw={300} miw="45px">
-              Reservation ID: {item.reservationId}
+              {t("Reservation ID:")} {item.reservationId}
               <br />
-              {item.reservedSeats} seats reserved.
+              {item.reservedSeats} {t("seats reserved.")}
               <br />
-              Price per seat: ${item.price}
+              {t("Price per seat:")} ${item.price}
             </Text>
             </Box>
             ) : (
             <Text size="sm" fw={300} miw="45px" c="red">
-              Table is already reserved!
+              {t("Table is already reserved!")}
             </Text>
             )}
           </Group>
@@ -101,17 +102,17 @@ export default function Table({ item }: TableProps) {
           <>
             <Group align="center" mb="xs">
               <Text size="sm" fw={300} miw="45px">
-                Price per seat: ${item.price}
+                {t("Price per seat:")} ${item.price}
               </Text>
             </Group>
             <Group align="center" mb="xs">
               <Text size="sm" fw={300} miw="45px">
-                Number of seats: {item.numberOfSeats}
+                {t("Number of seats:")} {item.numberOfSeats}
               </Text>
             </Group>
             <Group align="center" mb="xl">
               <Text size="sm" fw={300} miw="45px">
-                Reserve seats:{" "}
+                {t("Reserve seats:")} {" "}
               </Text>
               <TextInput
                 placeholder="Number of seats..."
@@ -133,24 +134,24 @@ export default function Table({ item }: TableProps) {
             e.stopPropagation();
 
             if (!dialogInputFieldVal) {
-              alert("Please enter number of seats!");
+              alert(t("Please enter number of seats!"));
               return;
             }
 
             if (parseInt(dialogInputFieldVal) < 0.75 * item.numberOfSeats) {
-              alert("You need to reserve at least 75% of the seats!");
+              alert(t("You need to reserve at least 75% of the seats!"));
               return;
             }
 
             if (parseInt(dialogInputFieldVal) > item.numberOfSeats) {
-              alert(`Table only has ${item.numberOfSeats} seats!`);
+              alert(`${t("Table only has")} ${item.numberOfSeats} ${t("seats!")}`);
               return;
             }
             makeReservation(item.realId, parseInt(dialogInputFieldVal));
             close();
           }}
         >
-          Make a reservation
+          {t("Make a reservation")}
         </Button>
           </>
         )}

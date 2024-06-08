@@ -269,5 +269,28 @@
   "Reviews" : "Recenzije",
 
 
-  "SelectLocationAddress" : "Izaberite lokaciju"
+  "SelectLocationAddress" : "Izaberite lokaciju",
+  "Details" : "Detalji",
+  "Map" : "Mapa",
+  "Login as visitor to get the ticket" : "Prijavite se kao posetilac da biste dobili ulaznicu",
+  "Information about this table" : "Informacije o ovom stolu",
+  "You have reserved this table." : "Rezervisali ste ovaj sto.",
+  "Reservation ID:" : "ID rezervacije:",
+  "seats reserved." : "rezervisana mesta.",
+  "Price per seat:" : "Cena po sedištu:",
+  "Table is already reserved!" : "Sto je već rezervisan!",
+  "Number of seats:" : "Broj mesta:",
+  "Reserve seats:" : "Rezerviši mesta:",
+  "Make a reservation" : "Napravi rezervaciju",
+  "Please enter number of seats!" : "Molimo unesite broj mesta!",
+  "You need to reserve at least 75% of the seats!" : "Morate rezervisati najmanje 75% mesta!",
+  "Table only has " : "Sto ima samo ",
+  "seats!" : " mesta!",
+
+
+  "Draw floor plan" : "Nacrtaj raspored",
+  "Please keep browser open in full screen mode" : "Molimo vas da držite pretraživač otvoren u režimu punog ekrana",
+  "Clear picture" : "Obriši sliku",
+  "Submit" : "Potvrdi"
+
 }

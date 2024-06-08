@@ -5,6 +5,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Toolbar from "./Toolbar/Toolbar";
 import Surface from "./Surface";
 import styles from "./Drawer.module.css";
+import { useTranslation } from "react-i18next";
 
 export interface DrawerProps {
   onSubmit: Function;
@@ -12,6 +13,7 @@ export interface DrawerProps {
 }
 
 export default function Drawer(props: DrawerProps) {
+  const { t } = useTranslation();
   const [isCornerSelectedFromToolbar, setIsCornerSelectedFromToolbar] =
     useState(false);
   const [isTableSelectedFromToolbar, setIsTableSelectedFromToolbar] =
@@ -43,10 +45,10 @@ export default function Drawer(props: DrawerProps) {
         className={styles.gradiental}
       >
         <h1 style={{ color: "hsla(0, 0%, 57%, 0.7)", marginBottom: "0" }}>
-          Draw floor plan
+          {t("Draw floor plan")}
         </h1>
         <Text m="0" style={{ color: "hsla(0, 0%, 57%, 0.7)" }}>
-          Please keep browser open in full screen mode
+          {t("Please keep browser open in full screen mode")}
         </Text>
         <Group align="center" justify="center" m="sm">
           <Toolbar
@@ -72,7 +74,7 @@ export default function Drawer(props: DrawerProps) {
             />
           )}
           {image != null && (
-            <button onClick={() => setImage(null)}>Clear picture</button>
+            <button onClick={() => setImage(null)}>{t("Clear picture")}</button>
           )}
         </Group>
         <Surface
@@ -92,7 +94,7 @@ export default function Drawer(props: DrawerProps) {
                 props.onSubmit(exportPlanFunctionRef.current());
             }}
           >
-            Submit
+            {t("Submit")}
           </Button>
           <Button
             m="10px"
@@ -104,7 +106,7 @@ export default function Drawer(props: DrawerProps) {
             }}
             bg="red"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
         </Group>
       </Flex>

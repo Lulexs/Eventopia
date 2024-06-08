@@ -269,7 +269,31 @@
   "PastEvents": "Past events",
   "Reviews": "Reviews",
 
-  "SelectLocationAddress" : "Select location address"
+  "SelectLocationAddress" : "Select location address",
+
+  "Details" : "Details",
+  "Map" : "Map",
+  "Login as visitor to get the ticket"  : "Login as visitor to get the ticket",
+  "Information about this table" : "Information about this table",
+  "You have reserved this table." : "You have reserved this table.",
+  "Reservation ID:" : "Reservation ID:",
+  "seats reserved." : "seats reserved.",
+  "Price per seat:" : "Price per seat:",
+  "Table is already reserved!" : "Table is already reserved!",
+  "Number of seats:" : "Number of seats:",
+  "Reserve seats:" : "Reserve seats:",
+  "Make a reservation" : "Make a reservation",
+  "Please enter number of seats!" : "Please enter number of seats!",
+  "You need to reserve at least 75% of the seats!" : "You need to reserve at least 75% of the seats!",
+  "Table only has " : "Table only has ",
+  "seats!" : "seats!",
+
+
+  "Draw floor plan" : "Draw floor plan",
+  "Please keep browser open in full screen mode" : "Please keep browser open in full screen mode",
+  "Clear picture" : "Clear picture",
+  "Submit" : "Submit"
+  
 
 
 

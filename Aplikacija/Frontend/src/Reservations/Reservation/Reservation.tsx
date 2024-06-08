@@ -21,6 +21,7 @@ import MapComponent from "./MapComponent";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface ReservationProps {
   id: number;
@@ -36,7 +37,7 @@ export interface ReservationProps {
 export default function Reservation(props: ReservationProps) {
   const navigate = useNavigate();
   const isUserLoggedIn = useSelector((state: RootState) => state.auth);
-
+  const { t } = useTranslation();
   const [showMap, setShowMap] = useState(false);
 
   const { 
@@ -145,7 +146,7 @@ export default function Reservation(props: ReservationProps) {
                   setShowMap(false);
                 }}
               >
-                Details
+                {t("Details")}
                 <span style={{ fontSize: "1.6rem" }}>
                   {showMap ? "↓" : "↑"}
                 </span>
@@ -161,7 +162,7 @@ export default function Reservation(props: ReservationProps) {
                   setShowMap(true);
                 }}
               >
-                Map
+                {t("Map")}
                 <span style={{ fontSize: "1.6rem" }}>
                   {!showMap ? "↓" : "↑"}
                 </span>
@@ -219,7 +220,7 @@ export default function Reservation(props: ReservationProps) {
                       navigate("/login");
                     }}
                   >
-                    Login as visitor to get the ticket
+                    {t("Login as visitor to get the ticket")}
                   </Button>
                 </Flex>
               )}
