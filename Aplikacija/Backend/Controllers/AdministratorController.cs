@@ -126,7 +126,7 @@ public class AdministratorController : ControllerBase
     [HttpDelete("deleteEvent/{id}")]
     public async Task<ActionResult> DeleteEvent(int id)
     {
-        var dogadjaj = await Context.Dogadjaji.FirstOrDefaultAsync(x => x.ID == id);
+        var dogadjaj = await Context.Dogadjaji.Include(x => x.RezervacijaProstora).FirstOrDefaultAsync(x => x.ID == id);
 
         if (dogadjaj == null)
             return BadRequest("Event does not exist.");
