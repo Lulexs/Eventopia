@@ -287,9 +287,6 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     type="submit"
                     onClick={async (event) => {
                       event.stopPropagation();
-                      if (updateUserForm.validate().hasErrors) {
-                        return;
-                      }
 
                       const values = updateUserForm.getValues();
 

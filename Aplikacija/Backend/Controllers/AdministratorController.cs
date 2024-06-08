@@ -132,6 +132,7 @@ public class AdministratorController : ControllerBase
             return BadRequest("Event does not exist.");
 
         Context.Dogadjaji.Remove(dogadjaj);
+        Context.RezervacijeProstora.Remove(dogadjaj.RezervacijaProstora!);
         await Context.SaveChangesAsync();
 
         return Ok();
