@@ -594,9 +594,13 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 >
                   {t("Cancel")}
                 </Button>
-                <Text w="10%" ta="center">
-                  ${reservation.price}
-                </Text>
+                <Box w="20%">
+                  <Text ta="center">
+                    ${reservation.price}
+                    <br/>
+                    ({reservation.seats} {t("Seats")})
+                  </Text>
+                </Box>
               </Flex>
             ))}
         </Stack>

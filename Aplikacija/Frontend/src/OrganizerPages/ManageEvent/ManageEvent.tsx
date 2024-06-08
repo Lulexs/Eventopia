@@ -336,6 +336,7 @@ export default function ManageEvent(props: ManageEventProps) {
                   inputMode="numeric"
                   value={props.eventDetails?.capacity}
                 />
+                <TextInput label={t("SpaceOwnerPhoneNumber")} value={props.eventDetails?.phoneNumber} disabled={true} />
               </Stack>
             </Fieldset>
 

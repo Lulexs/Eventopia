@@ -177,7 +177,8 @@ public class VisitorController : ControllerBase
             Title = x.Dogadjaj!.Naziv,
             Date = x.Dogadjaj.Vreme,
             Image = x.Dogadjaj.Slika,
-            Price = x.Sto!.Price * x.BrojMesta
+            Price = x.Sto!.Price * x.BrojMesta,
+            Seats = x.BrojMesta
         }).OrderBy(x => x.Date);
 
         return Ok(activeReservations);

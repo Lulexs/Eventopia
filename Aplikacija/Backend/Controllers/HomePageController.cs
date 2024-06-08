@@ -191,11 +191,8 @@ public class HomePageController : ControllerBase
                                     .Where(x => x.Rezervacije!.Any(y => y.Korisnik!.Id == korisnik!.Id))
                                     .ToListAsync();
 
-
         List<FullEventDto> povratniDogadjaji = new List<FullEventDto>();
         List<FullEventForRecomm> zaRejtovanje = new List<FullEventForRecomm>();
-
-
 
         List<string> output = new List<string>(); //da bi se videla logika ocenjivanja
 
@@ -233,7 +230,6 @@ public class HomePageController : ControllerBase
 
             rejt = rejt > 10 ? 10 : rejt;
 
-
             //max je 10 za rezervacije
             //izvlacenje ocene na osnovu broja rezervacija
 
@@ -245,7 +241,6 @@ public class HomePageController : ControllerBase
 
             rejt += rejtOdRezervacije; // znaci kad je manje 8 mesta rezervisano, rejt opada linearno
             output.Add($"Za dogadjaj {dogadjaj.Naziv} je rezervisano {rezervisanaMesta} mesta, od rezervacije je rejt {rejtOdRezervacije}, a rejt je sad {rejt}"); // Add the message to the output list instead of writing to console
-
 
             output.Add($"Uporedjujemo trenutni dogadjaj u iteraciji  {dogadjaj.Naziv} sa svim dogadjajima koje je korisnik posetio ili rezervisao* i za svaki skaliramo u odnosu na broj posecenih/rezervisanih korisnikovih");
             if (kojeJeKorisnikPosetio != null && kojeJeKorisnikPosetio.Count > 0)
@@ -305,9 +300,7 @@ public class HomePageController : ControllerBase
                 Rating = rejt
             });
 
-
             output.Add("-------------------------------------------------");
-
 
         }
 
@@ -328,17 +321,8 @@ public class HomePageController : ControllerBase
             });
         }
 
-
         return Ok(povratniDogadjaji); // ovo se vraca inace
         //return Ok(new { output = output, zaRejtovanje });//ovo je za test
     }
-
-
-
-
-
-
-
-
 
 }
