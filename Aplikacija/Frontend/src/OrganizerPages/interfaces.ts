@@ -49,6 +49,7 @@ export interface EventDto {
   reservedTables: number;
   maxTables: number;
   totalEarnings: number;
+  phoneNumber: string;
 }
 
 export interface ChangeEventDto {

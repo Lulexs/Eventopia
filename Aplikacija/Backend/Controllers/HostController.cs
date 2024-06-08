@@ -529,6 +529,7 @@ public class HostController : ControllerBase
 
         var dogadjaj = await Context.Dogadjaji.Include(x => x.PlanProstora)
                                                .ThenInclude(x => x!.Prostor)
+                                               .ThenInclude(x => x!.VlasnikProstora)
                                                .Include(x => x.Tagovi)
                                                .Include(x => x.Rezervacije)
                                                .Where(x => x.ID == id)
@@ -543,6 +544,7 @@ public class HostController : ControllerBase
                                                    Capacity = x.PlanProstora!.Kapacitet,
                                                    Location = x.PlanProstora!.Prostor!.Grad + ", " + x.PlanProstora!.Prostor!.Drzava,
                                                    Address = x.PlanProstora!.Prostor!.Adresa,
+                                                   PhoneNumber = x.PlanProstora!.Prostor!.VlasnikProstora!.Telefon,
                                                    ReservedTables = x.Rezervacije != null ? x.Rezervacije!.Count() : 0,
                                                    MaxTables = x.PlanProstora!.DraggableItems!.Where(y => y.Tip == TipItema.Table).Count(),
                                                    TotalEarnings = x.Rezervacije != null ? x.Rezervacije!.Sum(y => y.Sto!.Price * y.Sto!.BrojMesta) : 0,
@@ -673,6 +675,54 @@ public class HostController : ControllerBase
         await Context.SaveChangesAsync();
 
         return Ok();
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getReservations/{id}")]
+    public async Task<ActionResult> GetReservations(int id)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        var dogadjaji = await Context.Rezervacije.Include(x => x.Dogadjaj)
+                                               .Include(x => x.Korisnik)
+                                               .Include(x => x.Sto)
+                                               .Where(x => x.Dogadjaj!.ID == id)
+                                               .Select(x => new
+                                               {
+                                                   ReservationID = x.ID,
+                                                   Name = x.Korisnik!.Ime + " " + x.Korisnik.Prezime,
+                                                   Email = x.Korisnik.Email,
+                                                   ReservationTime = x.VremeRezervacije,
+                                                   TableID = x.Sto!.ID,
+                                                   Seats = x.BrojMesta,
+                                                   Price = x.Sto!.Price * x.Sto!.BrojMesta,
+                                               })
+                                               .ToListAsync();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.Append("ReservationID  | Name               | Email                           | Reservation Time    | TableID | Seats | TotalPrice\n");
+        stringBuilder.Append("------------------------------------------------------------------------------------------------------------------------------------\n");
+
+        string format = "{0,-15} | {1,-18} | {2,-30} | {3,-19} | {4,-7} | {5,-5} | ${6,-10}\n";
+
+        dogadjaji.ForEach(x =>
+        {
+            stringBuilder.AppendFormat(format, x.ReservationID, x.Name, x.Email, x.ReservationTime, x.TableID, x.Seats, x.Price);
+        });
+
+        return Ok(stringBuilder.ToString());
     }
 
 }

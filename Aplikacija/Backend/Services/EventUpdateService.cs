@@ -39,7 +39,7 @@ public class EventUpdateService : BackgroundService
                 _logger.LogError(ex, "An error occurred while updating the status.");
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
         }
     }
 }

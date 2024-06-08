@@ -18,6 +18,7 @@ export interface ActiveReservations {
   date: Date;
   image: string;
   price: number;
+  seats: number;
 }
 
 export interface VisitedEvents {

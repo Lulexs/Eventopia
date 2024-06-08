@@ -530,7 +530,6 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                   w="fit-content"
                   onClick={(event) => {
                     event.stopPropagation();
-                    console.log(ev.id);
                     props.setEventId(ev.id);
                     props.setEventName(ev.name);
                     props.setEventDate(formatOnlyDate(new Date(ev.date)));
