@@ -1,7 +1,8 @@
 import { TableInterface } from "./interfaces";
 import TableFreeImage from "../../assets/table_free.png";
 import TableNotFreeImage from "../../assets/table_not_free.png";
-import { Button, CloseButton, Dialog, Group, Text, TextInput } from "@mantine/core";
+import TableMineImage from "../../assets/table_mine.png";
+import { Box, Button, CloseButton, Dialog, Group, Text, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useRef, useState } from "react";
 import axios from "../../../axiosconfig.ts";
@@ -42,7 +43,8 @@ export default function Table({ item }: TableProps) {
         }}
         height={`${item.height * item.heightFactor}%`}
         src={
-          (item as TableInterface).reserved ? TableNotFreeImage : TableFreeImage
+          !(item as TableInterface).reserved ? TableFreeImage :
+          (item as TableInterface).reservationId != -1 ? TableMineImage : TableNotFreeImage
         }
         onClick={(e) => {
           e.stopPropagation();
@@ -76,9 +78,24 @@ export default function Table({ item }: TableProps) {
 
         {item.reserved ? (
           <Group align="center" mb="xs">
+            {item.reservationId != -1 ? (
+            <Box>
+            <Text size="sm" fw={300} miw="45px" c="green">
+              You have reserved this table.
+            </Text>
+            <Text size="sm" fw={300} miw="45px">
+              Reservation ID: {item.reservationId}
+              <br />
+              {item.reservedSeats} seats reserved.
+              <br />
+              Price per seat: ${item.price}
+            </Text>
+            </Box>
+            ) : (
             <Text size="sm" fw={300} miw="45px" c="red">
               Table is already reserved!
             </Text>
+            )}
           </Group>
         ) : (
           <>

@@ -13,6 +13,8 @@ export interface TableInterface extends ItemInterface {
   numberOfSeats: number;
   reserved: boolean;
   price: string;
+  reservationId: number;
+  reservedSeats: number;
 }
 
 export interface StageInterface extends ItemInterface {

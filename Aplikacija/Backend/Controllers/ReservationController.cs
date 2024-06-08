@@ -28,7 +28,9 @@ public class ReservationController : ControllerBase
         }
 
         SpaceDto? spacePlan = await Context.Dogadjaji.Include(x => x.PlanProstora)
-                                               .ThenInclude(x => x!.DraggableItems)
+                                               .ThenInclude(x => x!.DraggableItems!)
+                                               .ThenInclude(x => x.Rezervacija)
+                                               .ThenInclude(x => x!.Korisnik)
                                                .Include(x => x.PlanProstora)
                                                .ThenInclude(x => x!.Lines)
                                                .Include(x => x.PlanProstora)
@@ -48,7 +50,9 @@ public class ReservationController : ControllerBase
                                                        HeightFactor = y.HeightFactor,
                                                        BrojMesta = y.BrojMesta,
                                                        Reserved = y.Reserved,
-                                                       Price = y.Price
+                                                       Price = y.Price,
+                                                       ReservationId = y.Rezervacija!.Korisnik == korisnik ? y.Rezervacija.ID : -1,
+                                                       ReservedSeats = y.Rezervacija!.BrojMesta
                                                    }).ToList(),
                                                    Lines = x.PlanProstora.Lines!.Select(y => new LineDto
                                                    {

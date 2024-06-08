@@ -596,6 +596,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 </Button>
                 <Box w="20%">
                   <Text ta="center">
+                    {t("ID")}: {reservation.reservationId}
+                    <br />
                     ${reservation.price}
                     <br/>
                     ({reservation.seats} {t("Seats")})

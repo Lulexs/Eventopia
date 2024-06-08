@@ -38,4 +38,10 @@ public class DraggableItemDto
 
     [JsonPropertyName("price")]
     public int? Price { get; set; }
+
+    [JsonPropertyName("reservationId")]
+    public int? ReservationId { get; set; }
+
+    [JsonPropertyName("reservedSeats")]
+    public int? ReservedSeats { get; set; }
 }
