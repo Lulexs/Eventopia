@@ -28,6 +28,7 @@ import { NewEventDto, SpaceBasic } from "../interfaces.ts";
 import { useForm } from "@mantine/form";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { SpaceDataType } from "../../Reservations/Reservation/interfaces.ts";
+import { useTranslation } from "react-i18next";
 
 export interface NewEventProps {
   user: AuthState;
@@ -35,6 +36,7 @@ export interface NewEventProps {
 }
 
 export default function NewEvent(props: NewEventProps) {
+  const { t } = useTranslation();
   const [tags, setTags] = useState<string[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<number | string>(-1);
   const [selectedCity, setSelectedCity] = useState<string>("");
@@ -63,7 +65,7 @@ export default function NewEvent(props: NewEventProps) {
         )
       ) {
         alertCount > 0
-          ? alert("Invalid date or time format!")
+          ? alert(t("InvalidDateOrTimeFormat"))
           : setAlertCount(alertCount + 1);
         return [];
       }
@@ -133,11 +135,11 @@ export default function NewEvent(props: NewEventProps) {
 
     validate: {
       eventName: (value) =>
-        value.length > 0 ? null : "Empty event name field",
+        value.length > 0 ? null : t("EmptyEventNameField"),
       description: (value) =>
-        value.length > 0 ? null : "Empty description field",
+        value.length > 0 ? null : t("EmptyDescriptionField"),
       time: (value) =>
-        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? null : "Wrong time format",
+        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value) ? null : t("WrongTimeFormat"),
     },
   });
 
@@ -164,7 +166,7 @@ export default function NewEvent(props: NewEventProps) {
           >
             Go back
           </Button>
-          <Title c="#5a5959">Schedule new event</Title>
+          <Title c="#5a5959">{t("ScheduleNewEvent")}</Title>
         </Group>
 
         <Flex
@@ -186,7 +188,7 @@ export default function NewEvent(props: NewEventProps) {
             })}
           >
             <Fieldset
-              legend="Basic information"
+              legend={t("BasicInformation")}
               w="100%"
               h="fit-content"
               fz="xl"
@@ -202,15 +204,15 @@ export default function NewEvent(props: NewEventProps) {
               <Stack w="50%">
                 <TextInput
                   required
-                  label="Event name"
-                  placeholder="Event name..."
+                  label={t("EventName")}
+                  placeholder={t("EventName...")}
                   key={createEventForm.key("eventName")}
                   {...createEventForm.getInputProps("eventName")}
                 ></TextInput>
                 <Textarea
                   required
-                  placeholder="Write something about the event..."
-                  label="Description"
+                  placeholder={t("WriteSomethingAbouTthEevent...")}
+                  label={t("Description")}
                   autosize
                   minRows={5}
                   key={createEventForm.key("description")}
@@ -218,8 +220,8 @@ export default function NewEvent(props: NewEventProps) {
                 />
                 <TagsInput
                   miw="100%"
-                  label="Press Enter to submit a tag"
-                  placeholder="Enter tag"
+                  label={t("PressEnterToSubmitATag")}
+                  placeholder={t("EnterTag")}
                   value={tags}
                   onChange={setTags}
                   styles={{
@@ -234,27 +236,27 @@ export default function NewEvent(props: NewEventProps) {
                 <DateInput
                   required
                   placeholder={formatOnlyDate(new Date(Date.now()))}
-                  label="Date"
+                  label={t("Date")}
                   key={createEventForm.key("date")}
                   {...createEventForm.getInputProps("date")}
                 />
                 <TextInput
                   required
                   placeholder="HH:mm"
-                  label="Time"
+                  label={t("Time")}
                   key={createEventForm.key("time")}
                   {...createEventForm.getInputProps("time")}
                 />
                 <FileInput
                   required
-                  placeholder="Image to be displayed"
-                  label="Promo image"
+                  placeholder={t("ImageToBeDisplayed")}
+                  label={t("PromoImage")}
                   key={createEventForm.key("image")}
                   {...createEventForm.getInputProps("image")}
                 />
                 <TextInput
-                  placeholder="YouTube embed link"
-                  label="Promo video"
+                  placeholder={t("YouTubeEmbedLink")}
+                  label={t("PromoVideo")}
                   key={createEventForm.key("video")}
                   {...createEventForm.getInputProps("video")}
                 />
@@ -280,17 +282,17 @@ export default function NewEvent(props: NewEventProps) {
                       : null;
                       
                       if (tags.length === 0) {
-                        alert("Please enter at least one tag!");
+                        alert(t("PleaseEnterAtLeastOneTag"));
                         return;
                       }
 
                       if (values.image === null) {
-                        alert("Please upload an image!");
+                        alert(t("PleaseUploadAnImage"));
                         return;
                       }
 
                       if (selectedSpaceId === -1 || newSpacePlan === null) {
-                        alert("Please select a space!");
+                        alert(t("PleaseSelectASpace"));
                         return;
                       }
 
@@ -342,7 +344,7 @@ export default function NewEvent(props: NewEventProps) {
                           },
                       })
                       .then(() => {
-                        alert("Successfully scheduled event!");
+                        alert(t("SuccessfullyScheduledEvent"));
                         props.showEvent(View.Basic);
                       })
                       .catch((err) => {
@@ -358,7 +360,7 @@ export default function NewEvent(props: NewEventProps) {
 
                     }}
                   >
-                    Schedule event
+                    {t("ScheduleEvent")}
                   </Button>
                 </div>
               </Stack>
@@ -366,7 +368,7 @@ export default function NewEvent(props: NewEventProps) {
           </form>
 
           <Fieldset
-            legend="Query spaces"
+            legend={t("QuerySpaces")}
             w="50%"
             h="fit-content"
             fz="xl"
@@ -383,14 +385,14 @@ export default function NewEvent(props: NewEventProps) {
           >
             <Group w="100%" justify="center" mb={10}>
               <Select
-                label="Location"
+                label={t("Location")}
                 data={areLocationsLoading || locationsError ? [] : locations}
                 value={selectedCity}
                 onChange={(value) => setSelectedCity(value ? value : "")}
                 clearable
               />
               <NumberInput
-                label="Capacity"
+                label={t("Capacity")}
                 inputMode="numeric"
                 value={capacity}
                 onChange={(value) => setCapacity(parseInt(value.toString()))}
@@ -404,7 +406,7 @@ export default function NewEvent(props: NewEventProps) {
                         })
                       }
                     >
-                      Query
+                      {t("Query")}
                     </Button>
                   </Group>
                 )}
@@ -412,7 +414,7 @@ export default function NewEvent(props: NewEventProps) {
             </Group>
             <Checkbox
               checked={selectedSpaceId != -1}
-              label="Selected space?"
+              label= {t("SelectedSpace?")}
               disabled
             />
             {areSpacesLoading || spacesError ? (
@@ -428,10 +430,10 @@ export default function NewEvent(props: NewEventProps) {
               <Table>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>City</Table.Th>
-                    <Table.Th>Country</Table.Th>
-                    <Table.Th>Address</Table.Th>
-                    <Table.Th>Siting capacity</Table.Th>
+                  <Table.Th>{t("City")}</Table.Th>
+                    <Table.Th>{t("Country")}</Table.Th>
+                    <Table.Th>{t("Address")}</Table.Th>
+                    <Table.Th>{t("SeatingCapacity")}</Table.Th>
                     <Table.Th></Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -449,7 +451,7 @@ export default function NewEvent(props: NewEventProps) {
                             getSpacePlan(space.id);
                           }}
                         >
-                          Select
+                          {t("Select")}
                         </Button>
                       </Table.Td>
                     </Table.Tr>

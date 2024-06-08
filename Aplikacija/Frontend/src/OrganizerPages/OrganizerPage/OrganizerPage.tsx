@@ -28,6 +28,7 @@ import { EventBasic } from "../../AdminPages/AdminPage/interfaces.ts";
 import { formatOnlyDate } from "../../AdminPages/AdminPage/AdminPage.tsx";
 import { formatTimeOnly } from "../../VisitorProfile/UserProfile.tsx";
 import { EventDto, HostStatistics } from "../interfaces.ts";
+import { useTranslation } from "react-i18next";
 
 export interface OrganizerPageProps {
   user: AuthState;
@@ -39,6 +40,7 @@ export interface OrganizerPageProps {
 }
 
 export default function OrganizerPage(props: OrganizerPageProps) {
+  const { t } = useTranslation(); 
   const [imageWidth, setImageWidth] = useState("25%");
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
@@ -74,20 +76,20 @@ export default function OrganizerPage(props: OrganizerPageProps) {
 
     validate: {
       firstName: (value) =>
-        value.length > 0 ? null : "Empty first name field",
-      lastName: (value) => (value.length > 0 ? null : "Empty last name field"),
+        value.length > 0 ? null : t("EmptyFirstNameField"),
+      lastName: (value) => (value.length > 0 ? null : t("EmptyLastNameField")),
       city: (value) =>
-        value != null && value.length > 0 ? null : "Empty city field",
+        value != null && value.length > 0 ? null : t("EmptyCityField"),
       address: (value) =>
-        value != null && value.length > 0 ? null : "Empty address field",
+        value != null && value.length > 0 ? null : t("EmptyAddressField"),
       phoneNumber: (value) =>
-        value.length > 0 ? null : "Empty phone number field",
+        value.length > 0 ? null : t("EmptyPhoneNumberField"),
       currentPassword: (value) =>
-        value.length >= 0 ? null : "Empty current password field",
+        value.length >= 0 ? null : t("EmptyCurrentPasswordField"),
       newPassword: (value) =>
         value.length == 0 || matches(/(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/)
           ? null
-          : "Empty new password field",
+          : t("EmptyNewPasswordField"),
     },
   });
 
@@ -196,7 +198,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
       }}
     >
       <Flex className={classes.contentContainerFlex}>
-        <Title mb={10}>User info</Title>
+        <Title mb={10}>{t("UserInfo")}</Title>
         <Stack className={classes.contentStack}>
           <form
             onSubmit={updateUserForm.onSubmit((_, event) => {
@@ -204,7 +206,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
             })}
           >
             <Fieldset
-              legend="Personal information"
+              legend={t("PersonalInformation")}
               w="98%"
               fz="xl"
               styles={{
@@ -218,28 +220,28 @@ export default function OrganizerPage(props: OrganizerPageProps) {
             >
               <Stack w="50%">
                 <TextInput
-                  label="User ID"
+                  label={t("UserID")}
                   disabled
                   value={props.user.userId}
                 ></TextInput>
                 <TextInput
-                  label="First name"
+                  label={t("FirstName")}
                   key={updateUserForm.key("firstName")}
                   {...updateUserForm.getInputProps("firstName")}
                 />
                 <TextInput
-                  label="City"
+                  label={t("City")}
                   key={updateUserForm.key("city")}
                   {...updateUserForm.getInputProps("city")}
                 />
                 <DateInput
-                  label="Birthday"
+                  label={t("Birthday")}
                   key={updateUserForm.key("birthday")}
                   {...updateUserForm.getInputProps("birthday")}
                 />
                 <PasswordStrength
-                  label="New password"
-                  placeholder="New password"
+                  label={t("NewPassword")}
+                  placeholder={t("NewPassword")}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),
@@ -249,23 +251,23 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               <Stack w="50%">
                 <TextInput label="Email" disabled value={props.user.email} />{" "}
                 <TextInput
-                  label="Last name"
+                  label={t("LastName")}
                   key={updateUserForm.key("lastName")}
                   {...updateUserForm.getInputProps("lastName")}
                 />
                 <TextInput
-                  label="Address"
+                  label={t("Address")}
                   key={updateUserForm.key("address")}
                   {...updateUserForm.getInputProps("address")}
                 />
                 <TextInput
-                  label="Phone number"
+                  label={t("PhoneNumber")}
                   key={updateUserForm.key("phoneNumber")}
                   {...updateUserForm.getInputProps("phoneNumber")}
                 />
                 <PasswordInput
-                  label="Current password"
-                  placeholder="Enter current password"
+                  label={t("CurrentPassword")}
+                  placeholder={t("EnterCurrentPassword")}
                   key={updateUserForm.key("currentPassword")}
                   {...updateUserForm.getInputProps("currentPassword")}
                 />
@@ -279,7 +281,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                   }}
                 >
                   <InputLabel className="mantine-TextInput-label">
-                    Save changes
+                    {t("SaveChanges")}
                   </InputLabel>
                   <Button
                     type="submit"
@@ -334,7 +336,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                         });
                     }}
                   >
-                    Save changes
+                    {t("SaveChanges")}
                   </Button>
                 </div>
               </Stack>
@@ -352,29 +354,29 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               },
             }}
           >
-            <StatsCard title="Hosted events" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.hostedEvents : 0 } />
-            <StatsCard title="Average rating" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.averageRating : 0} />
-            <StatsCard title="Reservations" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.reservations : 0} />
-            <StatsCard title="Estimated earnings" current={statistics && !isStatisticsLoading && !statisticsError ? statistics.estimatedEarnings : 0} />
+            <StatsCard title={t("HostedEvents")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.hostedEvents : 0 } />
+            <StatsCard title={t("AverageRating")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.averageRating : 0} />
+            <StatsCard title={t("Reservations")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.reservations : 0} />
+            <StatsCard title={t("EstimatedEarnings")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.estimatedEarnings : 0} />
           </Fieldset>
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
         <Title>
-          Incoming events{" "}
+          {t("IncomingEvents")}{" "}
           <Button
             onClick={(e) => {
               e.stopPropagation();
               if (isMobile) {
                 alert(
-                  "Cannot schedule event from mobile device. We are working on it"
+                  t("CannotScheduleEventFromMobileDevice.WeAreWorkingOnIt")
                 );
                 return;
               }
               props.showEvent(View.NewEvent);
             }}
           >
-            New event
+            {t("NewEvent")}
           </Button>
         </Title>
         <Stack className={classes.contentStack} align="center">
@@ -399,7 +401,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               >
                 <Image
                   src={`data:image/jpeg;base64,${ev.image}`}
-                  alt={`Couldn't load ${ev.name} image`}
+                  alt={`${t("CouldNotLoad")} ${ev.name} ${t("Image")}`}
                   fit="cover"
                   w={imageWidth}
                   className={classes.reservationAndVisitedDivImage}
@@ -417,7 +419,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     event.stopPropagation();
                     if (isMobile) {
                       alert(
-                        "Cannot schedule event from mobile device. We are working on it"
+                        t("CannotScheduleEventFromMobileDevice.WeAreWorkingOnIt")
                       );
                       return;
                     }
@@ -427,14 +429,14 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     props.showEvent(View.ManageEvent);
                   }}
                 >
-                  Manage
+                  {t("Manage")}
                 </Button>
               </Flex>
             ))}
         </Stack>
       </Flex>
       <Flex className={classes.contentContainerFlex}>
-        <Title>Past events</Title>
+        <Title>{t("PastEvents")}</Title>
         <Stack className={classes.contentStack} align="center">
           {(arePastEventsLoading || pastEventsError) && (
             <div className={classes.controls}>
@@ -480,7 +482,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                     props.showEvent(View.PastEventDetails);
                   }}
                 >
-                  Reviews
+                  {t("Reviews")}
                 </Button>
               </Flex>
             ))}
