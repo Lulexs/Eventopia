@@ -428,7 +428,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   {...updateUserForm.getInputProps("phoneNumber")}
                 />
                 <PasswordInput
-                  label={t("CurrentPass")}
+                  label={t("CurrentPassword")}
                   placeholder={t("CurrPassP")}
                   key={updateUserForm.key("currentPassword")}
                   {...updateUserForm.getInputProps("currentPassword")}
@@ -651,7 +651,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     toggleReview();
                   }}
                 >
-                  {t("Leave review")}
+                  {t("LeaveReview")}
                 </Button>
                 ) : (
                 <Button

@@ -12,13 +12,14 @@ import Drawer from "../Reservations/Drawer/Drawer";
 import axios from "../../axiosconfig.ts";
 import MapWithInput from "../Auth/Utils/MapInput";
 import { LatLng } from "leaflet";
+import { useTranslation } from "react-i18next";
 
 export default function SpaceOwnerPageContainer() {
   const [position, setPosition] = useState<LatLng>(new LatLng(44.787197, 20.457273));
   const [city, setCity] = useState<string>("");
   const [country, setCountry] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-
+  const { t } = useTranslation();
   const loggedUser = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
@@ -64,7 +65,7 @@ export default function SpaceOwnerPageContainer() {
             onCancel={() => setView(View.Basic)}
           />
           <Fieldset
-            legend="Basic information"
+            legend={t("BasicInformation")}
             w="50%"
             h="fit-content"
             fz="xl"
@@ -82,25 +83,25 @@ export default function SpaceOwnerPageContainer() {
                 value={city}
                 onChange={(event) => setCity(event.currentTarget.value)}
                 required
-                label="City"
+                label={t("City")}
               ></TextInput>
               <TextInput
                 value={country}
                 onChange={(event) => setCountry(event.currentTarget.value)}
                 required
-                label="Country"
+                label={t("Country")}
               ></TextInput>
               <TextInput
                 value={address}
                 onChange={(event) => setAddress(event.currentTarget.value)}
                 required
-                label="Address"
+                label={t("Address")}
               ></TextInput>
             </Stack>
             <Stack w="50%" justify="center">
               <TextInput
                 required
-                label="Select location address"
+                label={t("SelectLocationAddress")}
                 disabled={true}
                 value={`${position.lat} ${position.lng}`}
               ></TextInput>

@@ -405,7 +405,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                   <Text className={classes.reservationAndVisitedDivText}>
                     {space.address}
                     <br />
-                    Capacity: {space.capacity}
+                    {t("Capacity")}: {space.capacity}
                   </Text>
                 </Box>
                 <Button onClick={() => removeSpace(space.id)} bg={"red"}>
