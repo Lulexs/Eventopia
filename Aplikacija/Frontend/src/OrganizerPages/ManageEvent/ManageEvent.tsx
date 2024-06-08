@@ -223,6 +223,10 @@ export default function ManageEvent(props: ManageEventProps) {
                   onClick={async (event) => {
                     event.stopPropagation();
                     const values = changeEventForm.getValues();
+
+                    if (changeEventForm.validate().hasErrors) {
+                      return;
+                    }
                     
                     if (tags.length === 0) {
                       alert("Please enter at least one tag!");

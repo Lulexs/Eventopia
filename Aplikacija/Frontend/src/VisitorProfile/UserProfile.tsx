@@ -450,6 +450,11 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
+
+                      if (updateUserForm.validate().hasErrors) {
+                        return;
+                      }
+
                       await axios
                         .put(
                           `${

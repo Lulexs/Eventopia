@@ -279,6 +279,11 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
+
+                      if (updateUserForm.validate().hasErrors) {
+                        return;
+                      }
+
                       await axios
                         .put(
                           `${

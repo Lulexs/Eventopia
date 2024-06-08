@@ -52,6 +52,9 @@ export function LoginPage() {
             <form
               onSubmit={loginForm.onSubmit(async (values, event) => {
                 event?.stopPropagation();
+                if (loginForm.validate().hasErrors) {
+                  return;
+                }
                 await axios
                   .post(`${import.meta.env.VITE_DB_SERVER}/Account/login`, {
                     email: values.email,

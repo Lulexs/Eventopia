@@ -277,6 +277,11 @@ export default function NewEvent(props: NewEventProps) {
                     onClick={async (event) => {
                       event.stopPropagation();
                       const values = createEventForm.getValues();
+
+                      if (createEventForm.validate().hasErrors) {
+                        return;
+                      }
+
                       const newSpacePlan = getObjectFromDrawerRef?.current && typeof getObjectFromDrawerRef.current === 'function'
                       ? getObjectFromDrawerRef.current()
                       : null;
