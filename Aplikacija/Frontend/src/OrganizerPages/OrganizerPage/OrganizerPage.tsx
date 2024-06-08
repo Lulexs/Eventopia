@@ -40,7 +40,7 @@ export interface OrganizerPageProps {
 }
 
 export default function OrganizerPage(props: OrganizerPageProps) {
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
   const [imageWidth, setImageWidth] = useState("25%");
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
@@ -175,16 +175,16 @@ export default function OrganizerPage(props: OrganizerPageProps) {
   });
 
   const getEventDetails = async (eventId: number) => {
-      return await axios
-        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventDetails/${eventId}`)
-        .then((resp) => {
-          return resp.data;
-        })
-        .catch((err) => {
-          console.error(err);
-          alert(err.resp.data);
-          return null;
-        });
+    return await axios
+      .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventDetails/${eventId}`)
+      .then((resp) => {
+        return resp.data;
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err.resp.data);
+        return null;
+      });
   };
 
   return (
@@ -300,7 +300,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                           }/Account/updateUser`,
                           {
                             ...values,
-                            birthday: values.birthday.toISOString()
+                            birthday: values.birthday.toISOString(),
                           }
                         )
                         .then((resp) => {
@@ -327,10 +327,12 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                         })
                         .catch((err) => {
                           console.error(err);
-                          if (Array.isArray(err.response.data) && err.response.data.length > 0) {
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
                             alert(err.response.data[0].description);
-                          }
-                          else {
+                          } else {
                             alert(err.response.data);
                           }
                         });
@@ -354,10 +356,38 @@ export default function OrganizerPage(props: OrganizerPageProps) {
               },
             }}
           >
-            <StatsCard title={t("HostedEvents")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.hostedEvents : 0 } />
-            <StatsCard title={t("AverageRating")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.averageRating : 0} />
-            <StatsCard title={t("Reservations")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.reservations : 0} />
-            <StatsCard title={t("EstimatedEarnings")} current={statistics && !isStatisticsLoading && !statisticsError ? statistics.estimatedEarnings : 0} />
+            <StatsCard
+              title={t("HostedEvents")}
+              current={
+                statistics && !isStatisticsLoading && !statisticsError
+                  ? statistics.hostedEvents
+                  : 0
+              }
+            />
+            <StatsCard
+              title={t("AverageRating")}
+              current={
+                statistics && !isStatisticsLoading && !statisticsError
+                  ? statistics.averageRating
+                  : 0
+              }
+            />
+            <StatsCard
+              title={t("Reservations")}
+              current={
+                statistics && !isStatisticsLoading && !statisticsError
+                  ? statistics.reservations
+                  : 0
+              }
+            />
+            <StatsCard
+              title={t("EstimatedEarnings")}
+              current={
+                statistics && !isStatisticsLoading && !statisticsError
+                  ? statistics.estimatedEarnings
+                  : 0
+              }
+            />
           </Fieldset>
         </Stack>
       </Flex>
@@ -410,27 +440,51 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                   <Text className={classes.reservationAndVisitedDivText}>
                     {ev.name}
                     <br />
-                    {formatOnlyDate(new Date(ev.date))} {formatTimeOnly(new Date(ev.date))}
+                    {formatOnlyDate(new Date(ev.date))}{" "}
+                    {formatTimeOnly(new Date(ev.date))}
                   </Text>
                 </Box>
-                <Button
-                  w="fit-content"
-                  onClick={async (event) => {
-                    event.stopPropagation();
-                    if (isMobile) {
-                      alert(
-                        t("CannotScheduleEventFromMobileDevice.WeAreWorkingOnIt")
-                      );
-                      return;
-                    }
-                    props.setEventId(ev.id);
-                    const eventDetails = await getEventDetails(ev.id);
-                    props.setEventDetails(eventDetails);
-                    props.showEvent(View.ManageEvent);
-                  }}
-                >
-                  {t("Manage")}
-                </Button>
+                <Stack w="fit-content" gap={5} align="center">
+                  <Button
+                    w="fit-content"
+                    onClick={async (event) => {
+                      event.stopPropagation();
+                      if (isMobile) {
+                        alert(
+                          t(
+                            "CannotScheduleEventFromMobileDevice.WeAreWorkingOnIt"
+                          )
+                        );
+                        return;
+                      }
+                      props.setEventId(ev.id);
+                      const eventDetails = await getEventDetails(ev.id);
+                      props.setEventDetails(eventDetails);
+                      props.showEvent(View.ManageEvent);
+                    }}
+                  >
+                    {t("Manage")}
+                  </Button>
+                  <Button
+                    w="fit-content"
+                    onClick={async (event) => {
+                      const data = "hello and welcome";
+                      const blob = new Blob([data], {
+                        type: "text/plain",
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "data.txt";
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    {t("Reservations")}
+                  </Button>
+                </Stack>
               </Flex>
             ))}
         </Stack>
@@ -468,7 +522,8 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                   <Text className={classes.reservationAndVisitedDivText}>
                     {ev.name}
                     <br />
-                    {formatOnlyDate(new Date(ev.date))} {formatTimeOnly(new Date(ev.date))}
+                    {formatOnlyDate(new Date(ev.date))}{" "}
+                    {formatTimeOnly(new Date(ev.date))}
                   </Text>
                 </Box>
                 <Button
