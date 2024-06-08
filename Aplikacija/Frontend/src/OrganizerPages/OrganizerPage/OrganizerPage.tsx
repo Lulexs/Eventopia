@@ -468,7 +468,24 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                   <Button
                     w="fit-content"
                     onClick={async (event) => {
-                      const data = "hello and welcome";
+                      event.stopPropagation();
+
+                      const data = await axios
+                        .get(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Host/getReservations/${ev.id}`
+                        )
+                        .then((resp) => {
+                          return resp.data;
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          alert(
+                            "There was an error while trying to fetch list of visitors"
+                          );
+                        });
+
                       const blob = new Blob([data], {
                         type: "text/plain",
                       });
