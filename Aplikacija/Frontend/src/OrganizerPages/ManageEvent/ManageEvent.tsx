@@ -24,6 +24,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig";
 import { useForm } from "@mantine/form";
 import { CustomStatsCard } from "../../VisitorProfile/CustomStatsCard";
+import { useTranslation } from 'react-i18next';
 
 export interface ManageEventProps {
   user: AuthState;
@@ -34,12 +35,12 @@ export interface ManageEventProps {
 
 export default function ManageEvent(props: ManageEventProps) {
   const [tags, setTags] = useState<string[]>(props.eventDetails?.tags ?? []);
-
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const cancelEvent = async (eventId: number) => {
     try {
-      if (confirm("Are you sure you want to cancel this event?")) {
+      if (confirm(t("AreYouSureYouWantToCancelThisEvent"))) {
         await axios.delete(
           `${
             import.meta.env.VITE_DB_SERVER
@@ -47,7 +48,7 @@ export default function ManageEvent(props: ManageEventProps) {
         ).then(() => { 
           queryClient.invalidateQueries({ queryKey: ["incoming_events"] });
           props.showEvent(View.Basic);
-          alert("Event has been successfully canceled!");
+          alert(t("EventHasBeenSuccessfullyCanceled"));
         }
         );
       }
@@ -75,11 +76,11 @@ export default function ManageEvent(props: ManageEventProps) {
 
     validate: {
       eventName: (value) =>
-        value && value.length > 0 ? null : "Empty event name field",
+        value && value.length > 0 ? null : t("EmptyEventNameField"),
       description: (value) =>
-        value && value.length > 0 ? null : "Empty description field",
+        value && value.length > 0 ? null : t("EmptyDescriptionField"),
       time: (value) =>
-        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value ?? "") ? null : "Wrong time format",
+        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value ?? "") ? null : t("WrongTimeFormat"),
     },
   });
 
@@ -102,16 +103,16 @@ export default function ManageEvent(props: ManageEventProps) {
               queryClient.invalidateQueries({ queryKey: ["event_preview"] });
             }}
           >
-            Go back
+            {t("GoBack")}
           </Button>
-          <Title c="#5a5959">Manage event</Title>
+          <Title c="#5a5959">{t("ManageEvent")}</Title>
           <Button
               bg={"red"}
               onClick={async () => {
                 await cancelEvent(props.eventId);
               }}
           >
-            Cancel event
+            {t("CancelEvent")}
           </Button>
         </Group>
 
@@ -135,7 +136,7 @@ export default function ManageEvent(props: ManageEventProps) {
             })}
           >
           <Fieldset
-            legend="Basic information"
+            legend={t("BasicInformation")}
             w="100%"
             h="fit-content"
             fz="xl"
@@ -151,15 +152,15 @@ export default function ManageEvent(props: ManageEventProps) {
             <Stack w="50%">
             <TextInput
                 required
-                label="Event name"
-                placeholder="Event name..."
+                label= {t("EventName")}
+                placeholder={t("EventName...")}
                 key={changeEventForm.key("eventName")}
                 {...changeEventForm.getInputProps("eventName")}
               ></TextInput>
               <Textarea
                   required
-                  placeholder="Write something about the event..."
-                  label="Description"
+                  placeholder= {t("WriteSomethingAbouTthEevent...")}
+                  label={t("Description")}
                   autosize
                   minRows={5}
                   key={changeEventForm.key("description")}
@@ -167,8 +168,8 @@ export default function ManageEvent(props: ManageEventProps) {
                 />
                 <TagsInput
                   miw="100%"
-                  label="Press Enter to submit a tag"
-                  placeholder="Enter tag"
+                  label= {t("PressEnterToSubmitATag")}
+                  placeholder={t("EnterTag")}
                   value={tags}
                   onChange={setTags}
                   styles={{
@@ -182,27 +183,27 @@ export default function ManageEvent(props: ManageEventProps) {
             <Stack w="50%">
             <DateInput
                   required
-                  label="Date"
+                  label={t("Date")}
                   key={changeEventForm.key("date")}
                   {...changeEventForm.getInputProps("date")}
                 />
                 <TextInput
                     required
                     placeholder="HH:mm"
-                    label="Time"
+                    label={t("Time")}
                     key={changeEventForm.key("time")}
                     {...changeEventForm.getInputProps("time")}
                 />
                 <FileInput
                   required
-                  placeholder="Image to be displayed"
-                  label="Promo image"
+                  placeholder={t("ImageToBeDisplayed")}
+                  label={t("PromoImage")}
                   key={changeEventForm.key("image")}
                   {...changeEventForm.getInputProps("image")}
                 />
                 <TextInput
-                  placeholder="YouTube embed link"
-                  label="Promo video"
+                  placeholder= {t("YouTubeEmbedLink")}
+                  label={t("PromoVideo")}
                   key={changeEventForm.key("video")}
                   {...changeEventForm.getInputProps("video")}
                 />
@@ -216,7 +217,7 @@ export default function ManageEvent(props: ManageEventProps) {
                 }}
               >
                 <InputLabel className="mantine-TextInput-label">
-                  Edit
+                  {t("Edit")}
                 </InputLabel>
                 <Button
                   type="submit"
@@ -229,12 +230,12 @@ export default function ManageEvent(props: ManageEventProps) {
                     }
                     
                     if (tags.length === 0) {
-                      alert("Please enter at least one tag!");
+                      alert (t("PleaseAddAtLeastOneTag"));
                       return;
                     }
 
                     if (values.image === null) {
-                      alert("Please upload an image!");
+                      alert(t("PleaseUploadAnImage"));
                       return;
                     }
 
@@ -282,7 +283,7 @@ export default function ManageEvent(props: ManageEventProps) {
                         },
                     })
                     .then(() => {
-                      alert("Successfully changed event info!");
+                      alert(t("SuccessfullyChangedEventInfo"));
                       props.showEvent(View.Basic);
                     })
                     .catch((err) => {
@@ -298,7 +299,7 @@ export default function ManageEvent(props: ManageEventProps) {
 
                   }}
                 >
-                  Edit event details
+                  {t("EditEventDetails")}
                 </Button>
               </div>
             </Stack>
@@ -307,7 +308,7 @@ export default function ManageEvent(props: ManageEventProps) {
 
           <Flex w="50%" direction="column">
             <Fieldset
-              legend="Space information"
+              legend={t("SpaceInformation")}
               w="100%"
               h="fit-content"
               fz="xl"
@@ -322,11 +323,11 @@ export default function ManageEvent(props: ManageEventProps) {
               mb={10}
             >
               <Stack w="100%" justify="center">
-                <TextInput label="Location" value={props.eventDetails?.location} disabled={true} />
-                <TextInput label="Address" value={props.eventDetails?.address} disabled={true} />
+                <TextInput label={t("Location")} value={props.eventDetails?.location} disabled={true} />
+                <TextInput label={t("Address")} value={props.eventDetails?.address} disabled={true} />
                 <NumberInput
                   disabled={true}
-                  label="Capacity"
+                  label={t("Capacity")}
                   inputMode="numeric"
                   value={props.eventDetails?.capacity}
                 />
@@ -334,7 +335,7 @@ export default function ManageEvent(props: ManageEventProps) {
             </Fieldset>
 
             <Fieldset
-              legend="Statistics"
+              legend={t("Statistics")}
               w="100%"
               h="fit-content"
               fz="xl"
@@ -348,13 +349,13 @@ export default function ManageEvent(props: ManageEventProps) {
               mb={10}
             >
               <CustomStatsCard 
-                title="Reserved tables" 
+                title= {("ReservedTables")}
                 dash={false}
                 level=""
                 current={props.eventDetails?.reservedTables ?? 0}
                 nextStage={props.eventDetails?.maxTables ?? 0}
               />
-              <StatsCard title="Total earnings" current={props.eventDetails?.totalEarnings ?? 0} />
+              <StatsCard title={t("TotalEarning")} current={props.eventDetails?.totalEarnings ?? 0} />
             </Fieldset>
           </Flex>
         </Flex>

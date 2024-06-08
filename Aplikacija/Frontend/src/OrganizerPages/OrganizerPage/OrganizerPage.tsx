@@ -304,7 +304,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                           }
                         )
                         .then((resp) => {
-                          alert("Successfully changed user info!");
+                          alert(t("SuccessfullyChangedUserInfo!"));
                           const obj = JSON.parse(
                             atob(resp.data.token.split(".")[1])
                           );
@@ -343,7 +343,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
             </Fieldset>
           </form>
           <Fieldset
-            legend="Statistics"
+            legend={t("Statistics")}
             w="98%"
             fz="sm"
             styles={{
@@ -460,7 +460,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 <Image
                   className={classes.reservationAndVisitedDivImage}
                   src={`data:image/jpeg;base64,${ev.image}`}
-                  alt={`Couldn't load ${ev.name} image`}
+                  alt={`${t("CouldNotLoad")} ${ev.name} ${t("Image")}`}
                   fit="cover"
                   w={imageWidth}
                 />
