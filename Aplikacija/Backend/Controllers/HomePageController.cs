@@ -167,7 +167,7 @@ public class HomePageController : ControllerBase
     {
 
         var korisnik = await _userManager.Users
-                                            .Include(x => x.Tagovi)
+                                            .Include(x => x.Tagovi!)
                                             .ThenInclude(t => t.UserTag)
                                             .FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
@@ -175,9 +175,9 @@ public class HomePageController : ControllerBase
         List<Dogadjaj> dogadjaji = await Context.Dogadjaji
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
-                                    .Include(x=> x.Rezervacije)
+                                    .Include(x => x.Rezervacije)
                                     .Include(x => x.RezervacijaProstora)
-                                    .ThenInclude(x => x.Prostor)
+                                    .ThenInclude(x => x!.Prostor)
                                     .Where(x => x.Vreme > DateTime.Now && x.Status == StatusDogadjaja.Active)
                                     .ToListAsync();
 
@@ -186,9 +186,9 @@ public class HomePageController : ControllerBase
                                     .Include(x => x.Organizator)
                                     .Include(x => x.Tagovi)
                                     .Include(x => x.RezervacijaProstora)
-                                    .ThenInclude(x => x.Prostor)
+                                    .ThenInclude(x => x!.Prostor)
                                     .Include(x => x.Rezervacije)
-                                    .Where(x => x.Rezervacije!.Any(y => y.Korisnik.Id == korisnik.Id))
+                                    .Where(x => x.Rezervacije!.Any(y => y.Korisnik!.Id == korisnik!.Id))
                                     .ToListAsync();
 
 
@@ -206,20 +206,20 @@ public class HomePageController : ControllerBase
         //4: pogadjanje u lokaciji sa dogadjajima koje je posetio - max 10 za sve koje je posetio
         foreach (var dogadjaj in dogadjaji)
         {
-            
-            output.Add($"Logika za ocenjivanja za dogadjaj {dogadjaj.Naziv}"); 
+
+            output.Add($"Logika za ocenjivanja za dogadjaj {dogadjaj.Naziv}");
             output.Add("Na pocetku se radi uporedjivanje tagova dogadjaja u iteraciji sa tagovima korisnika");
             double rejt = 0;
 
             //max je 10
             //pogadjanja u tagovima korisnika
-            if (korisnik.Tagovi != null && dogadjaj.Tagovi != null)
+            if (korisnik!.Tagovi != null && dogadjaj.Tagovi != null)
             {
                 foreach (var tag in korisnik.Tagovi)
                 {
                     foreach (var tag2 in dogadjaj.Tagovi)
                     {
-                        var distance = HomePageUtils.LevenshteinDistance(tag.UserTag.TagName, tag2.TagName);
+                        var distance = HomePageUtils.LevenshteinDistance(tag.UserTag!.TagName, tag2.TagName);
                         string message = $"Lavenshtein distance za {tag.UserTag.TagName} i {tag2.TagName} je {distance} za {dogadjaj.Naziv}";
                         output.Add(message); // Add the message to the output list instead of writing to console
                         if (distance < 3)
@@ -238,14 +238,14 @@ public class HomePageController : ControllerBase
             //izvlacenje ocene na osnovu broja rezervacija
 
             int rezervisanaMesta = 0;
-            if(dogadjaj.Rezervacije != null)
-                 rezervisanaMesta = dogadjaj.Rezervacije!.Sum(rezervacija => rezervacija.BrojMesta);
+            if (dogadjaj.Rezervacije != null)
+                rezervisanaMesta = dogadjaj.Rezervacije!.Sum(rezervacija => rezervacija.BrojMesta);
 
             double rejtOdRezervacije = HomePageUtils.CalculateScoreReservation(rezervisanaMesta, 8);
 
             rejt += rejtOdRezervacije; // znaci kad je manje 8 mesta rezervisano, rejt opada linearno
             output.Add($"Za dogadjaj {dogadjaj.Naziv} je rezervisano {rezervisanaMesta} mesta, od rezervacije je rejt {rejtOdRezervacije}, a rejt je sad {rejt}"); // Add the message to the output list instead of writing to console
-            
+
 
             output.Add($"Uporedjujemo trenutni dogadjaj u iteraciji  {dogadjaj.Naziv} sa svim dogadjajima koje je korisnik posetio ili rezervisao* i za svaki skaliramo u odnosu na broj posecenih/rezervisanih korisnikovih");
             if (kojeJeKorisnikPosetio != null && kojeJeKorisnikPosetio.Count > 0)
@@ -281,15 +281,15 @@ public class HomePageController : ControllerBase
                     double dogadjajLat = dogadjaj.RezervacijaProstora!.Prostor!.Latitude;
                     double dogadjajLongt = dogadjaj.RezervacijaProstora.Prostor.Longitude;
                     double distance = HomePageUtils.HaversineDistance(posetio.RezervacijaProstora!.Prostor!.Latitude, posetio.RezervacijaProstora.Prostor.Longitude, dogadjajLat, dogadjajLongt) / 1000; // da bude u km
-                    output.Add($" Physical distance between {posetio.Naziv} (posecen) and {dogadjaj.Naziv} (dogadjaj) is {distance} and score is {HomePageUtils.CalculateScoreDistance(distance, 300)}"); 
+                    output.Add($" Physical distance between {posetio.Naziv} (posecen) and {dogadjaj.Naziv} (dogadjaj) is {distance} and score is {HomePageUtils.CalculateScoreDistance(distance, 300)}");
                     tempRejt += HomePageUtils.CalculateScoreDistance(distance, 300); // znaci kad dalje od 300km, rejt je 0
 
                     rejt += tempRejt / kojeJeKorisnikPosetio.Count;
-                    output.Add($"tempRejt: {tempRejt}, skaliran: {tempRejt/kojeJeKorisnikPosetio.Count} ");
+                    output.Add($"tempRejt: {tempRejt}, skaliran: {tempRejt / kojeJeKorisnikPosetio.Count} ");
                 }
             }
 
-            output.Add($"Finalni score za {dogadjaj.Naziv} je {rejt}"); 
+            output.Add($"Finalni score za {dogadjaj.Naziv} je {rejt}");
             zaRejtovanje.Add(new FullEventForRecomm
             {
                 ID = dogadjaj.ID,
@@ -297,10 +297,10 @@ public class HomePageController : ControllerBase
                 Slika = dogadjaj.Slika,
                 Datum = dogadjaj.Vreme.ToString("dd.MM.yyyy."),
                 Vreme = dogadjaj.Vreme.ToString("HH:mm"),
-                Lokacija = dogadjaj?.RezervacijaProstora?.Prostor != null 
-                ? $"{dogadjaj.RezervacijaProstora.Prostor.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}" 
+                Lokacija = dogadjaj?.RezervacijaProstora?.Prostor != null
+                ? $"{dogadjaj.RezervacijaProstora.Prostor.Grad}, {dogadjaj.RezervacijaProstora.Prostor.Drzava}"
                 : "Location not available",
-                OrganizatorID = dogadjaj.Organizator!.Id.ToString(),
+                OrganizatorID = dogadjaj!.Organizator!.Id.ToString(),
                 Organizator = $"{dogadjaj.Organizator!.Ime} {dogadjaj.Organizator!.Prezime}",
                 Rating = rejt
             });

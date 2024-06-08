@@ -8,11 +8,13 @@ public class SpaceController : ControllerBase
 
     private readonly UserManager<Korisnik> _userManager;
     public Context Context { get; set; }
+    private readonly IMailService _mailService;
 
-    public SpaceController(Context context, UserManager<Korisnik> userManager)
+    public SpaceController(Context context, UserManager<Korisnik> userManager, IMailService _MailService)
     {
         Context = context;
         _userManager = userManager;
+        _mailService = _MailService;
     }
 
     [Authorize(Policy = "RequireSpaceOwnerRole")]
@@ -200,7 +202,10 @@ public class SpaceController : ControllerBase
     public async Task<IActionResult> RespondToSpaceReservation([FromRoute] int id, [FromRoute] string response)
     {
 
-        var rezervacija = await Context.RezervacijeProstora.Include(x => x.Dogadjaj).FirstOrDefaultAsync(x => x.ID == id);
+        var rezervacija = await Context.RezervacijeProstora.Include(x => x.Dogadjaj)
+                                                            .ThenInclude(x => x!.Organizator)
+                                                            .Include(x => x.Prostor)
+                                                            .FirstOrDefaultAsync(x => x.ID == id);
 
         if (rezervacija == null)
         {
@@ -245,6 +250,25 @@ public class SpaceController : ControllerBase
 
         Context.RezervacijeProstora.Update(rezervacija);
         await Context.SaveChangesAsync();
+
+        var organizator = rezervacija.Dogadjaj!.Organizator;
+
+        var dogadjajNaziv = rezervacija.Dogadjaj!.Naziv;
+        var dogadjajVreme = rezervacija.Dogadjaj!.Vreme.ToString("dd.MM.yyyy. HH:mm");
+
+        var mailData = new HTMLMailData
+        {
+            EmailToId = organizator!.Email!,
+            EmailToName = organizator!.Ime + " " + organizator.Prezime,
+            EmailSubject = "Your space reservation is rejected",
+            EventName = dogadjajNaziv,
+            EventDate = dogadjajVreme,
+            EventLocation = rezervacija.Prostor!.Adresa + ", " + rezervacija.Prostor!.Grad + ", " + rezervacija.Prostor!.Drzava,
+            MailType = "ReservationCancelled"
+        };
+
+        await _mailService.SendHTMLMailAsync(mailData);
+
         return Ok();
     }
 

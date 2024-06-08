@@ -267,7 +267,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 />
                 <PasswordInput
                   label={t("CurrentPassword")}
-                  placeholder={t("EnterCurrentPassword")}
+                  placeholder={t("CurrPassP")}
                   key={updateUserForm.key("currentPassword")}
                   {...updateUserForm.getInputProps("currentPassword")}
                 />

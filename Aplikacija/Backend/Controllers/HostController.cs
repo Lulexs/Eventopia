@@ -6,11 +6,13 @@ namespace Backend.Controllers;
 public class HostController : ControllerBase
 {
     private readonly UserManager<Korisnik> _userManager;
+    private readonly IMailService _mailService;
     public Context Context { get; set; }
-    public HostController(Context context, UserManager<Korisnik> userManager)
+    public HostController(Context context, UserManager<Korisnik> userManager, IMailService _MailService)
     {
         Context = context;
         _userManager = userManager;
+        _mailService = _MailService;
     }
 
     [Authorize(Policy = "RequireHostRole")]
@@ -312,9 +314,38 @@ public class HostController : ControllerBase
 
         var rezervacijaProstora = dogadjaj.RezervacijaProstora;
 
+        var visitors = await Context.Rezervacije.Include(x => x.Korisnik)
+                                                .Where(x => x.Dogadjaj == dogadjaj)
+                                                .Select(x => new
+                                                {
+                                                    Email = x.Korisnik!.Email,
+                                                    Name = x.Korisnik.Ime + " " + x.Korisnik.Prezime,
+                                                })
+                                                .Distinct()
+                                                .ToListAsync();
+
+        var dogadjajNaziv = dogadjaj.Naziv;
+        var dogadjajVreme = dogadjaj.Vreme.ToString("dd.MM.yyyy. HH:mm");
+
         Context.Dogadjaji.Remove(dogadjaj);
         Context.RezervacijeProstora.Remove(dogadjaj.RezervacijaProstora!);
         await Context.SaveChangesAsync();
+
+        visitors.ForEach(async (x) =>
+        {
+            var mailData = new HTMLMailData
+            {
+                EmailToId = x.Email!,
+                EmailToName = x.Name,
+                EmailSubject = "Event you have reservation for is cancelled",
+                EventName = dogadjajNaziv,
+                EventDate = dogadjajVreme,
+                MailType = "EventCancelled"
+            };
+
+            await _mailService.SendHTMLMailAsync(mailData);
+        });
+
         return Ok();
     }
 
@@ -541,6 +572,7 @@ public class HostController : ControllerBase
 
         var dogadjaj = await Context.Dogadjaji.Include(x => x.Tagovi)
                                                 .Include(x => x.Organizator)
+                                                .Include(x => x.RezervacijaProstora)
                                                 .Where(x => x.ID == changeEventDto.ID)
                                                 .FirstOrDefaultAsync();
 
@@ -564,6 +596,48 @@ public class HostController : ControllerBase
         if (dateTime < DateTime.Now)
         {
             return BadRequest("Event date and time must be in the future.");
+        }
+
+        if (dogadjaj.Vreme.ToShortDateString() != dateTime.ToShortDateString())
+        {
+            dogadjaj.Status = StatusDogadjaja.WaitingForSpaceApproval;
+
+            var rezervacijaProstora = dogadjaj.RezervacijaProstora;
+
+            rezervacijaProstora!.VremeOd = dateTime.AddHours(-12);
+            rezervacijaProstora.VremeDo = dateTime.AddHours(12);
+            rezervacijaProstora.Status = StatusRezervacije.WaitingConfirmation;
+
+            var visitors = await Context.Rezervacije.Include(x => x.Korisnik)
+                                                .Where(x => x.Dogadjaj == dogadjaj)
+                                                .Select(x => new
+                                                {
+                                                    Email = x.Korisnik!.Email,
+                                                    Name = x.Korisnik.Ime + " " + x.Korisnik.Prezime,
+                                                })
+                                                .Distinct()
+                                                .ToListAsync();
+
+            var dogadjajNaziv = dogadjaj.Naziv;
+            var dogadjajVreme = dogadjaj.Vreme.ToString("dd.MM.yyyy. HH:mm");
+            var novoVreme = dateTime.ToString("dd.MM.yyyy HH:mm");
+
+            visitors.ForEach(async (x) =>
+            {
+                var mailData = new HTMLMailData
+                {
+                    EmailToId = x.Email!,
+                    EmailToName = x.Name,
+                    EmailSubject = "Event you have reservation for is rescheduled",
+                    EventName = dogadjajNaziv,
+                    EventDate = dogadjajVreme,
+                    RescheduledDate = novoVreme,
+                    MailType = "EventRescheduled"
+                };
+
+                await _mailService.SendHTMLMailAsync(mailData);
+            });
+
         }
 
         dogadjaj.Naziv = changeEventDto.Naziv;

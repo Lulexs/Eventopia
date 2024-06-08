@@ -239,6 +239,11 @@ export default function ManageEvent(props: ManageEventProps) {
                       return;
                     }
 
+                    if (values.description ? values.description.length > 500 : false) {
+                      alert(t("DescriptionTooLong"));
+                      return;
+                    }
+
                     const eventObj : ChangeEventDto = {
                       id: props.eventId,
                       eventName: values.eventName ?? "",

@@ -233,6 +233,7 @@
   "PleaseEnterAtLeastOneTag" : "Please enter at least one tag!",
   "PleaseUploadAnImage" : "Please upload an image!",
   "PleaseSelectASpace"  : "Please select a space!",
+  "DescriptionTooLong" : "Description can be at most 500 characters long!",
   "SuccessfullyScheduledEvent" : "Event is successfully scheduled!",
   "QuerySpaces" : "Query spaces",
   "Query" : "Query",

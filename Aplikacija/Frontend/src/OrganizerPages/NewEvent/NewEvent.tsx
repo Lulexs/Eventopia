@@ -301,6 +301,11 @@ export default function NewEvent(props: NewEventProps) {
                         return;
                       }
 
+                      if (values.description.length > 500) {
+                        alert(t("DescriptionTooLong"));
+                        return;
+                      }
+
                       const eventObj : NewEventDto = {
                         eventName: values.eventName,
                         description: values.description,

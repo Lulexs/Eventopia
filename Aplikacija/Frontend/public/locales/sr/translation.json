@@ -232,6 +232,7 @@
   "PleaseEnterAtLeastOneTag" : "Molimo unesite bar jednu oznaku!",
   "PleaseUploadAnImage" : "Molimo učitajte sliku!",
   "PleaseSelectASpace" : "Molimo izaberite prostor!",
+  "DescriptionTooLong" : "Opis može imati najviše 500 karaktera!",
   "SuccessfullyScheduledEvent" : "Uspešno ste zakazali događaj!",
   "QuerySpaces" : "Pronađi prostore",
   "Query" : "Pretraga",

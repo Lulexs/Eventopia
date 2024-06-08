@@ -20,3 +20,7 @@ global using System.Text.Json;
 global using Backend.Utils;
 global using System.Globalization;
 global using Microsoft.Data.SqlClient;
+global using Backend.Configuration;
+global using MailKit.Net.Smtp;
+global using Microsoft.Extensions.Options;
+global using MimeKit;
