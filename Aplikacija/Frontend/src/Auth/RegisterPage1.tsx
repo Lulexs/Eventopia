@@ -250,7 +250,6 @@ export function RegisterPage1() {
               event.stopPropagation();
               const values = registerForm.getValues();
               if (registerForm.validate().hasErrors) {
-                console.log("Here");
                 return;
               }
               await axios
