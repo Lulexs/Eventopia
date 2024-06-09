@@ -53,6 +53,7 @@ export interface PasswordStrengthProps {
   label: string;
   placeholder: string;
   useFormProps: any;
+  required: boolean;
 }
 
 export function PasswordStrength(props: PasswordStrengthProps) {
@@ -89,7 +90,7 @@ export function PasswordStrength(props: PasswordStrengthProps) {
       <PasswordInput
         placeholder={props.placeholder}
         label={props.label}
-        required
+        required={props.required}
         {...props.useFormProps}
       />
 

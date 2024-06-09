@@ -21,7 +21,7 @@ import { StatsCard } from "../StatsCard";
 import { View } from "../EventViewPages";
 import { useIsMobile } from "../../util/useIsMobile";
 import { DateInput } from "@mantine/dates";
-import { useForm, matches } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import { useDispatch } from "react-redux";
 import { PasswordStrength } from "../../Auth/Utils/PasswordStrength";
 import { EventBasic } from "../../AdminPages/AdminPage/interfaces.ts";
@@ -83,13 +83,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
       address: (value) =>
         value != null && value.length > 0 ? null : t("EmptyAddressField"),
       phoneNumber: (value) =>
-        value.length > 0 ? null : t("EmptyPhoneNumberField"),
-      currentPassword: (value) =>
-        value.length >= 0 ? null : t("EmptyCurrentPasswordField"),
-      newPassword: (value) =>
-        value.length == 0 || matches(/(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/)
-          ? null
-          : t("EmptyNewPasswordField"),
+        value.length > 0 ? null : t("EmptyPhoneNumberField")
     },
   });
 
@@ -242,6 +236,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                 <PasswordStrength
                   label={t("NewPassword")}
                   placeholder={t("NewPassword")}
+                  required={false}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),
@@ -290,6 +285,10 @@ export default function OrganizerPage(props: OrganizerPageProps) {
 
                       const values = updateUserForm.getValues();
 
+                      if (updateUserForm.validate().hasErrors) {
+                        return;
+                      }
+
                       await axios
                         .put(
                           `${
@@ -301,7 +300,7 @@ export default function OrganizerPage(props: OrganizerPageProps) {
                           }
                         )
                         .then((resp) => {
-                          alert(t("SuccessfullyChangedUserInfo!"));
+                          alert(t("SuccessfullyChangedUserInfo"));
                           const obj = JSON.parse(
                             atob(resp.data.token.split(".")[1])
                           );

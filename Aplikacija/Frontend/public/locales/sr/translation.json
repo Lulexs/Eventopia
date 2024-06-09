@@ -306,6 +306,8 @@
   "Organized by": "Organizovano od strane",
   "Reservation made succesfully!" : "Rezervacija uspešno napravljena!",
 
-  "Recommendation": "Preporučeni događaji"
+  "Recommendation": "Preporučeni događaji",
+
+  "EmptyCountryField": "Polje za državu je prazno"
 
 }

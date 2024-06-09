@@ -307,6 +307,8 @@
   "Organized by": "Organized by",
   "Reservation made succesfully!": "Reservation made succesfully!",
 
-  "Recommendation": "Recommendation"
+  "Recommendation": "Recommendation",
+
+  "EmptyCountryField": "Empty country field"
 
 }

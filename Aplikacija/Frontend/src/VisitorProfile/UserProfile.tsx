@@ -104,10 +104,6 @@ export default function VisitorProfile(props: VisitorProfileProps) {
       firstName: (value) => (value.length > 0 ? null : t("EmptyFirstName")),
       lastName: (value) => (value.length > 0 ? null : t("EmptyLstName")),
       phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber")),
-      currentPassword: (value) =>
-        value.length >= 0 ? null : t("EmptyPassword"),
-      newPassword: (value) =>
-        /(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/.test(value) ? null : t("EmptyPassword"),
     },
   });
 
@@ -341,6 +337,11 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 <Button
                   onClick={async (event) => {
                     event.stopPropagation();
+
+                    if (updateUserForm.validate().hasErrors) {
+                      return;
+                    }
+
                     await axios
                       .put(
                         `${
@@ -352,7 +353,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                         }
                       )
                       .then(() => {
-                        alert("Successfully changed user info!");
+                        alert(t("SuccessfullyChangedUserInfo"));
                       })
                       .catch((err) => {
                         console.error(err);
@@ -409,6 +410,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 <PasswordStrength
                   label={t("NewPass")}
                   placeholder={t("NewPassP")}
+                  required={false}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),

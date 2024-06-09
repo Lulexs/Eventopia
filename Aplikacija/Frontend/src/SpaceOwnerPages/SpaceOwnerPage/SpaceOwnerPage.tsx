@@ -68,11 +68,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
         value != null && value.length > 0 ? null : t("EmptyCity"),
       address: (value) =>
         value != null && value.length > 0 ? null : t("EmptyAddress"),
-      phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber")),
-      currentPassword: (value) =>
-        value.length >= 0 ? null : t("EmptyPassword"),
-      newPassword: (value) =>
-        /(?:[0-9]|[a-z]|[A-Z]|[^\w\s])/.test(value) ? null : t("EmptyPassword"),
+      phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber"))
     },
   });
 
@@ -233,6 +229,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                 <PasswordStrength
                   label={t("NewPass")}
                   placeholder={t("NewPassP")}
+                  required={false}
                   key={updateUserForm.key("password")}
                   useFormProps={{
                     ...updateUserForm.getInputProps("newPassword"),
@@ -280,6 +277,10 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                       event.stopPropagation();
                       const values = updateUserForm.getValues();
 
+                      if (updateUserForm.validate().hasErrors) {
+                        return;
+                      }
+
                       await axios
                         .put(
                           `${
@@ -291,7 +292,7 @@ export default function SpaceOwnerPage(props: OrganizerPageProps) {
                           }
                         )
                         .then((resp) => {
-                          alert("Successfully changed user info!");
+                          alert(t("SuccessfullyChangedUserInfo"));
                           const obj = JSON.parse(
                             atob(resp.data.token.split(".")[1])
                           );

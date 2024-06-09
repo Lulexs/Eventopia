@@ -144,6 +144,7 @@ export function RegisterPage1() {
           <PasswordStrength
             label={t("Password")}
             placeholder={t("PasswordP")}
+            required={true}
             key={registerForm.key("password")}
             useFormProps={{ ...registerForm.getInputProps("password") }}
           />

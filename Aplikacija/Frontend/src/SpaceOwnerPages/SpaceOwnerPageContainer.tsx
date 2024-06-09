@@ -42,13 +42,25 @@ export default function SpaceOwnerPageContainer() {
         <Flex direction="column" justify="center" align="center">
           <Drawer
             onSubmit={async (spaceObject: any) => {
-              if (city == "" || country == "" || address == "") return;
+              if (city == "") {
+                alert(t("EmptyCityField"));
+                return;
+              }
+              if (country == "") {
+                alert(t("EmptyCountryField"));
+                return;
+              }
+              if (address == "") {
+                alert(t("EmptyAddressField"));
+                return;
+              }
+
               spaceObject["city"] = city;
               spaceObject["country"] = country;
               spaceObject["address"] = address;
               spaceObject["latitude"] = position.lat;
               spaceObject["longitude"] = position.lng;
-              console.log(spaceObject);
+
               await axios
                 .post(`${import.meta.env.VITE_DB_SERVER}/Space/addSpace`, spaceObject)
                 .then((_) => setView(View.Basic))
