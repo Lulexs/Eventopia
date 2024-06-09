@@ -214,7 +214,7 @@
   "ChangeSpaceLayout" : "Promeni raspored prostora",
   "ReservedTables" : "Rezervisani stolovi",
   "TotalEarnings" : "Ukupna zarada",
-  "InvalitDateOrTimeFormat" : "Neispravan format datuma ili vremena",
+  "InvalidDateOrTimeFormat" : "Neispravan format datuma ili vremena",
   "EmptyEventNameField" : "Polje za ime događaja je obavezno",
   "EmptyDescriptionField" : "Polje za opis događaja je obavezno",
   "WrongTimeFormat" : "Neispravan format vremena",
@@ -227,7 +227,7 @@
 
   "PressEnterToSubmitATag" : "Pritisnite Enter da biste dodali oznaku",
   "ImageToBeDisplayed" : "Slika koja će biti prikazana",
-  "SuccesfullyChangedEventInfo!" : "Uspešno ste promenili informacije o događaju!",
+  "SuccesfullyChangedEventInfo" : "Uspešno ste promenili informacije o događaju!",
   "EditEventDetails" : "Izmeni detalje događaja",
   "Edit" : "Izmeni",
   "YouTubeEmbedLink" : "YouTube link za ugradnju",

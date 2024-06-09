@@ -215,7 +215,7 @@
   "ChangeSpaceLayout": "Change space layout",
   "ReservedTables": "Reserved tables",
   "TotalEarning": "Total earning",
-  "InvalitDateOrTimeFormat": "Invalid date or time format",
+  "InvalidDateOrTimeFormat": "Invalid date or time format",
   "EmptyEventNameField": "Event name field is empty",
   "EmptyEventDescriptionField": "Event description field is empty",
   "WrongTimeFormat": "Wrong time format",
@@ -228,7 +228,7 @@
 
   "PressEnterToSubmitATag": "Press Enter to submit a tag",
   "ImageToBeDisplayed": "Image to be displayed",
-  "SuccessfullyChangedEventInfo!": "Succesfully changed event info!",
+  "SuccessfullyChangedEventInfo": "Succesfully changed event info!",
   "EditEventDetails": "Edit event details",
   "Edit": "Edit",
   "YouTubeEmbedLink": "YouTube embed link",

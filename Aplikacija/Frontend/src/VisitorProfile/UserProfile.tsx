@@ -102,7 +102,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
 
     validate: {
       firstName: (value) => (value.length > 0 ? null : t("EmptyFirstName")),
-      lastName: (value) => (value.length > 0 ? null : t("EmptyLstName")),
+      lastName: (value) => (value.length > 0 ? null : t("EmptyLastName")),
       phoneNumber: (value) => (value.length > 0 ? null : t("EmptyPhoneNumber")),
     },
   });
