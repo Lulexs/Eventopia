@@ -24,7 +24,7 @@ export default function Table({ item }: TableProps) {
       await axios.post(
         `${import.meta.env.VITE_DB_SERVER}/Reservation/makeReservation/${itemId}/${numberOfSeats}`
       );
-      alert("Reservation made successfully!");
+      alert(t("Reservation made succesfully!"));
       queryClient.invalidateQueries({ queryKey: ["reservedSpace"] });
     } catch (err : any) {
       console.error(err);

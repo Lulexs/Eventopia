@@ -12,6 +12,7 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
+import { t } from "i18next";
 
 interface TableInterface {
   id: string;
@@ -116,7 +117,7 @@ export const Table: FC<TableInterface> = ({
       >
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Information about this table
+            {t("Information about this table")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -128,7 +129,7 @@ export const Table: FC<TableInterface> = ({
 
         <Group align="center" mb="md">
           <Text size="sm" fw={300} miw="45px">
-            seats:{" "}
+            {t("seats")}:{" "}
           </Text>
           <TextInput
             placeholder="Number of seats..."
@@ -168,7 +169,7 @@ export const Table: FC<TableInterface> = ({
             close();
           }}
         >
-          Save table Information
+          {t("Save table information")}
         </Button>
       </Dialog>
     </>

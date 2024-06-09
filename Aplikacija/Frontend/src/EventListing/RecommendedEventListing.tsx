@@ -5,6 +5,7 @@ import classes from "./EventListing.module.css";
 import axios from "../../axiosconfig.ts";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Event } from "./interfaces";
+import { t } from "i18next";
 
 export default function RecommendedEventListing() {
   const fetchEvents = async () => {
@@ -49,7 +50,7 @@ export default function RecommendedEventListing() {
         }}
         mb={60}
       >
-        Recommendation
+        {t("Recommendation")}
       </Title>
 
       <Flex

@@ -270,7 +270,6 @@
   "Reviews": "Reviews",
 
   "SelectLocationAddress" : "Select location address",
-
   "Details" : "Details",
   "Map" : "Map",
   "Login as visitor to get the ticket"  : "Login as visitor to get the ticket",
@@ -288,14 +287,26 @@
   "Table only has " : "Table only has ",
   "seats!" : "seats!",
 
-
   "Draw floor plan" : "Draw floor plan",
   "Please keep browser open in full screen mode" : "Please keep browser open in full screen mode",
   "Clear picture" : "Clear picture",
-  "Submit" : "Submit"
-  
+  "Submit" : "Submit",
 
+  "Table is reserved.": "Table is reserved.",
+  "Table is not reserved." : "Table is not reserved.",
+  "Table ID:" : "Table ID:",
+  "Bar properties" : "Bar properties",
+  "size" : "size",
+  "Save properties" : "Save properties",
+  "Edit picture properties": "Edit picture properties",
+  "Information about stage" : "Information about stage",
+  "Save table information" : "Save table information",
+  "Number of seats..." : "Number of seats...",
+  "Price per seat..." : "Price per seat...",
 
+  "Organized by": "Organized by",
+  "Reservation made succesfully!": "Reservation made succesfully!",
 
+  "Recommendation": "Recommendation"
 
 }

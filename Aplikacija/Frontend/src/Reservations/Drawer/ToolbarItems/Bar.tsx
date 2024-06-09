@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { t } from "i18next";
 
 interface StageInterface {
   id: string;
@@ -107,7 +108,7 @@ export const Bar: FC<StageInterface> = ({
       >
         <Group mb="md" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Bar properties
+            {t("Bar properties")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -119,7 +120,7 @@ export const Bar: FC<StageInterface> = ({
 
         <Group align="center" mb="xl">
           <Text size="sm" fw={300} miw="45px">
-            size:{" "}
+            {t("size")}:{" "}
           </Text>
           <Slider
             flex={1}
@@ -134,7 +135,7 @@ export const Bar: FC<StageInterface> = ({
           />
         </Group>
         <Button w="100%" onClick={close}>
-          Save properties
+          {t("Save properties")}
         </Button>
       </Dialog>
     </>

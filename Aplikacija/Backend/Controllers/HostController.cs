@@ -712,7 +712,7 @@ public class HostController : ControllerBase
                                                .ToListAsync();
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.Append("ReservationID  | Name               | Email                           | Reservation Time    | TableID | Seats | TotalPrice\n");
+        stringBuilder.Append("ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice\n");
         stringBuilder.Append("------------------------------------------------------------------------------------------------------------------------------------\n");
 
         string format = "{0,-15} | {1,-18} | {2,-30} | {3,-19} | {4,-7} | {5,-5} | ${6,-10}\n";
@@ -723,6 +723,74 @@ public class HostController : ControllerBase
         });
 
         return Ok(stringBuilder.ToString());
+    }
+
+    [Authorize(Policy = "RequireHostRole")]
+    [HttpGet("getEventSpace/{eventId}")]
+    public async Task<ActionResult> GetEventSpace(int eventId)
+    {
+        var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
+
+        if (korisnik == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var banned = await UserUtils.IsBanned(korisnik!, Context);
+
+        if (banned != null)
+        {
+            return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
+        }
+
+        var organizator = await Context.Dogadjaji.Include(x => x.Organizator).Where(x => x.ID == eventId).Select(x => x.Organizator).FirstOrDefaultAsync();
+
+        if (organizator != korisnik)
+        {
+            return Unauthorized("You are not the host of this event.");
+        }
+
+        var spacePlan = await Context.PlanoviProstora.Include(x => x.Dogadjaj)
+                                               .ThenInclude(x => x!.Organizator)
+                                               .Include(x => x.DraggableItems!)
+                                               .ThenInclude(x => x.Rezervacija)
+                                               .Include(x => x.Lines)
+                                               .Include(x => x.SurfaceDimension)
+                                               .Where(x => x.Dogadjaj != null && x.Dogadjaj!.ID == eventId)
+                                                  .Select(x => new SpaceDto
+                                                  {
+                                                      ID = x.ID,
+                                                      DraggableItems = x.DraggableItems!.Select(y => new DraggableItemDto
+                                                      {
+                                                          ID = y.ID,
+                                                          FrontID = y.FrontID,
+                                                          Tip = y.Tip.ToString().ToLower(),
+                                                          Top = y.Top,
+                                                          Left = y.Left,
+                                                          Height = y.Height,
+                                                          HeightFactor = y.HeightFactor,
+                                                          BrojMesta = y.BrojMesta,
+                                                          Reserved = y.Reserved,
+                                                          Price = y.Price,
+                                                          ReservationId = y.Reserved == true ? y.Rezervacija!.ID : -1,
+                                                          ReservedSeats = y.Reserved == true ? y.Rezervacija!.BrojMesta : -1,
+                                                      }).ToList(),
+                                                      Lines = x.Lines!.Select(y => new LineDto
+                                                      {
+                                                          X1 = y.X1,
+                                                          Y1 = y.Y1,
+                                                          X2 = y.X2,
+                                                          Y2 = y.Y2
+                                                      }).ToList(),
+                                                      SurfaceDimension = new SurfaceDimensionDto
+                                                      {
+                                                          Width = x.SurfaceDimension!.Width,
+                                                          Height = x.SurfaceDimension!.Height
+                                                      }
+                                                  })
+                                               .FirstOrDefaultAsync();
+
+        return Ok(spacePlan);
     }
 
 }

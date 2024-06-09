@@ -24,7 +24,7 @@ export default function Surface(props: SurfaceProps) {
   }>({});
 
   useEffect(() => {
-    props.spacePlan?.items.forEach((x) => {
+    props.spacePlan?.items?.forEach((x) => {
       setItems((prevItems) => ({
         ...prevItems,
         [x.id]: { top: x.top, left: x.left, type: x.type },
@@ -39,8 +39,8 @@ export default function Surface(props: SurfaceProps) {
         ...styles,
         textAlign: "center",
         zIndex: 1,
-        height: props.spacePlan?.surfaceDimension.height,
-        width: props.spacePlan?.surfaceDimension.width,
+        height: props.spacePlan?.surfaceDimension?.height,
+        width: props.spacePlan?.surfaceDimension?.width,
       }}
     >
       {items != null &&
@@ -59,10 +59,15 @@ export default function Surface(props: SurfaceProps) {
               <Table
                 key={key}
                 id={item.id}
+                realId={item.realId}
                 left={left}
                 height={item.height}
                 numberOfSeats={(item as TableInterface).numberOfSeats}
                 top={top}
+                reserved={(item as TableInterface).reserved}
+                reservationId={(item as TableInterface).reservationId}
+                reservedSeats={(item as TableInterface).reservedSeats}
+                price={(item as TableInterface).price}
               />
             );
           } else if (type == ItemTypes.STAGE) {
@@ -89,12 +94,12 @@ export default function Surface(props: SurfaceProps) {
         })}
       <svg
         style={{
-          height: props.spacePlan?.surfaceDimension.height,
-          width: props.spacePlan?.surfaceDimension.width,
+          height: props.spacePlan?.surfaceDimension?.height,
+          width: props.spacePlan?.surfaceDimension?.width,
           zIndex: 2,
         }}
       >
-        {props.spacePlan?.lines.map((line, index) => (
+        {props.spacePlan?.lines?.map((line, index) => (
           <line
             key={index}
             x1={line.x1}

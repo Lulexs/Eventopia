@@ -20,12 +20,13 @@ import { DateInput } from "@mantine/dates";
 import { StatsCard } from "../StatsCard";
 import { useState } from "react";
 import { ChangeEventDto, EventDto } from "../interfaces";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig";
 import { useForm } from "@mantine/form";
 import { CustomStatsCard } from "../../VisitorProfile/CustomStatsCard";
 import { useTranslation } from "react-i18next";
 import Drawer from "../../Reservations/ViewOnlyDrawer/Drawer";
+import { SpaceDataType } from "../../Reservations/Reservation/interfaces";
 
 export interface ManageEventProps {
   user: AuthState;
@@ -61,6 +62,24 @@ export default function ManageEvent(props: ManageEventProps) {
       console.error(err);
     }
   };
+
+  const {
+    data: spacePlan,
+  } = useQuery<SpaceDataType>({
+    queryKey: ["event_plan"],
+    queryFn: async () => {
+      return await axios
+        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventSpace/${props.eventId}`)
+        .then((resp) => {
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((err) => {
+          console.error(err);
+          alert(err.resp.data);
+        });
+    },
+  });
 
   const changeEventForm = useForm({
     mode: "controlled",
@@ -384,7 +403,7 @@ export default function ManageEvent(props: ManageEventProps) {
               mb={10}
             >
               <CustomStatsCard
-                title={"ReservedTables"}
+                title={t("ReservedTables")}
                 dash={false}
                 level=""
                 current={props.eventDetails?.reservedTables ?? 0}
@@ -397,7 +416,7 @@ export default function ManageEvent(props: ManageEventProps) {
             </Fieldset>
           </Flex>
         </Flex>
-        <Drawer plan={} />
+        <Drawer plan={spacePlan}/>
       </Flex>
     </>
   );

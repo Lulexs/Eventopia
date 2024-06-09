@@ -6,6 +6,7 @@ import View from "../EventViewPages";
 import axios from "../../../axiosconfig.ts"
 import { Review } from "../interfaces";
 import { useQuery } from "@tanstack/react-query";
+import { t } from "i18next";
 
 export interface EventReviewsProps {
   eventId: number;
@@ -60,7 +61,7 @@ export default function EventReviews(props: EventReviewsProps) {
             props.showEvent(View.Basic);
           }}
         >
-          Go back
+          {t("GoBack")}
         </Button>
         <Title c="#5a5959">{props.eventName} - {props.eventDate}</Title>
       </Group>

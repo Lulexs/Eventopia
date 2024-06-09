@@ -12,7 +12,7 @@ export interface TableInterface extends ItemInterface {
   type: "table";
   numberOfSeats: number;
   reserved: boolean;
-  price: string;
+  price: number;
   reservationId: number;
   reservedSeats: number;
 }

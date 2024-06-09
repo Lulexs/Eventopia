@@ -1,21 +1,27 @@
-import { CSSProperties, FC, useRef, useState } from "react";
-import TableImage from "../../../assets/table.png";
+import { CSSProperties, FC, useRef } from "react";
+import TableFreeImage from "../../../assets/table_free.png";
+import TableNotFreeImage from "../../../assets/table_not_free.png";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  Button,
+  Box,
   CloseButton,
   Dialog,
   Group,
   Text,
-  TextInput,
 } from "@mantine/core";
+import { t } from "i18next";
 
 interface TableInterface {
   id: string;
+  realId: number;
   top: number;
   left: number;
   height: number;
   numberOfSeats: number;
+  reserved: boolean;
+  reservationId: number;
+  reservedSeats: number;
+  price: number;
 }
 
 const TableStyle: CSSProperties = {
@@ -24,16 +30,14 @@ const TableStyle: CSSProperties = {
   margin: 0,
 };
 
-export const Table: FC<TableInterface> = ({ id, top, left, height }) => {
+export const Table: FC<TableInterface> = ({ id, realId, top, left, height, reserved, numberOfSeats, reservationId, reservedSeats, price }) => {
   const [dialogOpened, { toggle, close }] = useDisclosure(false);
   const dialogTopLeft = useRef([20, 20]);
-  const numberOfSeats = useRef(4);
-  const [dialogInputFieldVal, setDialogInputFieldVal] = useState("");
-  const [dialogInputFieldVal1, setDialogInputFieldVal1] = useState("");
+
   return (
     <>
       <img
-        src={TableImage}
+        src={reserved ? TableNotFreeImage : TableFreeImage}
         alt="TABLE"
         id={id}
         style={{
@@ -65,9 +69,9 @@ export const Table: FC<TableInterface> = ({ id, top, left, height }) => {
         }}
         onClick={(event) => event.stopPropagation()}
       >
-        <Group mb="md" align="center">
+        <Group mb="sm" align="center">
           <Text size="sm" fw={300} flex={1}>
-            Information about this table
+            {t("Information about this table")}
           </Text>
           <CloseButton
             onClick={(event) => {
@@ -77,54 +81,41 @@ export const Table: FC<TableInterface> = ({ id, top, left, height }) => {
           />
         </Group>
 
-        <Group align="center" mb="md">
-          <Text size="sm" fw={300} miw="45px">
-            seats:{" "}
-          </Text>
-          <TextInput
-            disabled
-            placeholder="Number of seats..."
-            style={{ flex: 1 }}
-            value={dialogInputFieldVal}
-            onChange={(event) =>
-              setDialogInputFieldVal(
-                event.currentTarget.value
-                  .split("")
-                  .filter((c) => c >= "0" && c <= "9")
-                  .join("")
-              )
-            }
-          />
+        {reserved ? (
+        <Group align="center">
+          <Box>
+            <Text size="sm" fw={300} miw="45px" c="red">
+              {t("Table is reserved.")}
+            </Text>
+            <Text size="sm" fw={300} miw="45px">
+              {t("Table ID:")} {realId}
+              <br />
+              {t("Reservation ID:")} {reservationId}
+              <br />
+              {t("Number of seats:")} {numberOfSeats}
+              <br />
+              {reservedSeats} {t("seats reserved.")}
+              <br />
+              {t("Price per seat:")} ${price}
+            </Text>
+          </Box>
         </Group>
-        <Group align="center" mb="md">
-          <Text size="sm" fw={300} miw="45px">
-            Price per seat:{" "}
+      ) : (
+      <Group align="center">
+        <Box>
+          <Text size="sm" fw={300} miw="45px" c="green">
+            {t("Table is not reserved.")}
           </Text>
-          <TextInput
-            disabled
-            placeholder="Price per seats..."
-            style={{ flex: 1 }}
-            value={dialogInputFieldVal1}
-            onChange={(event) =>
-              setDialogInputFieldVal1(
-                event.currentTarget.value
-                  .split("")
-                  .filter((c) => c >= "0" && c <= "9")
-                  .join("")
-              )
-            }
-          />
-        </Group>
-        <Button
-          w="100%"
-          onClick={(e) => {
-            e.stopPropagation();
-            numberOfSeats.current = Number.parseInt(dialogInputFieldVal);
-            close();
-          }}
-        >
-          Save table Information
-        </Button>
+          <Text size="sm" fw={300} miw="45px">
+            {t("Table ID:")} {realId}
+            <br />
+            {t("Number of seats:")} {numberOfSeats}
+            <br />
+            {t("Price per seat:")} ${price}
+          </Text>
+        </Box>
+      </Group>
+      )}
       </Dialog>
     </>
   );

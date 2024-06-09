@@ -3,6 +3,7 @@ import { ItemTypes } from "../ItemTypes";
 import { useDrag } from "react-dnd";
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Dialog, Group, Text, Slider } from "@mantine/core";
+import { t } from "i18next";
 
 interface StageInterface {
   id: string;
@@ -91,12 +92,12 @@ export const PlanImage: FC<StageInterface> = ({
         }}
       >
         <Text size="sm" mb="md" fw={300}>
-          Edit picture properties
+          {t("Edit picture properties")}
         </Text>
 
         <Group align="center" mb="xl">
           <Text size="sm" fw={300} miw="45px">
-            size:{" "}
+            {t("size")}:{" "}
           </Text>
           <Slider
             flex={1}
@@ -111,7 +112,7 @@ export const PlanImage: FC<StageInterface> = ({
           />
         </Group>
         <Button w="100%" onClick={close}>
-          Save properties
+          {t("Save properties")}
         </Button>
       </Dialog>
     </>

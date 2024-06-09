@@ -132,7 +132,7 @@ export default function Reservation(props: ReservationProps) {
                   color: "#453636",
                 }}
               >
-                {`By ${props.organizerName}`}
+                {t("Organized by")} {`${props.organizerName}`}
             </Text>
             <Group>
               <Text

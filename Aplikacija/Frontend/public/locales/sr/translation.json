@@ -19,7 +19,7 @@
   "RentASpaceD": "Reklamirajte svoj prostor i omogućite organizatorima da organizuju događaje",
 
   "Home": "Početna",
-  "Features": "Karakteristike",
+  "Features": "Funkcionalnosti",
   "Trending": "Popularno",
   "ExploreEvents": "Istraži događaje",
   "Login": "Prijavi se",
@@ -268,16 +268,15 @@
   "PastEvents" : "Prošli događaji",
   "Reviews" : "Recenzije",
 
-
   "SelectLocationAddress" : "Izaberite lokaciju",
   "Details" : "Detalji",
   "Map" : "Mapa",
-  "Login as visitor to get the ticket" : "Prijavite se kao posetilac da biste dobili ulaznicu",
+  "Login as visitor to get the ticket" : "Prijavite se kao posetilac da biste rezervisali ulaznicu",
   "Information about this table" : "Informacije o ovom stolu",
   "You have reserved this table." : "Rezervisali ste ovaj sto.",
   "Reservation ID:" : "ID rezervacije:",
-  "seats reserved." : "rezervisana mesta.",
-  "Price per seat:" : "Cena po sedištu:",
+  "seats reserved." : "mesta rezervisano.",
+  "Price per seat:" : "Cena po mestu:",
   "Table is already reserved!" : "Sto je već rezervisan!",
   "Number of seats:" : "Broj mesta:",
   "Reserve seats:" : "Rezerviši mesta:",
@@ -287,10 +286,26 @@
   "Table only has " : "Sto ima samo ",
   "seats!" : " mesta!",
 
-
   "Draw floor plan" : "Nacrtaj raspored",
   "Please keep browser open in full screen mode" : "Molimo vas da držite pretraživač otvoren u režimu punog ekrana",
   "Clear picture" : "Obriši sliku",
-  "Submit" : "Potvrdi"
+  "Submit" : "Potvrdi",
+
+  "Table is reserved.": "Sto je rezervisan.",
+  "Table is not reserved." : "Sto nije rezervisan.",
+  "Table ID:" : "ID stola:",
+  "Bar properties" : "Svojstva bara",
+  "size" : "veličina",
+  "Save properties" : "Sačuvaj svojstva",
+  "Edit picture properties" : "Izmeni svojstva slike",
+  "Information about stage" : "Informacije o bini",
+  "Save table information" : "Sačuvaj informacije o stolu",
+  "Number of seats..." : "Broj mesta...",
+  "Price per seat..." : "Cena po mestu...",
+
+  "Organized by": "Organizovano od strane",
+  "Reservation made succesfully!" : "Rezervacija uspešno napravljena!",
+
+  "Recommendation": "Preporučeni događaji"
 
 }
