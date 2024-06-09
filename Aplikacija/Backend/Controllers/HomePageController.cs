@@ -218,14 +218,14 @@ public class HomePageController : ControllerBase
                     {
                         var distance = HomePageUtils.LevenshteinDistance(tag.UserTag!.TagName, tag2.TagName);
                         string message = $"Lavenshtein distance za {tag.UserTag.TagName} i {tag2.TagName} je {distance} za {dogadjaj.Naziv}";
-                        output.Add(message); // Add the message to the output list instead of writing to console
+                        output.Add(message); 
                         if (distance < 3)
                         {
                             rejt += 1;
                         }
                     }
                 }
-                output.Add($"rejting za {dogadjaj.Naziv} je {rejt}"); // Add the message to the output list instead of writing to console
+                output.Add($"rejting za {dogadjaj.Naziv} je {rejt}"); 
             }
 
             rejt = rejt > 10 ? 10 : rejt;
@@ -240,7 +240,7 @@ public class HomePageController : ControllerBase
             double rejtOdRezervacije = HomePageUtils.CalculateScoreReservation(rezervisanaMesta, 8);
 
             rejt += rejtOdRezervacije; // znaci kad je manje 8 mesta rezervisano, rejt opada linearno
-            output.Add($"Za dogadjaj {dogadjaj.Naziv} je rezervisano {rezervisanaMesta} mesta, od rezervacije je rejt {rejtOdRezervacije}, a rejt je sad {rejt}"); // Add the message to the output list instead of writing to console
+            output.Add($"Za dogadjaj {dogadjaj.Naziv} je rezervisano {rezervisanaMesta} mesta, od rezervacije je rejt {rejtOdRezervacije}, a rejt je sad {rejt}"); 
 
             output.Add($"Uporedjujemo trenutni dogadjaj u iteraciji  {dogadjaj.Naziv} sa svim dogadjajima koje je korisnik posetio ili rezervisao* i za svaki skaliramo u odnosu na broj posecenih/rezervisanih korisnikovih");
             if (kojeJeKorisnikPosetio != null && kojeJeKorisnikPosetio.Count > 0)
@@ -268,7 +268,7 @@ public class HomePageController : ControllerBase
                         }
                     }
                     output.Add($"temp rejting za {dogadjaj.Naziv}  i {posetio.Naziv} je {tempRejt} za sad");
-                    //mora vidim da l da ogranicim rejt za pogadjanje u tagovima
+                    
                     tempRejt = tempRejt > 10 ? 10 : tempRejt;
 
                     //max je 10 za udaljenost
