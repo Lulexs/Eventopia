@@ -127,4 +127,19 @@ public class MailService : IMailService
         }
     }
 
+    public void SendHTMLMailFireAndForget(HTMLMailData mailData)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                await SendHTMLMailAsync(mailData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error wwhile sending mail: {ex.Message}");
+            }
+        });
+    }
+
 }

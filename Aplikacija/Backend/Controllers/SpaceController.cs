@@ -121,7 +121,6 @@ public class SpaceController : ControllerBase
     [HttpGet("getOwnerSpaces")]
     public async Task<IActionResult> GetOwnerSpaces()
     {
-
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         var banned = await UserUtils.IsBanned(korisnik!, Context);
@@ -205,7 +204,8 @@ public class SpaceController : ControllerBase
         var rezervacija = await Context.RezervacijeProstora.Include(x => x.Dogadjaj)
                                                             .ThenInclude(x => x!.Organizator)
                                                             .Include(x => x.Prostor)
-                                                            .FirstOrDefaultAsync(x => x.ID == id);
+                                                            .Where(x => x.ID == id)
+                                                            .FirstOrDefaultAsync();
 
         if (rezervacija == null)
         {
@@ -226,9 +226,12 @@ public class SpaceController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).ToListAsync();
+        var prostor = await Context.Prostori.Include(x => x.VlasnikProstora)
+                                            .Where(x => x.VlasnikProstora == korisnik && x.ID == rezervacija.Prostor!.ID)
+                                            .Select(x => new { x.ID })
+                                            .FirstOrDefaultAsync();
 
-        if (korisnik!.VlasnikProstori?.Find(x => x.ID == rezervacija!.Prostor!.ID) == null)
+        if (prostor == null)
         {
             return BadRequest("You are not the owner of this space.");
         }
@@ -256,18 +259,21 @@ public class SpaceController : ControllerBase
         var dogadjajNaziv = rezervacija.Dogadjaj!.Naziv;
         var dogadjajVreme = rezervacija.Dogadjaj!.Vreme.ToString("dd.MM.yyyy. HH:mm");
 
-        var mailData = new HTMLMailData
+        if (response == "reject")
         {
-            EmailToId = organizator!.Email!,
-            EmailToName = organizator!.Ime + " " + organizator.Prezime,
-            EmailSubject = "Your space reservation is rejected",
-            EventName = dogadjajNaziv,
-            EventDate = dogadjajVreme,
-            EventLocation = rezervacija.Prostor!.Adresa + ", " + rezervacija.Prostor!.Grad + ", " + rezervacija.Prostor!.Drzava,
-            MailType = "ReservationCancelled"
-        };
+            var mailData = new HTMLMailData
+            {
+                EmailToId = organizator!.Email!,
+                EmailToName = organizator!.Ime + " " + organizator.Prezime,
+                EmailSubject = "Your space reservation is rejected",
+                EventName = dogadjajNaziv,
+                EventDate = dogadjajVreme,
+                EventLocation = rezervacija.Prostor!.Adresa + ", " + rezervacija.Prostor!.Grad + ", " + rezervacija.Prostor!.Drzava,
+                MailType = "ReservationCancelled"
+            };
 
-        await _mailService.SendHTMLMailAsync(mailData);
+            _mailService.SendHTMLMailFireAndForget(mailData);
+        }
 
         return Ok();
     }
@@ -285,32 +291,23 @@ public class SpaceController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
-                                            .Include(x => x.Rezervacije!)
-                                            .ThenInclude(x => x.Dogadjaj)
+        var rezervacije = await Context.RezervacijeProstora.Include(x => x.Prostor)
+                                            .ThenInclude(x => x!.VlasnikProstora)
+                                            .Include(x => x.Dogadjaj)
+                                            .Where(x => x.Prostor!.VlasnikProstora == korisnik)
+                                            .Select(x => new ProstorRezervacijeDto
+                                            {
+                                                ID = x.ID,
+                                                NazivDogadjaja = x.Dogadjaj!.Naziv,
+                                                Adresa = x.Prostor!.Adresa,
+                                                VremeOd = x.VremeOd,
+                                                VremeDo = x.VremeDo,
+                                                Status = x.Dogadjaj.Vreme < DateTime.Now ? "Finished" : x.Status.ToString()
+                                            })
+                                            .OrderByDescending(x => x.VremeOd)
                                             .ToListAsync();
 
-        List<ProstorRezervacijeDto> rezervacije = new List<ProstorRezervacijeDto>();
-
-        foreach (var prostor in prostori)
-        {
-            foreach (var rezervacija in prostor.Rezervacije!)
-            {
-                string statusRezervacije = rezervacija.Status.ToString();
-                string status = rezervacija.Dogadjaj!.Vreme < DateTime.Now ? "Finished" : statusRezervacije;
-                rezervacije.Add(new ProstorRezervacijeDto
-                {
-                    ID = rezervacija.ID,
-                    NazivDogadjaja = rezervacija!.Dogadjaj!.Naziv,
-                    Adresa = prostor.Adresa,
-                    VremeOd = rezervacija.VremeOd,
-                    VremeDo = rezervacija.VremeDo,
-                    Status = status
-                });
-            }
-        }
-
-        return Ok(rezervacije.OrderByDescending(x => x.ID));
+        return Ok(rezervacije);
     }
 
     [Authorize(Policy = "RequireSpaceOwnerRole")]
@@ -326,22 +323,12 @@ public class SpaceController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var prostori = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik)
-                                            .Include(x => x.Rezervacije!)
-                                            .ThenInclude(x => x.Dogadjaj)
-                                            .ToListAsync();
-
-        int rentableSpaces = prostori.Count;
-        int totalRents = 0;
-
-        foreach (var prostor in prostori)
-        {
-            foreach (var rezervacija in prostor.Rezervacije!)
-            {
-                if (rezervacija.Status == StatusRezervacije.Confirmed)
-                    totalRents++;
-            }
-        }
+        int rentableSpaces = await Context.Prostori.Where(x => x.VlasnikProstora == korisnik).CountAsync();
+        int totalRents = await Context.RezervacijeProstora
+                                        .Include(x => x.Prostor)
+                                        .ThenInclude(x => x!.VlasnikProstora)
+                                        .Where(x => x.Prostor!.VlasnikProstora == korisnik && x.Status == StatusRezervacije.Confirmed)
+                                        .CountAsync();
 
         return Ok(new SpaceOwnerStatisticsDto
         {

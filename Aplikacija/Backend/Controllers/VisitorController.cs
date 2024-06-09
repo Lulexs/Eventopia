@@ -89,7 +89,6 @@ public class VisitorController : ControllerBase
         return Ok(avatarAndTags);
     }
 
-
     [Authorize(Policy = "RequireVisitorRole")]
     [HttpGet("getStatistics")]
     public async Task<IActionResult> GetStatistics()
@@ -108,9 +107,15 @@ public class VisitorController : ControllerBase
                                                     .Include(x => x.Sto)
                                                     .Where(x => x.Korisnik == korisnik
                                                     && x.Dogadjaj!.Vreme < DateTime.Now)
+                                                    .Select(x => new
+                                                    {
+                                                        DogadjajID = x.Dogadjaj!.ID,
+                                                        StoPrice = x.Sto!.Price,
+                                                        BrojMesta = x.BrojMesta
+                                                    })
                                                     .ToListAsync();
 
-        int visitedEventsCount = rezervacije.Select(x => x.Dogadjaj!.ID).Distinct().Count();
+        int visitedEventsCount = rezervacije.Select(x => x.DogadjajID).Distinct().Count();
 
         var rank = await Context.VisitorRanks
             .Where(x => x.Points <= visitedEventsCount)
@@ -125,6 +130,7 @@ public class VisitorController : ControllerBase
         var nextRank = await Context.VisitorRanks
             .Where(x => x.Points > visitedEventsCount)
             .OrderBy(x => x.Points)
+            .Select(x => new { x.Points })
             .FirstOrDefaultAsync();
 
         int nextRankPoints = nextRank?.Points ?? -1;
@@ -137,7 +143,7 @@ public class VisitorController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        int? moneySpent = rezervacije.Select(x => x.Sto!.Price * x.BrojMesta).Sum();
+        int? moneySpent = rezervacije.Select(x => x.StoPrice * x.BrojMesta).Sum();
 
         var statistics = new
         {
@@ -169,19 +175,19 @@ public class VisitorController : ControllerBase
                                                     .Include(x => x.Sto)
                                                     .Where(x => x.Korisnik == korisnik
                                                     && x.Dogadjaj!.Vreme > DateTime.Now)
+                                                    .Select(x => new
+                                                    {
+                                                        ReservationId = x.ID,
+                                                        Title = x.Dogadjaj!.Naziv,
+                                                        Date = x.Dogadjaj.Vreme,
+                                                        Image = x.Dogadjaj.Slika,
+                                                        Price = x.Sto!.Price * x.BrojMesta,
+                                                        Seats = x.BrojMesta
+                                                    })
+                                                    .OrderBy(x => x.Date)
                                                     .ToListAsync();
 
-        var activeReservations = rezervacije.Select(x => new
-        {
-            ReservationId = x.ID,
-            Title = x.Dogadjaj!.Naziv,
-            Date = x.Dogadjaj.Vreme,
-            Image = x.Dogadjaj.Slika,
-            Price = x.Sto!.Price * x.BrojMesta,
-            Seats = x.BrojMesta
-        }).OrderBy(x => x.Date);
-
-        return Ok(activeReservations);
+        return Ok(rezervacije);
     }
 
     [Authorize(Policy = "RequireVisitorRole")]
@@ -246,19 +252,19 @@ public class VisitorController : ControllerBase
                                                     .Where(x => x.Rezervacije!.Any(y => y.Korisnik == korisnik)
                                                     && x.Vreme < DateTime.Now
                                                     && x.Status == StatusDogadjaja.Passed)
+                                                    .Select(x => new
+                                                    {
+                                                        EventId = x.ID,
+                                                        Title = x.Naziv,
+                                                        Date = x.Vreme,
+                                                        Image = x.Slika,
+                                                        CanLeaveReview = !x.Ocene!.Any(y => y.Korisnik == korisnik)
+                                                    })
                                                     .Distinct()
+                                                    .OrderByDescending(x => x.Date)
                                                     .ToListAsync();
 
-        var visitedEvents = dogadjaji.Select(x => new
-        {
-            EventId = x.ID,
-            Title = x.Naziv,
-            Date = x.Vreme,
-            Image = x.Slika,
-            CanLeaveReview = !x.Ocene!.Any(y => y.Korisnik == korisnik)
-        }).OrderByDescending(x => x.Date);
-
-        return Ok(visitedEvents);
+        return Ok(dogadjaji);
     }
 
     [Authorize(Policy = "RequireVisitorRole")]
@@ -276,21 +282,13 @@ public class VisitorController : ControllerBase
 
         var dogadjaj = await Context.Dogadjaji.Include(x => x.Rezervacije!)
                                               .ThenInclude(x => x.Korisnik)
-                                              .FirstOrDefaultAsync(x => x.ID == commentDto.DogadjajId);
+                                              .Where(x => x.ID == commentDto.DogadjajId && x.Rezervacije!.Any(y => y.Korisnik == korisnik)
+                                              && x.Vreme < DateTime.Now)
+                                              .FirstOrDefaultAsync();
 
         if (dogadjaj == null)
         {
             return NotFound("Event not found.");
-        }
-
-        if (!dogadjaj.Rezervacije!.Any(x => x.Korisnik == korisnik))
-        {
-            return Unauthorized("You can't comment on event you did not attend.");
-        }
-
-        if (dogadjaj.Vreme > DateTime.Now)
-        {
-            return BadRequest("You can't comment on event that has not happened yet.");
         }
 
         var komentar = new Ocena
@@ -306,6 +304,5 @@ public class VisitorController : ControllerBase
 
         return Ok();
     }
-
 
 }

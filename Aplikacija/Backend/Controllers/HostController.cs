@@ -331,7 +331,7 @@ public class HostController : ControllerBase
         Context.RezervacijeProstora.Remove(dogadjaj.RezervacijaProstora!);
         await Context.SaveChangesAsync();
 
-        visitors.ForEach(async (x) =>
+        visitors.ForEach((x) =>
         {
             var mailData = new HTMLMailData
             {
@@ -343,7 +343,7 @@ public class HostController : ControllerBase
                 MailType = "EventCancelled"
             };
 
-            await _mailService.SendHTMLMailAsync(mailData);
+            _mailService.SendHTMLMailFireAndForget(mailData);
         });
 
         return Ok();
@@ -575,17 +575,12 @@ public class HostController : ControllerBase
         var dogadjaj = await Context.Dogadjaji.Include(x => x.Tagovi)
                                                 .Include(x => x.Organizator)
                                                 .Include(x => x.RezervacijaProstora)
-                                                .Where(x => x.ID == changeEventDto.ID)
+                                                .Where(x => x.ID == changeEventDto.ID && x.Organizator == korisnik)
                                                 .FirstOrDefaultAsync();
 
         if (dogadjaj == null)
         {
             return NotFound("Event not found.");
-        }
-
-        if (dogadjaj.Organizator != korisnik)
-        {
-            return Unauthorized("You are not the host of this event.");
         }
 
         string dateTimeString = $"{changeEventDto.Datum} {changeEventDto.Vreme}";
@@ -624,7 +619,7 @@ public class HostController : ControllerBase
             var dogadjajVreme = dogadjaj.Vreme.ToString("dd.MM.yyyy. HH:mm");
             var novoVreme = dateTime.ToString("dd.MM.yyyy HH:mm");
 
-            visitors.ForEach(async (x) =>
+            visitors.ForEach((x) =>
             {
                 var mailData = new HTMLMailData
                 {
@@ -637,7 +632,7 @@ public class HostController : ControllerBase
                     MailType = "EventRescheduled"
                 };
 
-                await _mailService.SendHTMLMailAsync(mailData);
+                _mailService.SendHTMLMailFireAndForget(mailData);
             });
 
         }

@@ -34,6 +34,11 @@ builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailS
 
 builder.Services.AddTransient<IMailService, MailService>();
 
+builder.Services.AddMiniProfiler(options =>
+{
+    options.RouteBasePath = "/profiler"; // /profiler/results-index
+}).AddEntityFramework();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -53,6 +58,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiniProfiler();
 
 app.MapControllers();
 

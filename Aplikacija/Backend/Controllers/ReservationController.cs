@@ -102,7 +102,7 @@ public class ReservationController : ControllerBase
 
     [Authorize(Policy = "RequireVisitorRole")]
     [HttpPost("makeReservation/{tableId}/{numberOfSeats}")]
-    public async Task<ActionResult> MakeReservation(int eventId, int tableId, int numberOfSeats)
+    public async Task<ActionResult> MakeReservation(int tableId, int numberOfSeats)
     {
 
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
@@ -113,7 +113,6 @@ public class ReservationController : ControllerBase
         {
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}.");
         }
-
 
         var table = await Context.DraggableItems.Include(x => x.PlanProstora)
                                                 .ThenInclude(x => x!.Dogadjaj)
