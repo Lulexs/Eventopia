@@ -24,7 +24,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import axios from "../../../axiosconfig";
 import { useForm } from "@mantine/form";
 import { CustomStatsCard } from "../../VisitorProfile/CustomStatsCard";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import Drawer from "../../Reservations/ViewOnlyDrawer/Drawer";
 
 export interface ManageEventProps {
   user: AuthState;
@@ -41,16 +42,15 @@ export default function ManageEvent(props: ManageEventProps) {
   const cancelEvent = async (eventId: number) => {
     try {
       if (confirm(t("AreYouSureYouWantToCancelThisEvent"))) {
-        await axios.delete(
-          `${
-            import.meta.env.VITE_DB_SERVER
-          }/Host/cancelEvent/${eventId}`
-        ).then(() => { 
-          queryClient.invalidateQueries({ queryKey: ["incoming_events"] });
-          props.showEvent(View.Basic);
-          alert(t("EventHasBeenSuccessfullyCanceled"));
-        }
-        );
+        await axios
+          .delete(
+            `${import.meta.env.VITE_DB_SERVER}/Host/cancelEvent/${eventId}`
+          )
+          .then(() => {
+            queryClient.invalidateQueries({ queryKey: ["incoming_events"] });
+            props.showEvent(View.Basic);
+            alert(t("EventHasBeenSuccessfullyCanceled"));
+          });
       }
     } catch (err: any) {
       if (Array.isArray(err.response.data) && err.response.data.length > 0) {
@@ -80,7 +80,9 @@ export default function ManageEvent(props: ManageEventProps) {
       description: (value) =>
         value && value.length > 0 ? null : t("EmptyDescriptionField"),
       time: (value) =>
-        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value ?? "") ? null : t("WrongTimeFormat"),
+        /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value ?? "")
+          ? null
+          : t("WrongTimeFormat"),
     },
   });
 
@@ -107,10 +109,10 @@ export default function ManageEvent(props: ManageEventProps) {
           </Button>
           <Title c="#5a5959">{t("ManageEvent")}</Title>
           <Button
-              bg={"red"}
-              onClick={async () => {
-                await cancelEvent(props.eventId);
-              }}
+            bg={"red"}
+            onClick={async () => {
+              await cancelEvent(props.eventId);
+            }}
           >
             {t("CancelEvent")}
           </Button>
@@ -135,31 +137,31 @@ export default function ManageEvent(props: ManageEventProps) {
               event?.stopPropagation();
             })}
           >
-          <Fieldset
-            legend={t("BasicInformation")}
-            w="100%"
-            h="fit-content"
-            fz="xl"
-            styles={{
-              root: {
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "10px",
-              },
-            }}
-            mb={10}
-          >
-            <Stack w="50%">
-            <TextInput
-                required
-                label= {t("EventName")}
-                placeholder={t("EventName...")}
-                key={changeEventForm.key("eventName")}
-                {...changeEventForm.getInputProps("eventName")}
-              ></TextInput>
-              <Textarea
+            <Fieldset
+              legend={t("BasicInformation")}
+              w="100%"
+              h="fit-content"
+              fz="xl"
+              styles={{
+                root: {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                },
+              }}
+              mb={10}
+            >
+              <Stack w="50%">
+                <TextInput
                   required
-                  placeholder= {t("WriteSomethingAbouTthEevent...")}
+                  label={t("EventName")}
+                  placeholder={t("EventName...")}
+                  key={changeEventForm.key("eventName")}
+                  {...changeEventForm.getInputProps("eventName")}
+                ></TextInput>
+                <Textarea
+                  required
+                  placeholder={t("WriteSomethingAbouTthEevent...")}
                   label={t("Description")}
                   autosize
                   minRows={5}
@@ -168,7 +170,7 @@ export default function ManageEvent(props: ManageEventProps) {
                 />
                 <TagsInput
                   miw="100%"
-                  label= {t("PressEnterToSubmitATag")}
+                  label={t("PressEnterToSubmitATag")}
                   placeholder={t("EnterTag")}
                   value={tags}
                   onChange={setTags}
@@ -178,21 +180,21 @@ export default function ManageEvent(props: ManageEventProps) {
                       height: "7rem",
                     },
                   }}
-              />
-            </Stack>
-            <Stack w="50%">
-            <DateInput
+                />
+              </Stack>
+              <Stack w="50%">
+                <DateInput
                   required
                   label={t("Date")}
                   key={changeEventForm.key("date")}
                   {...changeEventForm.getInputProps("date")}
                 />
                 <TextInput
-                    required
-                    placeholder="HH:mm"
-                    label={t("Time")}
-                    key={changeEventForm.key("time")}
-                    {...changeEventForm.getInputProps("time")}
+                  required
+                  placeholder="HH:mm"
+                  label={t("Time")}
+                  key={changeEventForm.key("time")}
+                  {...changeEventForm.getInputProps("time")}
                 />
                 <FileInput
                   required
@@ -202,113 +204,128 @@ export default function ManageEvent(props: ManageEventProps) {
                   {...changeEventForm.getInputProps("image")}
                 />
                 <TextInput
-                  placeholder= {t("YouTubeEmbedLink")}
+                  placeholder={t("YouTubeEmbedLink")}
                   label={t("PromoVideo")}
                   key={changeEventForm.key("video")}
                   {...changeEventForm.getInputProps("video")}
                 />
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  lineHeight: "var(--mantine-line-height)",
-                  marginTop: "8px",
-                }}
-              >
-                <InputLabel className="mantine-TextInput-label">
-                  {t("Edit")}
-                </InputLabel>
-                <Button
-                  type="submit"
-                  onClick={async (event) => {
-                    event.stopPropagation();
-                    const values = changeEventForm.getValues();
-
-                    if (changeEventForm.validate().hasErrors) {
-                      return;
-                    }
-                    
-                    if (tags.length === 0) {
-                      alert (t("PleaseAddAtLeastOneTag"));
-                      return;
-                    }
-
-                    if (values.image === null) {
-                      alert(t("PleaseUploadAnImage"));
-                      return;
-                    }
-
-                    if (values.description ? values.description.length > 500 : false) {
-                      alert(t("DescriptionTooLong"));
-                      return;
-                    }
-
-                    const eventObj : ChangeEventDto = {
-                      id: props.eventId,
-                      eventName: values.eventName ?? "",
-                      description: values.description ?? "",
-                      tags: tags,
-                      date: values.date ? values.date.toISOString().split("T")[0] : "",
-                      time: values.time ?? "",
-                      video: values.video ?? "",
-                    };
-
-                    const imageData = new FormData();
-                    imageData.append('file', values.image);
-
-                    await axios
-                    .put(
-                      `${
-                        import.meta.env.VITE_DB_SERVER
-                      }/Host/changeEventDetails`,
-                      {
-                        ...eventObj
-                      }
-                    )
-                    .then((resp) => {
-                      queryClient.invalidateQueries({ queryKey: ["event_preview"] });
-                      return resp.data;
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                        alert(err.response.data[0].description);
-                      }
-                      else {
-                        alert(err.response.data);
-                      }
-                    });
-
-                    await axios
-                    .post(`${import.meta.env.VITE_DB_SERVER}/Image/uploadImage/${props.eventId}`, 
-                      imageData, {
-                        headers: {
-                          'Content-Type': 'multipart/form-data',
-                        },
-                    })
-                    .then(() => {
-                      alert(t("SuccessfullyChangedEventInfo"));
-                      props.showEvent(View.Basic);
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                      if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                        alert(err.response.data[0].description);
-                      }
-                      else {
-                        alert(err.response.data);
-                      }
-
-                    });
-
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    lineHeight: "var(--mantine-line-height)",
+                    marginTop: "8px",
                   }}
                 >
-                  {t("EditEventDetails")}
-                </Button>
-              </div>
-            </Stack>
-          </Fieldset>
+                  <InputLabel className="mantine-TextInput-label">
+                    {t("Edit")}
+                  </InputLabel>
+                  <Button
+                    type="submit"
+                    onClick={async (event) => {
+                      event.stopPropagation();
+                      const values = changeEventForm.getValues();
+
+                      if (changeEventForm.validate().hasErrors) {
+                        return;
+                      }
+
+                      if (tags.length === 0) {
+                        alert(t("PleaseAddAtLeastOneTag"));
+                        return;
+                      }
+
+                      if (values.image === null) {
+                        alert(t("PleaseUploadAnImage"));
+                        return;
+                      }
+
+                      if (
+                        values.description
+                          ? values.description.length > 500
+                          : false
+                      ) {
+                        alert(t("DescriptionTooLong"));
+                        return;
+                      }
+
+                      const eventObj: ChangeEventDto = {
+                        id: props.eventId,
+                        eventName: values.eventName ?? "",
+                        description: values.description ?? "",
+                        tags: tags,
+                        date: values.date
+                          ? values.date.toISOString().split("T")[0]
+                          : "",
+                        time: values.time ?? "",
+                        video: values.video ?? "",
+                      };
+
+                      const imageData = new FormData();
+                      imageData.append("file", values.image);
+
+                      await axios
+                        .put(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Host/changeEventDetails`,
+                          {
+                            ...eventObj,
+                          }
+                        )
+                        .then((resp) => {
+                          queryClient.invalidateQueries({
+                            queryKey: ["event_preview"],
+                          });
+                          return resp.data;
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
+                            alert(err.response.data[0].description);
+                          } else {
+                            alert(err.response.data);
+                          }
+                        });
+
+                      await axios
+                        .post(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Image/uploadImage/${props.eventId}`,
+                          imageData,
+                          {
+                            headers: {
+                              "Content-Type": "multipart/form-data",
+                            },
+                          }
+                        )
+                        .then(() => {
+                          alert(t("SuccessfullyChangedEventInfo"));
+                          props.showEvent(View.Basic);
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
+                            alert(err.response.data[0].description);
+                          } else {
+                            alert(err.response.data);
+                          }
+                        });
+                    }}
+                  >
+                    {t("EditEventDetails")}
+                  </Button>
+                </div>
+              </Stack>
+            </Fieldset>
           </form>
 
           <Flex w="50%" direction="column">
@@ -328,15 +345,27 @@ export default function ManageEvent(props: ManageEventProps) {
               mb={10}
             >
               <Stack w="100%" justify="center">
-                <TextInput label={t("Location")} value={props.eventDetails?.location} disabled={true} />
-                <TextInput label={t("Address")} value={props.eventDetails?.address} disabled={true} />
+                <TextInput
+                  label={t("Location")}
+                  value={props.eventDetails?.location}
+                  disabled={true}
+                />
+                <TextInput
+                  label={t("Address")}
+                  value={props.eventDetails?.address}
+                  disabled={true}
+                />
                 <NumberInput
                   disabled={true}
                   label={t("Capacity")}
                   inputMode="numeric"
                   value={props.eventDetails?.capacity}
                 />
-                <TextInput label={t("SpaceOwnerPhoneNumber")} value={props.eventDetails?.phoneNumber} disabled={true} />
+                <TextInput
+                  label={t("SpaceOwnerPhoneNumber")}
+                  value={props.eventDetails?.phoneNumber}
+                  disabled={true}
+                />
               </Stack>
             </Fieldset>
 
@@ -354,17 +383,21 @@ export default function ManageEvent(props: ManageEventProps) {
               }}
               mb={10}
             >
-              <CustomStatsCard 
-                title= {("ReservedTables")}
+              <CustomStatsCard
+                title={"ReservedTables"}
                 dash={false}
                 level=""
                 current={props.eventDetails?.reservedTables ?? 0}
                 nextStage={props.eventDetails?.maxTables ?? 0}
               />
-              <StatsCard title={t("TotalEarning")} current={props.eventDetails?.totalEarnings ?? 0} />
+              <StatsCard
+                title={t("TotalEarning")}
+                current={props.eventDetails?.totalEarnings ?? 0}
+              />
             </Fieldset>
           </Flex>
         </Flex>
+        <Drawer plan={} />
       </Flex>
     </>
   );
