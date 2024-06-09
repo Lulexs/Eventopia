@@ -308,6 +308,11 @@
 
   "Recommendation": "Preporučeni događaji",
 
-  "EmptyCountryField": "Polje za državu je prazno"
+  "EmptyCountryField": "Polje za državu je prazno",
+
+  "Corner": "Ćošak",
+  "Table": "Sto",
+  "Stage": "Bina",
+  "Bar": "Bar"
 
 }

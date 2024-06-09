@@ -309,6 +309,11 @@
 
   "Recommendation": "Recommendation",
 
-  "EmptyCountryField": "Empty country field"
+  "EmptyCountryField": "Empty country field",
+
+  "Corner": "Corner",
+  "Table": "Table",
+  "Stage": "Stage",
+  "Bar": "Bar"
 
 }

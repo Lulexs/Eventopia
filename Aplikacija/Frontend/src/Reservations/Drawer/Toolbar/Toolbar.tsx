@@ -1,5 +1,6 @@
 import { Group } from "@mantine/core";
 import styles from "./Toolbar.module.css";
+import { t } from "i18next";
 
 export interface ToolbarProps {
   cornerState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -25,7 +26,7 @@ export default function Toolbar(props: ToolbarProps) {
           props.barState[1](false);
         }}
       >
-        Corner
+        {t("Corner")}
       </p>
       <p
         style={{
@@ -41,7 +42,7 @@ export default function Toolbar(props: ToolbarProps) {
           props.barState[1](false);
         }}
       >
-        Table
+        {t("Table")}
       </p>
       <p
         style={{
@@ -57,7 +58,7 @@ export default function Toolbar(props: ToolbarProps) {
           props.barState[1](false);
         }}
       >
-        Stage
+        {t("Stage")}
       </p>
       <p
         style={{
@@ -73,7 +74,7 @@ export default function Toolbar(props: ToolbarProps) {
           props.stageState[1](false);
         }}
       >
-        Bar
+        {t("Bar")}
       </p>
     </Group>
   );
