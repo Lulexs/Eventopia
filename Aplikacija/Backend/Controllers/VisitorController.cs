@@ -245,24 +245,21 @@ public class VisitorController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var dogadjaji = await Context.Dogadjaji.Include(x => x.Rezervacije!)
-                                                    .ThenInclude(x => x.Korisnik)
-                                                    .Include(x => x.Ocene!)
-                                                    .ThenInclude(x => x.Korisnik)
-                                                    .Where(x => x.Rezervacije!.Any(y => y.Korisnik == korisnik)
-                                                    && x.Vreme < DateTime.Now
-                                                    && x.Status == StatusDogadjaja.Passed)
-                                                    .Select(x => new
-                                                    {
-                                                        EventId = x.ID,
-                                                        Title = x.Naziv,
-                                                        Date = x.Vreme,
-                                                        Image = x.Slika,
-                                                        CanLeaveReview = !x.Ocene!.Any(y => y.Korisnik == korisnik)
-                                                    })
-                                                    .Distinct()
-                                                    .OrderByDescending(x => x.Date)
-                                                    .ToListAsync();
+        var canLeaveReview = await Context.Ocene.Where(x => x.Korisnik == korisnik).Select(x => x.Dogadjaj!.ID).ToListAsync();
+
+        var dogadjaji = await Context.Rezervacije.Where(x => x.Dogadjaj!.Vreme < DateTime.Now
+                                                && x.Dogadjaj.Status == StatusDogadjaja.Passed)
+                                                .Select(x => new
+                                                {
+                                                    EventId = x.Dogadjaj!.ID,
+                                                    Title = x.Dogadjaj.Naziv,
+                                                    Date = x.Dogadjaj.Vreme,
+                                                    Image = x.Dogadjaj.Slika,
+                                                    CanLeaveReview = !canLeaveReview.Contains(x.Dogadjaj.ID)
+                                                })
+                                                .Distinct()
+                                                .OrderByDescending(x => x.Date)
+                                                .ToListAsync();
 
         return Ok(dogadjaji);
     }
@@ -280,9 +277,7 @@ public class VisitorController : ControllerBase
             return Unauthorized($"You are banned from the platform until {banned.DatumDo.ToShortDateString()}. Reason: {banned.Razlog}");
         }
 
-        var dogadjaj = await Context.Dogadjaji.Include(x => x.Rezervacije!)
-                                              .ThenInclude(x => x.Korisnik)
-                                              .Where(x => x.ID == commentDto.DogadjajId && x.Rezervacije!.Any(y => y.Korisnik == korisnik)
+        var dogadjaj = await Context.Dogadjaji.Where(x => x.ID == commentDto.DogadjajId
                                               && x.Vreme < DateTime.Now)
                                               .FirstOrDefaultAsync();
 

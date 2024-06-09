@@ -659,7 +659,7 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                   }}
                   disabled
                 >
-                  {t("Leave review")}
+                  {t("LeaveReview")}
                 </Button>
                 )}
               </Flex>
