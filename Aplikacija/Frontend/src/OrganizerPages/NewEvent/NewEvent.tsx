@@ -282,10 +282,12 @@ export default function NewEvent(props: NewEventProps) {
                         return;
                       }
 
-                      const newSpacePlan = getObjectFromDrawerRef?.current && typeof getObjectFromDrawerRef.current === 'function'
-                      ? getObjectFromDrawerRef.current()
-                      : null;
-                      
+                      const newSpacePlan =
+                        getObjectFromDrawerRef?.current &&
+                        typeof getObjectFromDrawerRef.current === "function"
+                          ? getObjectFromDrawerRef.current()
+                          : null;
+
                       if (tags.length === 0) {
                         alert(t("PleaseEnterAtLeastOneTag"));
                         return;
@@ -306,7 +308,7 @@ export default function NewEvent(props: NewEventProps) {
                         return;
                       }
 
-                      const eventObj : NewEventDto = {
+                      const eventObj: NewEventDto = {
                         eventName: values.eventName,
                         description: values.description,
                         tags: tags,
@@ -316,58 +318,63 @@ export default function NewEvent(props: NewEventProps) {
                         spaceId: selectedSpaceId as number,
                         items: newSpacePlan.items,
                         lines: newSpacePlan.lines,
-                        surfaceDimension: newSpacePlan.surfaceDimension
+                        surfaceDimension: newSpacePlan.surfaceDimension,
                       };
-                                            
+
                       let eventId = -1;
 
                       const imageData = new FormData();
-                      imageData.append('file', values.image);
+                      imageData.append("file", values.image);
 
                       await axios
-                      .post(
-                        `${
-                          import.meta.env.VITE_DB_SERVER
-                        }/Host/createEvent`,
-                        {
-                          ...eventObj
-                        }
-                      )
-                      .then((resp) => {
-                        eventId = resp.data;
-                      })
-                      .catch((err) => {
-                        console.error(err);
-                        if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                          alert(err.response.data[0].description);
-                        }
-                        else {
-                          alert(err.response.data);
-                        }
-                      });
+                        .post(
+                          `${import.meta.env.VITE_DB_SERVER}/Host/createEvent`,
+                          {
+                            ...eventObj,
+                          }
+                        )
+                        .then((resp) => {
+                          eventId = resp.data;
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
+                            alert(err.response.data[0].description);
+                          } else {
+                            alert(err.response.data);
+                          }
+                        });
 
                       await axios
-                      .post(`${import.meta.env.VITE_DB_SERVER}/Image/uploadImage/${eventId}`, 
-                        imageData, {
-                          headers: {
-                            'Content-Type': 'multipart/form-data',
-                          },
-                      })
-                      .then(() => {
-                        alert(t("SuccessfullyScheduledEvent"));
-                        props.showEvent(View.Basic);
-                      })
-                      .catch((err) => {
-                        console.error(err);
-                        if (Array.isArray(err.response.data) && err.response.data.length > 0) {
-                          alert(err.response.data[0].description);
-                        }
-                        else {
-                          alert(err.response.data);
-                        }
-
-                      });
-
+                        .post(
+                          `${
+                            import.meta.env.VITE_DB_SERVER
+                          }/Image/uploadImage/${eventId}`,
+                          imageData,
+                          {
+                            headers: {
+                              "Content-Type": "multipart/form-data",
+                            },
+                          }
+                        )
+                        .then(() => {
+                          alert(t("SuccessfullyScheduledEvent"));
+                          props.showEvent(View.Basic);
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          if (
+                            Array.isArray(err.response.data) &&
+                            err.response.data.length > 0
+                          ) {
+                            alert(err.response.data[0].description);
+                          } else {
+                            alert(err.response.data);
+                          }
+                        });
                     }}
                   >
                     {t("ScheduleEvent")}
@@ -424,7 +431,7 @@ export default function NewEvent(props: NewEventProps) {
             </Group>
             <Checkbox
               checked={selectedSpaceId != -1}
-              label= {t("SelectedSpace?")}
+              label={t("SelectedSpace?")}
               disabled
             />
             {areSpacesLoading || spacesError ? (
@@ -440,7 +447,7 @@ export default function NewEvent(props: NewEventProps) {
               <Table>
                 <Table.Thead>
                   <Table.Tr>
-                  <Table.Th>{t("City")}</Table.Th>
+                    <Table.Th>{t("City")}</Table.Th>
                     <Table.Th>{t("Country")}</Table.Th>
                     <Table.Th>{t("Address")}</Table.Th>
                     <Table.Th>{t("SeatingCapacity")}</Table.Th>

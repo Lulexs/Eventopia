@@ -63,13 +63,15 @@ export default function ManageEvent(props: ManageEventProps) {
     }
   };
 
-  const {
-    data: spacePlan,
-  } = useQuery<SpaceDataType>({
+  const { data: spacePlan } = useQuery<SpaceDataType>({
     queryKey: ["event_plan"],
     queryFn: async () => {
       return await axios
-        .get(`${import.meta.env.VITE_DB_SERVER}/Host/getEventSpace/${props.eventId}`)
+        .get(
+          `${import.meta.env.VITE_DB_SERVER}/Host/getEventSpace/${
+            props.eventId
+          }`
+        )
         .then((resp) => {
           console.log(resp.data);
           return resp.data;
@@ -416,8 +418,10 @@ export default function ManageEvent(props: ManageEventProps) {
             </Fieldset>
           </Flex>
         </Flex>
-        <Drawer plan={spacePlan}/>
       </Flex>
+      <div>
+        <Drawer plan={spacePlan} />
+      </div>
     </>
   );
 }
