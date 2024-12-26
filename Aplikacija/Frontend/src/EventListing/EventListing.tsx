@@ -34,6 +34,7 @@ export default function EventListing() {
   } = useQuery<string[]>({
     queryKey: ["locations"],
     queryFn: async () => {
+      console.log(import.meta.env.VITE_DB_SERVER);
       return await axios
         .get(`${import.meta.env.VITE_DB_SERVER}/HomePage/getLocations`)
         .then((resp) => resp.data)

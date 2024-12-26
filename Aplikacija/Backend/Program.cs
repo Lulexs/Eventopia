@@ -17,10 +17,11 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .WithOrigins("http://localhost:5173",
-                            "https://localhost:5173",
-                            "http://127.0.0.1:5173",
-                            "https://127.0.0.1:5173");
+              .AllowAnyOrigin();
+        //   .WithOrigins("http://localhost:5173",
+        //                "https://localhost:5173",
+        //                "http://127.0.0.1:5173",
+        //                "https://127.0.0.1:5173");
     });
 });
 
@@ -29,10 +30,6 @@ builder.Services.AddIdentityServices(config);
 builder.Services.AddHostedService<EventUpdateService>();
 
 builder.Services.AddControllers();
-
-builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
-
-builder.Services.AddTransient<IMailService, MailService>();
 
 builder.Services.AddMiniProfiler(options =>
 {

@@ -8,13 +8,11 @@ public class SpaceController : ControllerBase
 
     private readonly UserManager<Korisnik> _userManager;
     public Context Context { get; set; }
-    private readonly IMailService _mailService;
 
-    public SpaceController(Context context, UserManager<Korisnik> userManager, IMailService _MailService)
+    public SpaceController(Context context, UserManager<Korisnik> userManager)
     {
         Context = context;
         _userManager = userManager;
-        _mailService = _MailService;
     }
 
     [Authorize(Policy = "RequireSpaceOwnerRole")]
@@ -258,22 +256,6 @@ public class SpaceController : ControllerBase
 
         var dogadjajNaziv = rezervacija.Dogadjaj!.Naziv;
         var dogadjajVreme = rezervacija.Dogadjaj!.Vreme.ToString("dd.MM.yyyy. HH:mm");
-
-        if (response == "reject")
-        {
-            var mailData = new HTMLMailData
-            {
-                EmailToId = organizator!.Email!,
-                EmailToName = organizator!.Ime + " " + organizator.Prezime,
-                EmailSubject = "Your space reservation is rejected",
-                EventName = dogadjajNaziv,
-                EventDate = dogadjajVreme,
-                EventLocation = rezervacija.Prostor!.Adresa + ", " + rezervacija.Prostor!.Grad + ", " + rezervacija.Prostor!.Drzava,
-                MailType = "ReservationCancelled"
-            };
-
-            _mailService.SendHTMLMailFireAndForget(mailData);
-        }
 
         return Ok();
     }

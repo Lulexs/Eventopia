@@ -6,13 +6,11 @@ namespace Backend.Controllers;
 public class HostController : ControllerBase
 {
     private readonly UserManager<Korisnik> _userManager;
-    private readonly IMailService _mailService;
     public Context Context { get; set; }
-    public HostController(Context context, UserManager<Korisnik> userManager, IMailService _MailService)
+    public HostController(Context context, UserManager<Korisnik> userManager)
     {
         Context = context;
         _userManager = userManager;
-        _mailService = _MailService;
     }
 
     [Authorize(Policy = "RequireHostRole")]
@@ -331,21 +329,6 @@ public class HostController : ControllerBase
         Context.RezervacijeProstora.Remove(dogadjaj.RezervacijaProstora!);
         await Context.SaveChangesAsync();
 
-        visitors.ForEach((x) =>
-        {
-            var mailData = new HTMLMailData
-            {
-                EmailToId = x.Email!,
-                EmailToName = x.Name,
-                EmailSubject = "Event you have reservation for is cancelled",
-                EventName = dogadjajNaziv,
-                EventDate = dogadjajVreme,
-                MailType = "EventCancelled"
-            };
-
-            _mailService.SendHTMLMailFireAndForget(mailData);
-        });
-
         return Ok();
     }
 
@@ -619,21 +602,6 @@ public class HostController : ControllerBase
             var dogadjajVreme = dogadjaj.Vreme.ToString("dd.MM.yyyy. HH:mm");
             var novoVreme = dateTime.ToString("dd.MM.yyyy HH:mm");
 
-            visitors.ForEach((x) =>
-            {
-                var mailData = new HTMLMailData
-                {
-                    EmailToId = x.Email!,
-                    EmailToName = x.Name,
-                    EmailSubject = "Event you have reservation for is rescheduled",
-                    EventName = dogadjajNaziv,
-                    EventDate = dogadjajVreme,
-                    RescheduledDate = novoVreme,
-                    MailType = "EventRescheduled"
-                };
-
-                _mailService.SendHTMLMailFireAndForget(mailData);
-            });
 
         }
 
