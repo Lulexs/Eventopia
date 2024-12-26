@@ -25,32 +25,11 @@ public static class Seed
                              SlikaProfila = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
                              Telefon = "065/123-456",
                              DatumRodjenja = new DateTime(1999, 12, 12),
-                            },
-                new Korisnik{Ime = "Space",
-                             Prezime = "Owner1",
-                             Telefon = "061/111-1234",
-                             DatumRodjenja = new DateTime(1992, 11, 12),
-                             SlikaProfila = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-                             Adresa = "Ulica Divljih Kestenova 24",
-                             Grad = "Nis",
-                             UserName = "spaceowner1@gmail.com",
-                             Email = "spaceowner1@gmail.com"},
-                new Korisnik{Ime = "Space",
-                             Prezime = "Owner2",
-                             Telefon = "065/123-451",
-                             DatumRodjenja = new DateTime(1988, 3, 5),
-                             SlikaProfila = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-                             Adresa = "Ulica Divlje Visnje 15",
-                             Grad = "Beograd",
-                             UserName = "spaceowner2@gmail.com",
-                             Email = "spaceowner2@gmail.com",
-                             },
+                            }
             };
 
             var korisniciRoles = new List<string> {
                 "Admin",
-                "Space owner",
-                "Space owner"
             };
 
             foreach (var role in roles)

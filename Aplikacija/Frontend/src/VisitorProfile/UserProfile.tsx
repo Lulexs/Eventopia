@@ -595,10 +595,8 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 <Box w="20%">
                   <Text ta="center">
                     {t("ID")}: {reservation.reservationId}
-                    <br />
-                    ${reservation.price}
-                    <br/>
-                    ({reservation.seats} {t("Seats")})
+                    <br />${reservation.price}
+                    <br />({reservation.seats} {t("Seats")})
                   </Text>
                 </Box>
               </Flex>
@@ -641,26 +639,26 @@ export default function VisitorProfile(props: VisitorProfileProps) {
                 </Box>
 
                 {ev.canLeaveReview ? (
-                <Button
-                  w="fit-content"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEventSelectedForReview(ev.eventId);
-                    toggleReview();
-                  }}
-                >
-                  {t("LeaveReview")}
-                </Button>
+                  <Button
+                    w="fit-content"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEventSelectedForReview(ev.eventId);
+                      toggleReview();
+                    }}
+                  >
+                    {t("LeaveReview")}
+                  </Button>
                 ) : (
-                <Button
-                  w="fit-content"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  disabled
-                >
-                  {t("LeaveReview")}
-                </Button>
+                  <Button
+                    w="fit-content"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    disabled
+                  >
+                    {t("LeaveReview")}
+                  </Button>
                 )}
               </Flex>
             ))
