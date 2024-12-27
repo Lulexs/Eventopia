@@ -2,13 +2,11 @@ echo "Starting Docker container for Microsoft SQL Server..."
 docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=MyStrongPassword123!" -p 1433:1433 -d mcr.microsoft.com/mssql/server:latest
 
 CONTAINER_ID=$(docker ps -q --filter ancestor=mcr.microsoft.com/mssql/server:latest)
-
 echo "Waiting for SQL Server to start up..."
-sleep 20  # Give SQL Server time to initialize
+sleep 20
 
 echo "Navigating to the Frontend application directory..."
 cd Aplikacija/Frontend
-
 echo "Installing npm dependencies for the Frontend application..."
 npm install
 
@@ -24,8 +22,8 @@ dotnet clean && dotnet restore
 echo "Applying Entity Framework database migrations..."
 dotnet ef database update
 
+cd ../..
 echo "Executing SQL script to populate the database..."
 docker cp data.sql $CONTAINER_ID:/data.sql
-docker exec -it $CONTAINER_ID /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -i ../data.sql
-
+docker exec -it $CONTAINER_ID /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -I -i /data.sql -C -t 30 -N -b -e
 echo "Database population complete."
