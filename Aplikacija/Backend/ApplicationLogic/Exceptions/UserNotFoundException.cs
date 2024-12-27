@@ -1,0 +1,6 @@
+namespace Backend.ApplicationLogic.Exceptions;
+
+public class UserNotFoundException : Exception
+{
+    public UserNotFoundException(string message) : base(message) { }
+}

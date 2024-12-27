@@ -1,3 +1,5 @@
+using Backend.ApplicationLogic;
+
 var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
@@ -27,6 +29,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddIdentityServices(config);
 
+builder.Services.AddScoped<AdministratorLogic>();
 builder.Services.AddHostedService<EventUpdateService>();
 
 builder.Services.AddControllers();
