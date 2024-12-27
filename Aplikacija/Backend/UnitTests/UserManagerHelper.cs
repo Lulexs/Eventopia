@@ -1,6 +1,7 @@
 using Backend.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace UnitTests;
@@ -11,8 +12,15 @@ public static class UserManagerHelper
     {
         var services = new ServiceCollection();
 
+        IConfiguration configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("TestCS");
+
         var options = new DbContextOptionsBuilder<Context>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
+            .UseSqlServer(connectionString, options => options.MigrationsAssembly("Backend"))
             .Options;
 
         var context = new Context(options);

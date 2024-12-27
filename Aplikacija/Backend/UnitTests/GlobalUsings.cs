@@ -1,1 +1,9 @@
 global using NUnit.Framework;
+global using Backend.ApplicationLogic;
+global using Backend.ApplicationLogic.Exceptions;
+global using Backend.DTOs;
+global using Backend.Models;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.EntityFrameworkCore.Migrations;
