@@ -26,6 +26,6 @@ dotnet ef database update
 
 echo "Executing SQL script to populate the database..."
 docker cp data.sql $CONTAINER_ID:/data.sql
-docker exec -it $CONTAINER_ID /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -i /data.sql
+docker exec -it $CONTAINER_ID /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -i ../data.sql
 
 echo "Database population complete."
