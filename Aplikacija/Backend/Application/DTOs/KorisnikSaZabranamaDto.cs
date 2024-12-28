@@ -27,6 +27,15 @@ public class KorisnikSaZabranamaDto
     }
 }
 
+public class KorisnikBezZabranaDto
+{
+    public Guid Id { get; set; }
+    public string? Ime { get; set; }
+    public string? Prezime { get; set; }
+    public string? Email { get; set; }
+    public AppUserRole? Role { get; set; }
+}
+
 public class KorisnikSaZabranamaDtoComparer : IEqualityComparer<KorisnikSaZabranamaDto>
 {
     public bool Equals(KorisnikSaZabranamaDto? x, KorisnikSaZabranamaDto? y)

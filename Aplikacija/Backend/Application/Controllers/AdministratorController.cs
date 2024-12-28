@@ -9,25 +9,14 @@ public class AdministratorController : ControllerBase
 {
     public readonly AdministratorLogic _administratorLogic;
     private readonly UserManager<Korisnik> _userManager;
-    private readonly Context _context;
 
-    public AdministratorController(Context context, UserManager<Korisnik> userManager, AdministratorLogic administratorLogic)
+    public AdministratorController(UserManager<Korisnik> userManager, AdministratorLogic administratorLogic)
     {
         _administratorLogic = administratorLogic;
         _userManager = userManager;
-        _context = context;
     }
 
     [Authorize(Policy = "RequireAdministratorRole")]
-    [HttpGet("getUsersWithRoles")]
-    public async Task<IActionResult> GetUsersWithRoles()
-    {
-        var korisnici = await _administratorLogic.GetUsersWithRoles();
-
-        return Ok(korisnici);
-    }
-
-    // [Authorize(Policy = "RequireAdministratorRole")]
     [HttpGet("getUsersWithBans")]
     public async Task<ActionResult<List<KorisnikSaZabranamaDto>>> GetUsersWithBans()
     {
@@ -108,41 +97,12 @@ public class AdministratorController : ControllerBase
         return Ok();
     }
 
-    [Authorize(Policy = "RequireAdministratorRole")]
+    // [Authorize(Policy = "RequireAdministratorRole")]
     [HttpGet("getAllComments")]
     public async Task<ActionResult> GetAllComments()
     {
         var ocene = await _administratorLogic.GetAllComments();
 
-
-        return Ok(ocene);
+        return Ok(ocene.Select(x => new { x.Id, Comment = x.Komentar }));
     }
-
-    [HttpGet("test")]
-    public async Task<IActionResult> Test()
-    {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-
-        DateTime now = DateTime.Now;
-        int id1 = await _administratorLogic.BanUser(new BanUserDto
-        {
-            KorisnikId = "634a7ec8-1a5f-43a5-e98b-08dd25cb4a83",
-            DatumOd = now,
-            DatumDo = now.AddDays(7).ToString(),
-            Razlog = "Test razlog"
-        });
-
-        int id2 = await _administratorLogic.BanUser(new BanUserDto
-        {
-            KorisnikId = "cb2f456a-0e50-43c9-e98a-08dd25cb4a83",
-            DatumOd = now,
-            DatumDo = now.AddDays(7).ToString(),
-            Razlog = "Test razlog"
-        });
-
-        await transaction.RollbackAsync();
-
-        return Ok();
-    }
-
 }

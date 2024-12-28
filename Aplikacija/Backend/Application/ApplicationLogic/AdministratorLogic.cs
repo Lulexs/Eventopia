@@ -13,21 +13,6 @@ public class AdministratorLogic
         Context = context;
     }
 
-    public async Task<dynamic> GetUsersWithRoles()
-    {
-        var korisnici = await _userManager.Users.OrderBy(korisnik => korisnik.Ime)
-                                        .ThenBy(korisnik => korisnik.Prezime)
-                                        .Select(korisnik => new
-                                        {
-                                            korisnik.Id,
-                                            korisnik.Ime,
-                                            korisnik.Prezime,
-                                            korisnik.Email,
-                                            Role = korisnik.UserRole
-                                        }).ToListAsync();
-        return korisnici;
-    }
-
     public async Task<List<KorisnikSaZabranamaDto>> GetUsersWithBans()
     {
         var korisnici = await _userManager.Users.OrderBy(korisnik => korisnik.Ime)

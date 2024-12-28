@@ -1,33 +1,18 @@
+
 namespace UnitTests;
 
 [TestFixture]
 public class AdministratorLogicTests
 {
-    private UserManager<Korisnik> _userManager = null!;
-    private Context _context = null!;
-    private AdministratorLogic _adminLogic = null!;
-    private HostLogic _hostLogic = null!;
-
-    // [SetUp]
-    // public async Task SetUp()
-    // {
-    //     (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
-    //     _adminLogic = new AdministratorLogic(_userManager, _context);
-    //     _hostLogic = new HostLogic(_userManager, _context);
-    //     await _context.Database.BeginTransactionAsync();
-    // }
-
-    // [TearDown]
-    // public async Task TearDown()
-    // {
-    //     _userManager.Dispose();
-    //     await _context.DisposeAsync();
-    // }
-
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task BanUser_BansUser()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
         string razlog = "Neprikladan komentar";
         DateTime datumOd = DateTime.Now;
@@ -56,18 +41,20 @@ public class AdministratorLogicTests
             Assert.That(bannedUser?.DatumDo.ToString(), Is.EqualTo(datumDo));
         });
 
-        var zabrana = await _context.Zabrane.Where(x => x.Korisnik!.Id.ToString() == userId).FirstOrDefaultAsync();
-        if (zabrana != null)
-        {
-            _context.Zabrane.Remove(zabrana);
-            await _context.SaveChangesAsync();
-        }
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task BanningBannedUser_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
         string razlog = "Neprikladan komentar";
         DateTime datumOd = DateTime.Now;
@@ -93,26 +80,20 @@ public class AdministratorLogicTests
         });
         Assert.That(exception?.Message, Is.EqualTo("User is already banned."));
 
-        var zabrana = await _context.Zabrane.Where(x => x.Korisnik!.Id.ToString() == userId).FirstOrDefaultAsync();
-        if (zabrana != null)
-        {
-            _context.Zabrane.Remove(zabrana);
-            await _context.SaveChangesAsync();
-        }
-        var bannedUser = await _context.Zabrane.Where(x => x.Korisnik!.Id.ToString() == userId && x.DatumDo > DateTime.Now)
-                                               .Select(x => new BannedDto
-                                               {
-                                                   Razlog = x.Razlog!,
-                                                   DatumDo = x.DatumDo
-                                               })
-                                                .FirstOrDefaultAsync();
-        Assert.That(bannedUser, Is.Null);
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
-    public void BanningNonExistantUser_ThrowsException()
+    // [Ignore("Temp")]
+    public async Task BanningNonExistantUser_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         string userId = Guid.Empty.ToString();
         string razlog = "Neprikladan komentar";
         DateTime datumOd = DateTime.Now;
@@ -128,12 +109,21 @@ public class AdministratorLogicTests
                 Razlog = razlog
             });
         });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task UnbanningBannedUser_UnbansUser()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
         string razlog = "Neprikladan komentar";
         DateTime datumOd = DateTime.Now;
@@ -153,12 +143,22 @@ public class AdministratorLogicTests
 
         zabrana = await _context.Zabrane.Where(x => x.Korisnik!.Id.ToString() == userId).FirstOrDefaultAsync();
         Assert.That(zabrana, Is.Null);
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
-    public void UnbanningUserNotBanned_ThrowsException()
+    // [Ignore("Temp")]
+
+    public async Task UnbanningUserNotBanned_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int zabranaId = 123456;
 
         var exception = Assert.ThrowsAsync<BanNotFoundException>(async () =>
@@ -166,12 +166,22 @@ public class AdministratorLogicTests
             await _adminLogic.UnbanUser(zabranaId);
         });
         Assert.That(exception?.Message, Is.EqualTo("Ban does not exist"));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
+
     public async Task UnbanningAlreadyUnbannedUser_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
         string razlog = "Neprikladan komentar";
         DateTime datumOd = DateTime.Now;
@@ -194,26 +204,41 @@ public class AdministratorLogicTests
             await _adminLogic.UnbanUser(zabrana.Id);
         });
         Assert.That(exception?.Message, Is.EqualTo("Ban does not exist"));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task DeletingEvent_DeletesEvent()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int eventId = 3;
         await _adminLogic.DeleteEvent(eventId);
         var deletedEvent = await _context.Dogadjaji.Where(x => x.ID == eventId).FirstOrDefaultAsync();
 
         Assert.That(deletedEvent, Is.Null);
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
-    public void DeletingNoExistingEvent_ThrowsException()
+    // [Ignore("Temp")]
+    public async Task DeletingNoExistingEvent_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int eventId = 124356;
 
         var exception = Assert.ThrowsAsync<EventNotFoundException>(async () =>
@@ -221,13 +246,21 @@ public class AdministratorLogicTests
             await _adminLogic.DeleteEvent(eventId);
         });
         Assert.That(exception?.Message, Is.EqualTo("Event does not exist"));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task DeletingDeletedEvent_ThrowsException()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int eventId = 3;
         await _adminLogic.DeleteEvent(eventId);
         var deletedEvent = await _context.Dogadjaji.Where(x => x.ID == eventId).FirstOrDefaultAsync();
@@ -238,27 +271,40 @@ public class AdministratorLogicTests
         });
         Assert.That(exception?.Message, Is.EqualTo("Event does not exist"));
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task DeletingComment_DeletesComment()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int commentId = 1;
         await _adminLogic.DeleteComment(commentId);
         var deletedComment = await _context.Ocene.Where(x => x.ID == commentId).FirstOrDefaultAsync();
 
         Assert.That(deletedComment, Is.Null);
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
-    public void DeletingNonExistingComment_ThrowsException()
+    // [Ignore("Temp")]
+    public async Task DeletingNonExistingComment_ThrowsException()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int commentId = 123456;
 
         var exception = Assert.ThrowsAsync<CommentNotFoundException>(async () =>
@@ -266,13 +312,21 @@ public class AdministratorLogicTests
             await _adminLogic.DeleteComment(commentId);
         });
         Assert.That(exception?.Message, Is.EqualTo("Comment does not exist"));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task DeletingDeletedComment_ThrowsException()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         int commentId = 1;
         await _adminLogic.DeleteComment(commentId);
         var deletedComment = await _context.Ocene.Where(x => x.ID == commentId).FirstOrDefaultAsync();
@@ -283,13 +337,20 @@ public class AdministratorLogicTests
         });
         Assert.That(exception?.Message, Is.EqualTo("Comment does not exist"));
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllEvents_GetsAllEvents()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         List<dynamic> allActiveEvents = [
             new { Id = 3, Naziv = "Bojan Sudjic"},
             new { Id = 4, Naziv = "The Little Prince"},
@@ -309,13 +370,21 @@ public class AdministratorLogicTests
             static bool comparer(dynamic a, dynamic b) => a.Id == b.Id && a.Naziv == b.Naziv;
             Assert.That(actual, Is.EquivalentTo(expected).Using<dynamic>(comparer));
         });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllEvents_GetsEmptyList()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         await _adminLogic.DeleteEvent(3);
         await _adminLogic.DeleteEvent(4);
         await _adminLogic.DeleteEvent(5);
@@ -324,14 +393,20 @@ public class AdministratorLogicTests
 
         Assert.That(allEvents, Is.Empty);
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllEventsAfterInsert_GetsEvents()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
 
         Korisnik korisnik = await _userManager.Users.Where(x => x.UserRole!.Role!.Name == "Host").FirstAsync();
         DateTime now = DateTime.Now;
@@ -380,13 +455,21 @@ public class AdministratorLogicTests
             Assert.That(actual, Is.EquivalentTo(expected).Using<dynamic>(comparer));
         });
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllComments_GetsAllComments()
     {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         List<ReturnOcenaDto> allComments = [
             new ReturnOcenaDto() { Id = 2, Komentar = "It was okay"},
             new ReturnOcenaDto() { Id = 1, Komentar = "Awesome experience!!"},
@@ -401,13 +484,21 @@ public class AdministratorLogicTests
             static bool comparer(ReturnOcenaDto a, ReturnOcenaDto b) => a.Id == b.Id && a.Komentar == b.Komentar;
             Assert.That(allCommentsActual, Is.EquivalentTo(allComments).Using<ReturnOcenaDto>(comparer));
         });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllComments_GetsEmptyList()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         await _adminLogic.DeleteComment(1);
         await _adminLogic.DeleteComment(2);
 
@@ -415,14 +506,20 @@ public class AdministratorLogicTests
 
         Assert.That(allComments, Is.Empty);
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllCommentsAfterInsert_GetsComments()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
 
         Korisnik korisnik = await _userManager.Users.Where(x => x.UserRole!.Role!.Name == "Visitor").FirstAsync();
         Dogadjaj dogadjaj = await _context.Dogadjaji.Where(x => x.Status == StatusDogadjaja.Passed).FirstAsync();
@@ -453,16 +550,18 @@ public class AdministratorLogicTests
             Assert.That(allCommentsActual, Is.EquivalentTo(allComments).Using<ReturnOcenaDto>(comparer));
         });
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+
     }
 
     [Test]
     // [Ignore("Temp")]
     public async Task GettingAllUsersWithNoBans_GetsUsers()
     {
-        (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
-        _adminLogic = new AdministratorLogic(_userManager, _context);
-        _hostLogic = new HostLogic(_userManager, _context);
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
         await _context.Database.BeginTransactionAsync();
 
         var allUsers = await _adminLogic.GetUsersWithBans();
@@ -473,17 +572,19 @@ public class AdministratorLogicTests
             Assert.That(allUsers, Is.EquivalentTo(Utils.InitialUsers).Using(new KorisnikSaZabranamaDtoComparer()));
         });
 
+        await _context.Database.RollbackTransactionAsync();
         _userManager.Dispose();
         await _context.DisposeAsync();
+
     }
 
     [Test]
     // [Ignore("Temp")]
     public async Task GettingAllUsersAfterBanningUsers_GetsUsers()
     {
-        (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
-        _adminLogic = new AdministratorLogic(_userManager, _context);
-        _hostLogic = new HostLogic(_userManager, _context);
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
         await _context.Database.BeginTransactionAsync();
 
         var initialUsers = Utils.InitialUsers.Select(x => new KorisnikSaZabranamaDto
@@ -535,16 +636,20 @@ public class AdministratorLogicTests
             Assert.That(allUsers, Is.EquivalentTo(initialUsers).Using(new KorisnikSaZabranamaDtoComparer()));
         });
 
-        // await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
         _userManager.Dispose();
         await _context.DisposeAsync();
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task GettingAllUsersAfterBanningAndUnbanningUser_GetsUsers()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
         var initialUsers = Utils.InitialUsers.Select(x => new KorisnikSaZabranamaDto
         {
             KorisnikId = x.KorisnikId,
@@ -578,7 +683,8 @@ public class AdministratorLogicTests
             Assert.That(allUsers, Is.EquivalentTo(initialUsers).Using(new KorisnikSaZabranamaDtoComparer()));
         });
 
-        await transaction.RollbackAsync();
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
     }
-
 }
