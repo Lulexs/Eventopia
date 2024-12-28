@@ -9,11 +9,9 @@ namespace Backend.Controllers;
 public class HostController : ControllerBase
 {
     private readonly UserManager<Korisnik> _userManager;
-    public Context Context { get; set; }
     private readonly HostLogic _hostLogic;
-    public HostController(HostLogic hostLogic, Context context, UserManager<Korisnik> userManager)
+    public HostController(HostLogic hostLogic, UserManager<Korisnik> userManager)
     {
-        Context = context;
         _userManager = userManager;
         _hostLogic = hostLogic;
     }
@@ -57,7 +55,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var spaces = _hostLogic.GetAvailableSpaces(date, time, location, capacity, korisnik);
+            var spaces = await _hostLogic.GetAvailableSpaces(date, time, location, capacity, korisnik);
             return Ok(spaces);
         }
         catch (UnauthorizedException e)
@@ -179,7 +177,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var statistics = _hostLogic.GetStatistics(korisnik);
+            var statistics = await _hostLogic.GetStatistics(korisnik);
             return Ok(statistics);
         }
         catch (UnauthorizedException e)
@@ -201,7 +199,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var ocene = _hostLogic.GetReviewsForEvent(id, korisnik);
+            var ocene = await _hostLogic.GetReviewsForEvent(id, korisnik);
             return Ok(ocene);
         }
         catch (UnauthorizedException e)
@@ -229,7 +227,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var dogadjaj = _hostLogic.GetEventDetails(id, korisnik);
+            var dogadjaj = await _hostLogic.GetEventDetails(id, korisnik);
             return Ok(dogadjaj);
         }
         catch (UnauthorizedException e)
@@ -277,7 +275,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var res = _hostLogic.GetReservations(id, korisnik);
+            var res = await _hostLogic.GetReservations(id, korisnik);
             return Ok(res);
         }
         catch (UnauthorizedException e)
@@ -304,7 +302,7 @@ public class HostController : ControllerBase
 
         try
         {
-            var spacePlan = _hostLogic.GetEventSpace(eventId, korisnik);
+            var spacePlan = await _hostLogic.GetEventSpace(eventId, korisnik);
             return Ok(spacePlan);
         }
         catch (UnauthorizedException e)

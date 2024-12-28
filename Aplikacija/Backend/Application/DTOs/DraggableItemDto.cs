@@ -44,4 +44,22 @@ public class DraggableItemDto
 
     [JsonPropertyName("reservedSeats")]
     public int? ReservedSeats { get; set; }
+
+
+    public static implicit operator DraggableItemDto(DraggableItem item)
+    {
+        return new DraggableItemDto
+        {
+            ID = item.ID,
+            FrontID = item.FrontID,
+            Tip = item.Tip.ToString(),
+            Top = item.Top,
+            Left = item.Left,
+            Height = item.Height,
+            HeightFactor = item.HeightFactor,
+            BrojMesta = item.BrojMesta,
+            Reserved = item.Reserved,
+            Price = item.Price
+        };
+    }
 }

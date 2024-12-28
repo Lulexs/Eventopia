@@ -10,7 +10,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
@@ -52,7 +52,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
@@ -91,7 +91,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         string userId = Guid.Empty.ToString();
@@ -121,7 +121,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
@@ -156,7 +156,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int zabranaId = 123456;
@@ -179,7 +179,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         string userId = "5F5A2EC0-A4CA-493F-E987-08DD25CB4A83";
@@ -216,7 +216,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int eventId = 3;
@@ -236,7 +236,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int eventId = 124356;
@@ -258,7 +258,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int eventId = 3;
@@ -282,7 +282,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int commentId = 1;
@@ -302,7 +302,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int commentId = 123456;
@@ -324,7 +324,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         int commentId = 1;
@@ -348,7 +348,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         List<dynamic> allActiveEvents = [
@@ -382,7 +382,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         await _adminLogic.DeleteEvent(3);
@@ -405,7 +405,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+        var _hostLogic = new HostLogic(_context);
         await _context.Database.BeginTransactionAsync();
 
         Korisnik korisnik = await _userManager.Users.Where(x => x.UserRole!.Role!.Name == "Host").FirstAsync();
@@ -414,7 +414,7 @@ public class AdministratorLogicTests
         {
             Naziv = "Test dogadjaj",
             Opis = "Test opis",
-            Datum = "2025-02-05",
+            Datum = "2030-02-05",
             Vreme = "20:00",
             Tags = ["tag1", "tag2"],
             ProstorId = 1,
@@ -467,7 +467,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         List<ReturnOcenaDto> allComments = [
@@ -496,7 +496,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         await _adminLogic.DeleteComment(1);
@@ -518,7 +518,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         Korisnik korisnik = await _userManager.Users.Where(x => x.UserRole!.Role!.Name == "Visitor").FirstAsync();
@@ -584,7 +584,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         var initialUsers = Utils.InitialUsers.Select(x => new KorisnikSaZabranamaDto
@@ -647,7 +647,7 @@ public class AdministratorLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _adminLogic = new AdministratorLogic(_userManager, _context);
-        var _hostLogic = new HostLogic(_userManager, _context);
+
         await _context.Database.BeginTransactionAsync();
 
         var initialUsers = Utils.InitialUsers.Select(x => new KorisnikSaZabranamaDto

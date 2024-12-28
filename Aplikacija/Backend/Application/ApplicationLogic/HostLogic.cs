@@ -5,12 +5,10 @@ namespace Backend.ApplicationLogic;
 
 public class HostLogic
 {
-    private readonly UserManager<Korisnik> _userManager;
     public Context Context { get; set; }
 
-    public HostLogic(UserManager<Korisnik> userManager, Context context)
+    public HostLogic(Context context)
     {
-        _userManager = userManager;
         Context = context;
     }
 
