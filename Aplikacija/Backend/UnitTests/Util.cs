@@ -14,6 +14,30 @@ public static class Utils
         return Regex.IsMatch(input, pattern);
     }
 
+    public readonly static List<SpaceBasicDto> InitialSpaces = [
+            new SpaceBasicDto() {
+                ID = 1,
+                Grad = "Beograd",
+                Drzava = "Serbia",
+                Adresa = "Zorana Zunkovica",
+                Kapacitet = 88
+            },
+            new SpaceBasicDto() {
+                ID = 2,
+                Grad = "Beograd",
+                Drzava = "Serbia",
+                Adresa = "Uciteljska 14",
+                Kapacitet = 100
+            },
+            new SpaceBasicDto() {
+                ID = 3,
+                Grad = "Sarajevo",
+                Drzava = "Bosnia",
+                Adresa = "Karadjordjeva",
+                Kapacitet = 148
+            },
+        ];
+
     public readonly static List<KorisnikSaZabranamaDto> InitialUsers =
         [
             new KorisnikSaZabranamaDto
