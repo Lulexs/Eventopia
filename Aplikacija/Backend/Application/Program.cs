@@ -30,6 +30,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddIdentityServices(config);
 
 builder.Services.AddScoped<AdministratorLogic>();
+builder.Services.AddScoped<HostLogic>();
 builder.Services.AddHostedService<EventUpdateService>();
 
 builder.Services.AddControllers();

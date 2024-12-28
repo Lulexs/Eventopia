@@ -73,7 +73,7 @@ public class AdministratorLogic
         return korisniciSaZabranama;
     }
 
-    public async Task BanUser(BanUserDto banUserDto)
+    public async Task<int> BanUser(BanUserDto banUserDto)
     {
         var korisnik = await _userManager.Users.Include(x => x.KorisnikZabrane).Where(x => x.Id.ToString() == banUserDto.KorisnikId).FirstOrDefaultAsync();
 
@@ -93,6 +93,7 @@ public class AdministratorLogic
 
         await Context.Zabrane.AddAsync(zabrana);
         await Context.SaveChangesAsync();
+        return zabrana.Id;
     }
 
     public async Task UnbanUser(int zabranaId)
@@ -145,15 +146,16 @@ public class AdministratorLogic
         await Context.SaveChangesAsync();
     }
 
-    public async Task<dynamic> GetAllComments()
+    public async Task<List<ReturnOcenaDto>> GetAllComments()
     {
         var ocene = await Context.Ocene
-                               .OrderByDescending(x => x.VremeKomentara)
-                               .Select(x => new
-                               {
-                                   x.ID,
-                                   Comment = x.Komentar,
-                               }).ToListAsync();
+                                .OrderByDescending(x => x.VremeKomentara)
+                                .Select(x => new ReturnOcenaDto
+                                {
+                                    Id = x.ID,
+                                    Komentar = x.Komentar,
+                                }).ToListAsync();
         return ocene;
     }
+
 }
