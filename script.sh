@@ -20,9 +20,10 @@ echo "Cleaning and restoring .NET dependencies..."
 dotnet clean && dotnet restore
 
 echo "Applying Entity Framework database migrations..."
+cd Application
 dotnet ef database update
 
-cd ../..
+cd ../../..
 echo "Executing SQL script to populate the database..."
 docker cp data.sql $CONTAINER_ID:/data.sql
 docker exec -it $CONTAINER_ID /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -I -i /data.sql -C -t 30 -N -b -e

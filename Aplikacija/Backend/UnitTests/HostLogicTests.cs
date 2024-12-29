@@ -231,7 +231,6 @@ public class HostLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _hostLogic = new HostLogic(_context);
-        var _adminLogic = new AdministratorLogic(_userManager, _context);
         await _context.Database.BeginTransactionAsync();
 
         DateTime now = DateTime.Now;
@@ -251,7 +250,6 @@ public class HostLogicTests
     {
         var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
         var _hostLogic = new HostLogic(_context);
-        var _adminLogic = new AdministratorLogic(_userManager, _context);
         await _context.Database.BeginTransactionAsync();
 
         DateTime now = DateTime.Now;

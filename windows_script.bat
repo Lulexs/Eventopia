@@ -23,9 +23,10 @@ echo Cleaning and restoring .NET dependencies...
 dotnet clean && dotnet restore
 
 echo Applying Entity Framework database migrations...
+cd Application
 dotnet ef database update
 
-cd ..\..
+cd ..\..\..
 
 echo Executing SQL script to populate the database...
 docker cp data.sql %CONTAINER_ID%:/data.sql
