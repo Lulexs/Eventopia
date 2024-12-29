@@ -978,6 +978,13 @@ public class HostLogicTests
             RegexOptions.IgnoreCase
         );
 
+        normalizedActual = Regex.Replace(
+            normalizedActual,
+            @"\|\s*TIMESTAMP\s*\|",
+            "| TIMESTAMP |",
+            RegexOptions.IgnoreCase
+        );
+
         string expectedOutput = string.Join(Environment.NewLine,
             @"ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice
     ------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,6 +1035,13 @@ public class HostLogicTests
             normalizedActual,
             @"\d{1,2}/\d{1,2}/\d{4}\s+\d{1,2}:\d{1,2}:\d{1,2}\s*(?:AM|PM)?",
             "TIMESTAMP",
+            RegexOptions.IgnoreCase
+        );
+
+        normalizedActual = Regex.Replace(
+            normalizedActual,
+            @"\|\s*TIMESTAMP\s*\|",
+            "| TIMESTAMP |",
             RegexOptions.IgnoreCase
         );
 
