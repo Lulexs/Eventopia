@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
+using Backend.Dtos;
 
 namespace UnitTests;
 
@@ -217,7 +219,6 @@ public class HostLogicTests
             await _hostLogic.GetSpacePlan(1, korisnik);
         });
         StringAssert.IsMatch(@"You are banned from the platform until (?<date>.+?)\. Reason: (?<reason>.+)", exception!.Message);
-
 
         await _context.Database.RollbackTransactionAsync();
         _userManager.Dispose();
@@ -631,4 +632,530 @@ public class HostLogicTests
         _userManager.Dispose();
         await _context.DisposeAsync();
     }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReviewsForEvent_GetsReviews()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer2").FirstAsync();
+
+        var dogadjajId = await _context.Dogadjaji.Where(x => x.Naziv == "Z++").Select(x => x.ID).FirstAsync();
+
+        var komentari = await _hostLogic.GetReviewsForEvent(dogadjajId, korisnik);
+
+        List<OcenaZaHostaDto> expected = [
+            new OcenaZaHostaDto() {
+                Avatar = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
+                Name = "Event  Visitor1",
+                Rating = 7,
+                Comment = "It was okay",
+                Time = "2 days ago"
+            }
+        ];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(komentari, Has.Count.EqualTo(expected.Count));
+            Assert.That(komentari, Is.EquivalentTo(expected).Using(new OcenaZaHostaDtoComparer()));
+        });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReviewsForEventAfterNewReview_GetsReviews()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer2").FirstAsync();
+
+        var dogadjaj = await _context.Dogadjaji.Where(x => x.Naziv == "Z++").FirstAsync();
+
+        Korisnik posetilac2 = await _userManager.Users.Where(x => x.Prezime == "Visitor2").FirstAsync();
+        var komentar = new Ocena
+        {
+            Korisnik = posetilac2,
+            Dogadjaj = dogadjaj,
+            Komentar = "Test komentar 123",
+            Vrednost = 3
+        };
+        await _context.Ocene.AddAsync(komentar);
+        await _context.SaveChangesAsync();
+
+        var komentari = await _hostLogic.GetReviewsForEvent(dogadjaj.ID, korisnik);
+
+        List<OcenaZaHostaDto> expected = [
+            new OcenaZaHostaDto() {
+                Avatar = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
+                Name = "Event  Visitor1",
+                Rating = 7,
+                Comment = "It was okay",
+                Time = "2 days ago"
+            },
+            new OcenaZaHostaDto() {
+                Avatar = "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-9.png",
+                Name = "Event Visitor2",
+                Rating = 3,
+                Comment = "Test komentar 123",
+                Time = "Few seconds ago"
+            }
+        ];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(komentari, Has.Count.EqualTo(expected.Count));
+            Assert.That(komentari, Is.EquivalentTo(expected).Using(new OcenaZaHostaDtoComparer()));
+        });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReviewsForInvalidEvent_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer2").FirstAsync();
+
+        var dogadjajId = 12345;
+
+        var exception = Assert.ThrowsAsync<EventNotFoundException>(async () =>
+        {
+            var komentari = await _hostLogic.GetReviewsForEvent(dogadjajId, korisnik);
+        });
+        Assert.That(exception!.Message, Is.EqualTo("Event not found."));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventDetails_GetsEventDetails()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        int dogadjajId = 5;
+
+        var eventDetails = await _hostLogic.GetEventDetails(dogadjajId, korisnik);
+
+        var expected = new FullDogadjajDto()
+        {
+            EventName = "Jelena Tomasevic",
+            Tags = ["pop"],
+            Capacity = 148,
+            Location = "Sarajevo, Bosnia",
+            Address = "Karadjordjeva",
+            PhoneNumber = "0644789954",
+            ReservedTables = 4,
+            MaxTables = 37,
+            TotalEarnings = 240,
+        };
+
+        Assert.That(expected, Is.EqualTo(eventDetails).Using(new FullDogadjajDtoComparer()));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventDetailsAfterNewReservation_GetsEventDetails()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        int dogadjajId = 5;
+        var dogadjaj = await _context.Dogadjaji.Where(x => x.ID == dogadjajId).FirstAsync();
+        int tableId = 275;
+        var table = await _context.DraggableItems.Include(x => x.PlanProstora)
+                                                .ThenInclude(x => x!.Dogadjaj)
+                                                .ThenInclude(x => x!.Rezervacije)
+                                                .FirstOrDefaultAsync(x => x.ID == tableId);
+        var reservation = new Rezervacija
+        {
+            BrojMesta = 4,
+            Sto = table,
+            Dogadjaj = dogadjaj,
+            Korisnik = korisnik
+        };
+        _context.Rezervacije.Add(reservation);
+        table!.Reserved = true;
+        await _context.SaveChangesAsync();
+
+        var eventDetails = await _hostLogic.GetEventDetails(dogadjajId, korisnik);
+
+        var expected = new FullDogadjajDto()
+        {
+            EventName = "Jelena Tomasevic",
+            Tags = ["pop"],
+            Capacity = 148,
+            Location = "Sarajevo, Bosnia",
+            Address = "Karadjordjeva",
+            PhoneNumber = "0644789954",
+            ReservedTables = 5,
+            MaxTables = 37,
+            TotalEarnings = 300,
+        };
+
+        Assert.That(expected, Is.EqualTo(eventDetails).Using(new FullDogadjajDtoComparer()));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventDetailsAfterCancelingEvent_GetsNull()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        int dogadjajId = 5;
+        await _hostLogic.CancelEvent(dogadjajId, korisnik);
+
+        var eventDetails = await _hostLogic.GetEventDetails(dogadjajId, korisnik);
+
+        Assert.That(eventDetails, Is.Null);
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventSpaceWithBannedUser_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        DateTime now = DateTime.Now;
+        await _adminLogic.BanUser(new BanUserDto()
+        {
+            KorisnikId = korisnik.Id.ToString(),
+            DatumOd = now,
+            DatumDo = now.AddDays(10).ToString(),
+            Razlog = "Testiranje"
+        });
+
+        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () =>
+        {
+            await _hostLogic.GetEventSpace(5, korisnik);
+        });
+        StringAssert.IsMatch(@"You are banned from the platform until (?<date>.+?)\. Reason: (?<reason>.+)", exception!.Message);
+
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventSpaceForAnothersUserEvent_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+
+        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () =>
+        {
+            await _hostLogic.GetEventSpace(3, korisnik);
+        });
+        Assert.That(exception!.Message, Is.EqualTo("You are not the host of this event."));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetEventSpace_GetsEvent()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        var eventSpace = await _hostLogic.GetEventSpace(5, korisnik);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(eventSpace!.Grad, Is.Null);
+            Assert.That(eventSpace!.Drzava, Is.Null);
+            Assert.That(eventSpace!.Adresa, Is.Null);
+            Assert.That(eventSpace!.SurfaceDimension!.Height, Is.EqualTo(661.5));
+            Assert.That(eventSpace!.SurfaceDimension!.Width, Is.EqualTo(1712.6875));
+            Assert.That(eventSpace!.Lines, Has.Count.EqualTo(4));
+            Assert.That(eventSpace!.DraggableItems, Has.Count.EqualTo(41));
+        });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReservationsWithBannedUser_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        var _adminLogic = new AdministratorLogic(_userManager, _context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        DateTime now = DateTime.Now;
+        await _adminLogic.BanUser(new BanUserDto()
+        {
+            KorisnikId = korisnik.Id.ToString(),
+            DatumOd = now,
+            DatumDo = now.AddDays(10).ToString(),
+            Razlog = "Testiranje"
+        });
+
+        var exception = Assert.ThrowsAsync<UnauthorizedException>(async () =>
+        {
+            await _hostLogic.GetReservations(5, korisnik);
+        });
+        StringAssert.IsMatch(@"You are banned from the platform until (?<date>.+?)\. Reason: (?<reason>.+)", exception!.Message);
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReservations_GetsReservations()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        var reservations = await _hostLogic.GetReservations(5, korisnik);
+        string normalizedActual = string.Join("\n",
+            reservations.Split('\n')
+                .Select(line => line.Trim())
+                .Where(line => !string.IsNullOrEmpty(line)));
+
+        normalizedActual = Regex.Replace(
+            normalizedActual,
+            @"\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}:\d{2}",
+            "TIMESTAMP"
+        );
+
+        string expectedOutput = string.Join("\n",
+            @"ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice
+    ------------------------------------------------------------------------------------------------------------------------------------
+    5               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 273     | 4     | $60        
+    6               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 274     | 4     | $60        
+    7               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 250     | 4     | $60        
+    8               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 254     | 4     | $60"
+            .Split('\n')
+            .Select(line => line.Trim()));
+
+        Assert.That(expectedOutput, Is.EqualTo(string.Join("\n", normalizedActual)));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task GetReservationsAfterNewReservation_GetsReservations()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        int dogadjajId = 5;
+        var dogadjaj = await _context.Dogadjaji.Where(x => x.ID == dogadjajId).FirstAsync();
+        int tableId = 275;
+        var table = await _context.DraggableItems.Include(x => x.PlanProstora)
+                                                .ThenInclude(x => x!.Dogadjaj)
+                                                .ThenInclude(x => x!.Rezervacije)
+                                                .FirstOrDefaultAsync(x => x.ID == tableId);
+        var reservation = new Rezervacija
+        {
+            BrojMesta = 4,
+            Sto = table,
+            Dogadjaj = dogadjaj,
+            Korisnik = korisnik
+        };
+        _context.Rezervacije.Add(reservation);
+        table!.Reserved = true;
+        await _context.SaveChangesAsync();
+
+        var reservations = await _hostLogic.GetReservations(5, korisnik);
+        string normalizedActual = string.Join("\n",
+            reservations.Split('\n')
+                .Select(line => line.Trim())
+                .Where(line => !string.IsNullOrEmpty(line)));
+
+        normalizedActual = Regex.Replace(
+            normalizedActual,
+            @"\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}:\d{2}",
+            "TIMESTAMP"
+        );
+
+        string expectedOutput = string.Join("\n",
+            $@"ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice
+    ------------------------------------------------------------------------------------------------------------------------------------
+    5               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 273     | 4     | $60        
+    6               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 274     | 4     | $60        
+    7               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 250     | 4     | $60        
+    8               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 254     | 4     | $60        
+    {reservation.ID}              | Event Organizer1   | eventorganizer1@gmail.com      | TIMESTAMP | 275     | 4     | $60"
+            .Split('\n')
+            .Select(line => line.Trim()));
+
+        Assert.That(expectedOutput, Is.EqualTo(string.Join("\n", normalizedActual)));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task ChangeEventDetailsInPast_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        DateTime now = DateTime.Now;
+        ChangeEventDto dto = new()
+        {
+            ID = 5,
+            Naziv = "Test dogadjaj",
+            Opis = "Test opis",
+            Datum = "2024-02-05",
+            Vreme = "20:00",
+        };
+
+        var exception = Assert.ThrowsAsync<EventInPastException>(async () =>
+        {
+            await _hostLogic.ChangeEventDetails(dto, korisnik);
+        });
+        Assert.That(exception!.Message, Is.EqualTo("Event date and time must be in the future."));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task ChangeEventDetailsForCanceledEvent_ThrowsException()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        int eventId = 5;
+
+        await _hostLogic.CancelEvent(eventId, korisnik);
+
+        DateTime now = DateTime.Now;
+        ChangeEventDto dto = new()
+        {
+            ID = 12345,
+            Naziv = "Test dogadjaj",
+            Opis = "Test opis",
+            Datum = "2024-02-05",
+            Vreme = "20:00",
+        };
+
+        var exception = Assert.ThrowsAsync<EventNotFoundException>(async () =>
+        {
+            await _hostLogic.ChangeEventDetails(dto, korisnik);
+        });
+        Assert.That(exception!.Message, Is.EqualTo("Event not found."));
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task ChangeEventDetails_ChangesEventDetails()
+    {
+        var (_userManager, _, _context) = UserManagerHelper.CreateUserManager();
+        var _hostLogic = new HostLogic(_context);
+
+        await _context.Database.BeginTransactionAsync();
+
+        Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
+        DateTime now = DateTime.Now;
+        ChangeEventDto dto = new()
+        {
+            ID = 5,
+            Naziv = "Test dogadjaj sa promenjenim naslovom",
+            Opis = "Novi opis",
+            Datum = now.AddYears(1).ToString("yyyy-MM-dd"),
+            Vreme = "20:00",
+            Tagovi = ["test1", "test2"]
+        };
+
+        await _hostLogic.ChangeEventDetails(dto, korisnik);
+
+        var dogadjaj = await _hostLogic.GetEventDetails(5, korisnik);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dogadjaj!.EventName, Is.EqualTo(dto.Naziv));
+            Assert.That(dogadjaj!.Description, Is.EqualTo(dto.Opis));
+            Assert.That(dogadjaj!.Tags, Is.EquivalentTo(dto.Tagovi));
+            Assert.That(dogadjaj!.Date, Is.EqualTo(dto.Datum));
+            Assert.That(dogadjaj!.Time, Is.EqualTo(dto.Vreme));
+        });
+
+        await _context.Database.RollbackTransactionAsync();
+        _userManager.Dispose();
+        await _context.DisposeAsync();
+    }
+
 }
