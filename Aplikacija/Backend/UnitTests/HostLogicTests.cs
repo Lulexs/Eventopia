@@ -966,32 +966,29 @@ public class HostLogicTests
 
         Korisnik korisnik = await _userManager.Users.Where(x => x.Prezime == "Organizer1").FirstAsync();
         var reservations = await _hostLogic.GetReservations(5, korisnik);
-        string normalizedActual = string.Join("\n",
-            reservations.Split('\n')
+        string normalizedActual = string.Join(Environment.NewLine,
+            reservations.Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
                 .Select(line => line.Trim())
                 .Where(line => !string.IsNullOrEmpty(line)));
 
         normalizedActual = Regex.Replace(
             normalizedActual,
-            @"\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}:\d{2}",
-            "TIMESTAMP"
+            @"\d{1,2}/\d{1,2}/\d{4}\s+\d{1,2}:\d{1,2}:\d{1,2}\s*(?:AM|PM)?",
+            "TIMESTAMP",
+            RegexOptions.IgnoreCase
         );
 
-        string expectedOutput = string.Join("\n",
+        string expectedOutput = string.Join(Environment.NewLine,
             @"ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice
     ------------------------------------------------------------------------------------------------------------------------------------
     5               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 273     | 4     | $60        
     6               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 274     | 4     | $60        
     7               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 250     | 4     | $60        
     8               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 254     | 4     | $60"
-            .Split('\n')
-            .Select(line => line.Trim()));
+                .Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
+                .Select(line => line.Trim()));
 
-        Assert.That(expectedOutput, Is.EqualTo(string.Join("\n", normalizedActual)));
-
-        await _context.Database.RollbackTransactionAsync();
-        _userManager.Dispose();
-        await _context.DisposeAsync();
+        Assert.That(normalizedActual, Is.EqualTo(expectedOutput));
     }
 
     [Test]
@@ -1022,18 +1019,19 @@ public class HostLogicTests
         await _context.SaveChangesAsync();
 
         var reservations = await _hostLogic.GetReservations(5, korisnik);
-        string normalizedActual = string.Join("\n",
-            reservations.Split('\n')
+        string normalizedActual = string.Join(Environment.NewLine,
+            reservations.Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
                 .Select(line => line.Trim())
                 .Where(line => !string.IsNullOrEmpty(line)));
 
         normalizedActual = Regex.Replace(
             normalizedActual,
-            @"\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}:\d{2}",
-            "TIMESTAMP"
+            @"\d{1,2}/\d{1,2}/\d{4}\s+\d{1,2}:\d{1,2}:\d{1,2}\s*(?:AM|PM)?",
+            "TIMESTAMP",
+            RegexOptions.IgnoreCase
         );
 
-        string expectedOutput = string.Join("\n",
+        string expectedOutput = string.Join(Environment.NewLine,
             $@"ReservationID   | Name               | Email                          | Reservation Time    | TableID | Seats | TotalPrice
     ------------------------------------------------------------------------------------------------------------------------------------
     5               | Event  Visitor1    | eventvisitor1@gmail.com        | TIMESTAMP | 273     | 4     | $60        
@@ -1041,10 +1039,10 @@ public class HostLogicTests
     7               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 250     | 4     | $60        
     8               | Event Visitor2     | eventvisitor2@gmail.com        | TIMESTAMP | 254     | 4     | $60        
     {reservation.ID}              | Event Organizer1   | eventorganizer1@gmail.com      | TIMESTAMP | 275     | 4     | $60"
-            .Split('\n')
-            .Select(line => line.Trim()));
+                .Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
+                .Select(line => line.Trim()));
 
-        Assert.That(expectedOutput, Is.EqualTo(string.Join("\n", normalizedActual)));
+        Assert.That(normalizedActual, Is.EqualTo(expectedOutput));
 
         await _context.Database.RollbackTransactionAsync();
         _userManager.Dispose();
