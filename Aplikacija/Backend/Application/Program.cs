@@ -32,6 +32,7 @@ builder.Services.AddIdentityServices(config);
 builder.Services.AddScoped<AdministratorLogic>();
 builder.Services.AddScoped<HostLogic>();
 builder.Services.AddScoped<ReservationLogic>();
+builder.Services.AddScoped<ImageLogic>();
 builder.Services.AddHostedService<EventUpdateService>();
 
 builder.Services.AddControllers();

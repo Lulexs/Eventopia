@@ -1,3 +1,5 @@
+using Backend.ApplicationLogic;
+
 namespace Backend.Controllers;
 
 [Authorize]
@@ -5,49 +7,25 @@ namespace Backend.Controllers;
 [Route("[controller]")]
 public class ImageController : ControllerBase
 {
-    public Context Context { get; set; }
-    public ImageController(Context context)
+    private ImageLogic _imageLogic;
+    public ImageController(ImageLogic imageLogic)
     {
-        Context = context;
+        _imageLogic = imageLogic;
     }
 
     [Authorize(Policy = "RequireHostRole")]
     [HttpPost("uploadImage/{dogadjajId}")]
     public async Task<IActionResult> UploadImage([FromRoute] int dogadjajId, [FromForm] IFormFile file)
     {
-
-        var dogadjaj = await Context.Dogadjaji.FindAsync(dogadjajId);
-
-        if (dogadjaj == null)
+        try
         {
-            return NotFound("Event not found.");
+            await _imageLogic.UploadImage(dogadjajId, file);
+            return Ok();
         }
-
-        if (file == null)
+        catch (Exception e)
         {
-            return BadRequest("No file was uploaded.");
+            return BadRequest(e.Message);
         }
-
-        if (file.Length == 0)
-        {
-            return BadRequest("File is empty.");
-        }
-
-        if (file.Length > 10485760)
-        {
-            return BadRequest("File is too large.");
-        }
-
-        using (var memoryStream = new MemoryStream())
-        {
-            await file.CopyToAsync(memoryStream);
-            var fileBytes = memoryStream.ToArray();
-            var base64String = Convert.ToBase64String(fileBytes);
-            dogadjaj.Slika = base64String;
-            await Context.SaveChangesAsync();
-        }
-
-        return Ok();
     }
 
 }
