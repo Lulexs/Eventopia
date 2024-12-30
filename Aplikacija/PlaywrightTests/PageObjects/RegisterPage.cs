@@ -45,7 +45,7 @@ public class RegisterPage
         await RepeatPassword.FillAsync(repeatPassword);
         await PhoneNumberInput.FillAsync(phoneNumber);
         await BirthdayInput.FillAsync(birthday);
-        await _page.Locator("div").Filter(new() { HasText = "Sign upHave an account yet?" }).Nth(1).ClickAsync();
+        await FirstNameLocator.ClickAsync();
         await AvatarInput(avatarImg).ClickAsync();
         await RegisterButton.ClickAsync();
     }

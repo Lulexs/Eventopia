@@ -33,7 +33,7 @@ public class LoginTest : PageTest
     [TestCase("eventorganizer1@gmail.com", "Sifra123!", "eventorganizer1@gmail.comEvent")]
     [TestCase("spaceowner1@gmail.com", "Sifra123!", "spaceowner1@gmail.comSpace")]
     [TestCase("lulee@elfak.rs", "Sifra123!", "Luka")]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestSuccessfullLogin(string email, string password, string expectedText)
     {
         var loginPage = new LoginPage(_page);
@@ -45,7 +45,7 @@ public class LoginTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestLoginWithWrongPassword()
     {
         var loginPage = new LoginPage(_page);
@@ -73,7 +73,7 @@ public class LoginTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestLoginWithWrongEmailFormat()
     {
         var loginPage = new LoginPage(_page);
