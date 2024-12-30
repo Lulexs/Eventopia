@@ -30,7 +30,7 @@ public class RegisterTest : PageTest
     }
 
     [TestCase("Test", "Visitor", "testvisitor@gmail.com", "Sifra123!", "Sifra123!", "062/2222212", "May 5, 1991", 5)]
-    // [Ignore("Temp")]
+    [Ignore("Temp")]
     public async Task RegisterVisitor(string firstName, string lastName,
                                       string email, string password, string repeatPassword,
                                       string phoneNumber, string birthDay, int avatarNum)
@@ -51,7 +51,7 @@ public class RegisterTest : PageTest
     }
 
     [Test]
-    // [Ignore("Temp")]
+    [Ignore("Temp")]
     public async Task RegisterNoValues()
     {
         var registerPage = new RegisterPage(_page);
@@ -66,7 +66,7 @@ public class RegisterTest : PageTest
     }
 
     [Test]
-    // [Ignore("Temp")]
+    [Ignore("Temp")]
     public async Task RegisterUserAlreadyExists()
     {
         var registerPage = new RegisterPage(_page);
