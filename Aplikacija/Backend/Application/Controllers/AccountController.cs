@@ -48,7 +48,7 @@ public class AccountController : ControllerBase
 
         if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
         {
-            return ValidationProblem("Email is already in use.");
+            return BadRequest("Email is already in use.");
         }
 
         if (registerDto.UserType == "Admin")
