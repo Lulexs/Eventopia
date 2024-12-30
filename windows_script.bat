@@ -1,8 +1,6 @@
 @echo off
 echo Starting Docker container for Microsoft SQL Server...
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=MyStrongPassword123!" -p 1433:1433 -d mcr.microsoft.com/mssql/server:latest
-
-FOR /F "tokens=*" %%i IN ('docker ps -q --filter ancestor^=mcr.microsoft.com/mssql/server:latest') DO SET CONTAINER_ID=%%i
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=MyStrongPassword123!" --name eventopia-sql -p 1433:1433 -d mcr.microsoft.com/mssql/server:latest
 
 echo Waiting for SQL Server to start up...
 timeout /t 20 /nobreak
@@ -28,8 +26,8 @@ dotnet ef database update
 cd ..\..\..
 
 echo Executing SQL script to populate the database...
-docker cp data.sql %CONTAINER_ID%:/data.sql
-docker exec -it %CONTAINER_ID% /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -I -i /data.sql -C -t 30 -N -b -e
+docker cp data.sql eventopia-sql:/data.sql
+docker exec -it eventopia-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -I -i /data.sql -C -t 30 -N -b -e
 
 echo Database population complete.
 pause
