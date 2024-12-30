@@ -13,7 +13,17 @@ public class RegisterPage
     private ILocator RepeatPassword => _page.GetByPlaceholder("Selected password");
     private ILocator PhoneNumberInput => _page.GetByPlaceholder("012456789");
     private ILocator BirthdayInput => _page.GetByLabel("Birthday *");
-    private ILocator AvatarInput(int imgNum) => _page.Locator($"img:nth-child({imgNum})");
+    private ILocator AvatarInput(int imgNum)
+    {
+        if (imgNum == 1)
+        {
+            return _page.Locator("img[src*='/avatar-1.png']");
+        }
+        else
+        {
+            return _page.Locator($"img:nth-child({imgNum})");
+        }
+    }
     private ILocator RegisterButton => _page.Locator("form").GetByRole(AriaRole.Button, new() { Name = "Sign up" });
 
     public RegisterPage(IPage page)

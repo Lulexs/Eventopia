@@ -248,7 +248,8 @@ public class VisitorController : ControllerBase
         var canLeaveReview = await Context.Ocene.Where(x => x.Korisnik == korisnik).Select(x => x.Dogadjaj!.ID).ToListAsync();
 
         var dogadjaji = await Context.Rezervacije.Where(x => x.Dogadjaj!.Vreme < DateTime.Now
-                                                && x.Dogadjaj.Status == StatusDogadjaja.Passed)
+                                                && x.Dogadjaj.Status == StatusDogadjaja.Passed
+                                                && x.Korisnik == korisnik)
                                                 .Select(x => new
                                                 {
                                                     EventId = x.Dogadjaj!.ID,

@@ -6,17 +6,20 @@ public class VisitorPage
 {
     private readonly IPage _page;
 
+    public ILocator EmailInput => _page.GetByLabel("Email");
+    public ILocator FirstNameInput => _page.GetByLabel("First name");
+    public ILocator LastNameInput => _page.GetByLabel("Last name");
+    public ILocator BirthdayInput => _page.GetByLabel("Birthday");
+    public ILocator PhoneInput => _page.GetByLabel("Phone number");
+    public ILocator AvatarInput => _page.GetByRole(AriaRole.Img, new() { Name = "avatar currently unavailable" });
+
     public VisitorPage(IPage page)
     {
         _page = page;
     }
 
-    public async Task GotoAsync()
+    public async Task GotoAsync(string url)
     {
-        await _page.GotoAsync("http://localhost:5173/login");
-        await _page.GetByPlaceholder("example@gmail.com").FillAsync("eventvisitor1@gmail.com");
-        await _page.GetByPlaceholder("Your password").FillAsync("Sifra123!");
-        await _page.Locator("form").GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
-        await _page.GetByText("eventvisitor1@gmail.comEvent").ClickAsync();
+        await _page.GotoAsync(url);
     }
 }
