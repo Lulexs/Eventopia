@@ -2,6 +2,9 @@
 Zakomentarisao sam RecommnendedEvents zato sto je horifically sporo, kad se stavi WaitForNetworkState(Network.Ide) 
 (da se saceka da svi requestovi budu zavrseni), 4 testa za filtriranje eventova traju 120+ sekunde, bez recommended events 30ak.
 
+- Prilikom kreiranja dogadjaja, ulogovati se kod spaceownera i potvrditi dogadjaj,
+uradio sam proveru kod hosta kad mu neko postavi komentar
+
 Ne dodavati da eventi predju na 2 strane
 Ne otkazivati Lords of the sound
 Ne otkazivati Jelena Tomasevic Dogadjaj kod Playwright Testova

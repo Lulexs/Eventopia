@@ -74,4 +74,13 @@ public class HomePage
 
         return new EventHostPage(_page);
     }
+
+    public async Task<SpaceOwnerPage> GotoSpaceOwnerPage(string email)
+    {
+        await _page.GetByText(email).ClickAsync();
+
+        return new SpaceOwnerPage(_page);
+    }
+
+
 }

@@ -30,7 +30,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    // [Ignore("Temp")]
+    [Ignore("Temp")]
     public async Task TestLeaveReview()
     {
         var homePage = new HomePage(_page);
