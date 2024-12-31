@@ -17,7 +17,7 @@ dotnet ef database update
 cd ..\..\..
 
 echo Executing SQL script to populate the database...
-docker cp data.sql eventopia-sql:/data.sql
+docker cp pw_data.sql eventopia-sql:/data.sql
 docker exec -it eventopia-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P MyStrongPassword123! -I -i /data.sql -C -t 30 -N -b -e
 
 echo Database population complete.

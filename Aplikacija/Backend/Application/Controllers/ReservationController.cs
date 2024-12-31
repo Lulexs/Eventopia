@@ -58,7 +58,6 @@ public class ReservationController : ControllerBase
     [HttpPost("makeReservation/{tableId}/{numberOfSeats}")]
     public async Task<ActionResult> MakeReservation(int tableId, int numberOfSeats)
     {
-
         var korisnik = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
 
         try
