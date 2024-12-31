@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using PlaywrightTests.PageObjects;
@@ -29,12 +30,21 @@ public class VisitorTest : PageTest
     }
 
     [TestCase(null, "Sarajevo, Bosnia", null, new object[] { "pop" }, new object[] { "Jelena Tomasevic" })]
-    // [Ignore("Temp")]
+    [TestCase("Heavy Lungs", null, null, null, new object[] { "Heavy Lungs" })]
+    [TestCase(null, "Nis, Serbia", null, null, new object[] { "Heavy Lungs", "Lords of the Sound" })]
+    [TestCase(null, null, "", null, new object[] { "Bojan Sudjic", "Lords of the Sound" })]
+    [Ignore("Temp")]
     public async Task TestFilterEvents(string? eventName, string? location, string? date, object[]? tags, object[] expectedEvents)
     {
         var homePage = new HomePage(_page);
         await homePage.GotoAsync("http://localhost:5173");
         await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+
+        if (date != null)
+        {
+            DateTime now = DateTime.Now;
+            date = now.AddDays(4).ToString("MM/dd/yyyy");
+        }
 
         if (tags == null)
         {
