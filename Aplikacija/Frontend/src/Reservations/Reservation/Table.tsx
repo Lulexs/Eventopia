@@ -36,6 +36,7 @@ export default function Table({ item }: TableProps) {
     <>
       <img
         key={item.id}
+        alt={`table-${item.realId}`}
         style={{
           position: "absolute",
           top: item.top,

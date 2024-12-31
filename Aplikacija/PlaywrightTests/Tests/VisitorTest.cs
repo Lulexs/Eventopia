@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
 using PlaywrightTests.PageObjects;
@@ -27,6 +28,132 @@ public class VisitorTest : PageTest
     {
         await _page.CloseAsync();
         await _browser.CloseAsync();
+    }
+
+    [Test]
+    [Ignore("Temp")]
+    public async Task TestCancelEvent()
+    {
+        var homePage = new HomePage(_page);
+        await homePage.GotoAsync("http://localhost:5173");
+        await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+        var visitorPage = await homePage.GotoVisitorPage("eventvisitor1@gmail.com");
+
+        await visitorPage.CancelReservation(5);
+        await Expect(_page.GetByText(new Regex($"ID: {5}")).Locator("xpath=./preceding-sibling::*")).ToBeHiddenAsync();
+
+        await homePage.GotoEventPageAsync("Jelena Tomasevic");
+        var tables = await _page.QuerySelectorAllAsync("//img[@src='/src/assets/table_mine.png']");
+
+        Assert.That(tables, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    [Ignore("Temp")]
+    public async Task TestChangePersonalInfo()
+    {
+        var homePage = new HomePage(_page);
+        await homePage.GotoAsync("http://localhost:5173");
+        await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+        var visitorPage = await homePage.GotoVisitorPage("eventvisitor1@gmail.com");
+
+        string actualMessage = "";
+        string expectedMessage = "Incorrect password.";
+
+        var dialogHandled = new TaskCompletionSource<bool>();
+        void Page_Dialog_EventHandler(object sender, IDialog dialog)
+        {
+            actualMessage = dialog.Message;
+            dialog.DismissAsync();
+            _page.Dialog -= Page_Dialog_EventHandler!;
+            dialogHandled.TrySetResult(true);
+        }
+
+        _page.Dialog += Page_Dialog_EventHandler!;
+        await visitorPage.ChangePersonalInformation(null, null, null, "068124245", "Sifra123!", "Sifra123");
+        Assert.That(actualMessage, Is.EqualTo(expectedMessage));
+
+        _page.Dialog += Page_Dialog_EventHandler!;
+        expectedMessage = "Successfully changed user info!";
+        await visitorPage.ChangePersonalInformation(null, null, null, "068124245", "Sifra123!", "Sifra123!");
+        Assert.That(actualMessage, Is.EqualTo(expectedMessage));
+    }
+
+    [Test]
+    [Ignore("Temp")]
+    public async Task TestChangeUserAvatarNTags()
+    {
+        var homePage = new HomePage(_page);
+        await homePage.GotoAsync("http://localhost:5173");
+        await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+        var visitorPage = await homePage.GotoVisitorPage("eventvisitor1@gmail.com");
+
+
+        string actualMessage = "";
+        string expectedMessage = "User information is successfully changed!";
+
+        var dialogHandled = new TaskCompletionSource<bool>();
+        void Page_Dialog_EventHandler(object sender, IDialog dialog)
+        {
+            actualMessage = dialog.Message;
+            dialog.DismissAsync();
+            _page.Dialog -= Page_Dialog_EventHandler!;
+            dialogHandled.TrySetResult(true);
+        }
+
+        _page.Dialog += Page_Dialog_EventHandler!;
+        await visitorPage.ChangeAvatarNTags("5", ["rap", "hiphop"], ["jazz", "classical"]);
+
+        Assert.That(actualMessage, Is.EqualTo(expectedMessage));
+
+        await Expect(visitorPage.AvatarInput).ToHaveAttributeAsync("src", new Regex("5"));
+
+        var texts = await visitorPage.TagInput.Locator("xpath=./preceding-sibling::span/span").AllInnerTextsAsync();
+        Assert.That(texts, Is.EquivalentTo(new List<string> { "jazz", "classical", "anything" }));
+    }
+
+    [Test]
+    [Ignore("Temp")]
+    public async Task TestMakeReservationForEvent()
+    {
+        var homePage = new HomePage(_page);
+        await homePage.GotoAsync("http://localhost:5173");
+        await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+        var eventPage = await homePage.GotoEventPageAsync("Lords of the Sound");
+
+        // Table is alredy reserved
+        await eventPage.ReserveSeat(316);
+        await Expect(_page.GetByText("Table is already reserved!")).ToBeVisibleAsync();
+        await _page.Locator("div")
+                   .Filter(new() { HasTextRegex = new Regex("^Information about this table$") })
+                   .GetByRole(AriaRole.Button).ClickAsync();
+
+        // Reserving own table
+        await eventPage.ReserveSeat(315);
+        await Expect(_page.GetByText("You have reserved this table.")).ToBeVisibleAsync();
+        await _page.Locator("div")
+                   .Filter(new() { HasTextRegex = new Regex("^Information about this table$") })
+                   .GetByRole(AriaRole.Button).ClickAsync();
+
+        // Valid reservation
+        string actualMessage = "";
+        string expectedMessage = "Reservation made succesfully!";
+
+        var dialogHandled = new TaskCompletionSource<bool>();
+        void Page_Dialog_EventHandler(object sender, IDialog dialog)
+        {
+            actualMessage = dialog.Message;
+            dialog.DismissAsync();
+            _page.Dialog -= Page_Dialog_EventHandler!;
+            dialogHandled.TrySetResult(true);
+        }
+
+        _page.Dialog += Page_Dialog_EventHandler!;
+        await eventPage.ReserveSeat(314, 4);
+
+        await dialogHandled.Task;
+        Assert.That(actualMessage, Is.EqualTo(expectedMessage));
+        await Expect(eventPage.SeatLocator(314)).ToHaveAttributeAsync("src", new Regex("/src/assets/table_mine.png"));
     }
 
     [TestCase(null, "Sarajevo, Bosnia", null, new object[] { "pop" }, new object[] { "Jelena Tomasevic" })]
