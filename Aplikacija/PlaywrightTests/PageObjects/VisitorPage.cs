@@ -78,4 +78,22 @@ public class VisitorPage
     {
         await _page.GetByRole(AriaRole.Link, new() { Name = "Home" }).ClickAsync();
     }
+
+    public async Task LeaveAComment(string eventName, string comment)
+    {
+        await _page.ReloadAsync();
+        await _page.GetByText(new Regex($"{eventName}")).Locator("xpath=../following-sibling::button").ClickAsync(new LocatorClickOptions { Timeout = 60000 });
+
+        await _page.GetByRole(AriaRole.Slider).HoverAsync();
+        await _page.Mouse.DownAsync();
+        await _page.Mouse.MoveAsync(50, 0);
+        await _page.Mouse.UpAsync();
+        await _page.GetByPlaceholder("Event was enjoyable...").FillAsync(comment);
+        await _page.GetByRole(AriaRole.Button, new() { Name = "Post review" }).ClickAsync();
+    }
+
+    public async Task Logout()
+    {
+        await _page.GetByRole(AriaRole.Button, new() { Name = "Log out" }).ClickAsync();
+    }
 }

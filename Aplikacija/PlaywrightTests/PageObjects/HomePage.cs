@@ -67,4 +67,11 @@ public class HomePage
 
         return new VisitorPage(_page);
     }
+
+    public async Task<EventHostPage> GotoHostPage(string email)
+    {
+        await _page.GetByText(email).ClickAsync();
+
+        return new EventHostPage(_page);
+    }
 }

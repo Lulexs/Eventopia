@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
@@ -28,6 +27,44 @@ public class VisitorTest : PageTest
     {
         await _page.CloseAsync();
         await _browser.CloseAsync();
+    }
+
+    [Test]
+    // [Ignore("Temp")]
+    public async Task TestLeaveReview()
+    {
+        var homePage = new HomePage(_page);
+        await homePage.GotoAsync("http://localhost:5173");
+        await homePage.LoginAsync("eventvisitor1@gmail.com", "Sifra123!");
+        var visitorPage = await homePage.GotoVisitorPage("eventvisitor1@gmail.com");
+
+        string actualMessage = "";
+        string expectedMessage = "Review posted successfully!";
+
+        var dialogHandled = new TaskCompletionSource<bool>();
+        void Page_Dialog_EventHandler(object sender, IDialog dialog)
+        {
+            actualMessage = dialog.Message;
+            dialog.DismissAsync();
+            _page.Dialog -= Page_Dialog_EventHandler!;
+            dialogHandled.TrySetResult(true);
+        }
+
+        _page.Dialog += Page_Dialog_EventHandler!;
+
+        await visitorPage.LeaveAComment("Superisic", "This comment was written using pw");
+        await dialogHandled.Task;
+        Assert.That(actualMessage, Is.EqualTo(expectedMessage));
+
+        await _page.ReloadAsync();
+        await Expect(_page.GetByText(new Regex($"Superisic")).Locator("xpath=../following-sibling::button")).ToBeDisabledAsync(new LocatorAssertionsToBeDisabledOptions { Timeout = 60000 });
+
+        await visitorPage.Logout();
+        await homePage.LoginAsync("eventorganizer1@gmail.com", "Sifra123!");
+        var eventHostPage = await homePage.GotoHostPage("eventorganizer1@gmail.com");
+        await eventHostPage.GotoReviews("Superisic");
+        await Expect(_page.GetByText("This comment was written using pw")).ToBeVisibleAsync();
+
     }
 
     [Test]
@@ -71,11 +108,13 @@ public class VisitorTest : PageTest
 
         _page.Dialog += Page_Dialog_EventHandler!;
         await visitorPage.ChangePersonalInformation(null, null, null, "068124245", "Sifra123!", "Sifra123");
+        await dialogHandled.Task;
         Assert.That(actualMessage, Is.EqualTo(expectedMessage));
 
         _page.Dialog += Page_Dialog_EventHandler!;
         expectedMessage = "Successfully changed user info!";
         await visitorPage.ChangePersonalInformation(null, null, null, "068124245", "Sifra123!", "Sifra123!");
+        await dialogHandled.Task;
         Assert.That(actualMessage, Is.EqualTo(expectedMessage));
     }
 
@@ -104,6 +143,7 @@ public class VisitorTest : PageTest
         _page.Dialog += Page_Dialog_EventHandler!;
         await visitorPage.ChangeAvatarNTags("5", ["rap", "hiphop"], ["jazz", "classical"]);
 
+        await dialogHandled.Task;
         Assert.That(actualMessage, Is.EqualTo(expectedMessage));
 
         await Expect(visitorPage.AvatarInput).ToHaveAttributeAsync("src", new Regex("5"));
