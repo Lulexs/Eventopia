@@ -30,7 +30,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestLeaveReview()
     {
         var homePage = new HomePage(_page);
@@ -68,7 +68,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestCancelEvent()
     {
         var homePage = new HomePage(_page);
@@ -86,7 +86,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestChangePersonalInfo()
     {
         var homePage = new HomePage(_page);
@@ -119,7 +119,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestChangeUserAvatarNTags()
     {
         var homePage = new HomePage(_page);
@@ -153,7 +153,7 @@ public class VisitorTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestMakeReservationForEvent()
     {
         var homePage = new HomePage(_page);
@@ -200,7 +200,7 @@ public class VisitorTest : PageTest
     [TestCase("Heavy Lungs", null, null, null, new object[] { "Heavy Lungs" })]
     [TestCase(null, "Nis, Serbia", null, null, new object[] { "Heavy Lungs", "Lords of the Sound" })]
     [TestCase(null, null, "", null, new object[] { "Bojan Sudjic", "Lords of the Sound" })]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestFilterEvents(string? eventName, string? location, string? date, object[]? tags, object[] expectedEvents)
     {
         var homePage = new HomePage(_page);

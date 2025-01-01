@@ -30,7 +30,7 @@ public class SpaceOwnerTest : PageTest
     }
 
     [Test]
-    [Ignore("Temp")]
+    // [Ignore("Temp")]
     public async Task TestAddingAndRemovingNewSpace()
     {
         var homePage = new HomePage(_page);
