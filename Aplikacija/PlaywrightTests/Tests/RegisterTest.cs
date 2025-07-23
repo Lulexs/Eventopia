@@ -39,6 +39,7 @@ public class RegisterTest : PageTest
         await registerPage.GotoAsync("http://localhost:5173/register");
         await registerPage.RegisterAsync(firstName, lastName, email, password, repeatPassword, phoneNumber, birthDay, avatarNum);
 
+        await _page.WaitForTimeoutAsync(5000);
         var visitorPage = new VisitorPage(_page);
         await visitorPage.GotoAsync("http://localhost:5173/visitorprofile");
 
